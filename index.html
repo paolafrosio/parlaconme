@@ -45,7 +45,6 @@
       transition: background-color 0.3s, color 0.3s;
     }
 
-    /* INTESTAZIONE RIGIDA PER EVITARE SPOSTAMENTI LATERALI */
     .header {
       display: flex;
       justify-content: space-between;
@@ -127,7 +126,6 @@
     }
     .btn-tool:hover { background: var(--border-color); }
     
-    /* BADGE STATO A LARGHEZZA RIGIDA */
     .status {
       font-size: 12px;
       color: #5f6368;
@@ -154,7 +152,6 @@
       border: 1px solid var(--border-color);
     }
     
-    /* BARRA PULSANTI DOCENTE STABILE */
     .label-row {
       display: flex;
       justify-content: space-between;
@@ -332,7 +329,24 @@
       background-color: var(--primary-color);
       color: white;
     }
+    .btn-card.active-speaking {
+      background-color: #d93025 !important;
+      color: white !important;
+      border-color: #a50e0e !important;
+    }
     .rtl { direction: rtl; text-align: right; }
+
+    /* EVIDENZIAZIONE PAROLA IN LETTURA (KARAOKE) */
+    .highlight-word {
+      background-color: #fff2a8;
+      color: #000;
+      border-radius: 3px;
+      padding: 0 2px;
+    }
+    body.dark-mode .highlight-word {
+      background-color: #f9ab00;
+      color: #000;
+    }
 
     /* STILI DEDICATI VISTA BILINGUE STUDENTE */
     .student-view-container {
@@ -446,7 +460,6 @@
       .card-footer { justify-content: flex-start; }
     }
 
-    /* CORREZIONE FINALE STAMPA PER ELIMINARE PAGINE VUOTE SU MOBILE E PC */
     @media print {
       @page { margin: 10mm; size: auto; }
       html, body {
@@ -545,24 +558,24 @@
         <select id="myLangSelect" class="student-select" style="font-size: 15px;" onchange="cambiaLinguaStudente()"></select>
       </div>
       
-      <!-- BOX ITALIANO (DOCENTE) CON PULSANTI ASCOLTO -->
+      <!-- BOX ITALIANO (DOCENTE) CON PULSANTI ASCOLTO/FERMA -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; flex-wrap: wrap; gap: 4px;">
         <div style="font-weight: bold; font-size: 14px; color: var(--primary-color);">🇮🇹 Italiano (Docente):</div>
         <div style="display: flex; gap: 4px;">
-          <button class="btn-card" onclick="leggiTestoItalianoStudente(0.5)">🐢 Lento</button>
-          <button class="btn-card" onclick="leggiTestoItalianoStudente(0.9)">🔊 Ascolta ITA</button>
+          <button id="btnItaSlow" class="btn-card" onclick="toggleLetturaItalianoStudente(0.5)">🐢 Lento</button>
+          <button id="btnItaNormal" class="btn-card" onclick="toggleLetturaItalianoStudente(0.9)">🔊 Ascolta ITA</button>
         </div>
       </div>
       <div id="studentDisplayITA" class="student-display-text" style="flex-grow: 0; min-height: 60px; max-height: 120px; margin-bottom: 10px; background: #ffffff;">In attesa dell'insegnante...</div>
 
-      <!-- BOX TRADUZIONE (STUDENTE) -->
+      <!-- BOX TRADUZIONE (STUDENTE) CON PULSANTI ASCOLTO/FERMA -->
       <div style="font-weight: bold; font-size: 14px; margin-bottom: 4px; color: var(--primary-color);">🌐 Traduzione nella tua lingua:</div>
       <div id="studentDisplayText" class="student-display-text">In attesa della traduzione...</div>
 
       <div class="card-footer" style="justify-content: space-between; margin-top: 8px; gap: 6px;">
         <div style="display: flex; gap: 4px; flex-wrap: wrap;">
-          <button class="btn-card" onclick="leggiTestoStudente(0.5)">🐢 Lento</button>
-          <button class="btn-card" onclick="leggiTestoStudente(0.9)">🔊 Ascolta Traduzione</button>
+          <button id="btnTransSlow" class="btn-card" onclick="toggleLetturaStudente(0.5)">🐢 Lento</button>
+          <button id="btnTransNormal" class="btn-card" onclick="toggleLetturaStudente(0.9)">🔊 Ascolta Traduzione</button>
         </div>
         <button class="btn-card" onclick="copiaTestoStudente()">📋 Copia</button>
       </div>
@@ -620,6 +633,12 @@
     let eStudente = false;
     let traduzioniRicevuteRete = {};
     let testoITARicevutoRete = '';
+
+    // STATI LETTURA VOCALE STUDENTE E TESTO ORIGINALE
+    let letturaInCorso = false;
+    let targetLetturaCorrente = null; // 'ita' oppure 'trans'
+    let testoOriginaleITA = '';
+    let testoOriginaleTrans = '';
 
     let peer = null;
     let connessioniStudenti = [];
@@ -768,6 +787,7 @@
     }
 
     function cambiaLinguaStudente() {
+      if (letturaInCorso) fermaLetturaStudente();
       const lang = document.getElementById('myLangSelect').value;
       const display = document.getElementById('studentDisplayText');
       const langObj = ELENCO_LINGUE.find(l => l.code === lang);
@@ -775,44 +795,112 @@
       if (langObj && langObj.rtl) display.classList.add('rtl');
       else display.classList.remove('rtl');
 
-      if (traduzioniRicevuteRete[lang]) {
-        display.innerText = traduzioniRicevuteRete[lang];
-      } else {
-        display.innerText = 'In attesa della traduzione...';
-      }
+      testoOriginaleTrans = traduzioniRicevuteRete[lang] || 'In attesa della traduzione...';
+      display.innerText = testoOriginaleTrans;
     }
 
-    function leggiTestoItalianoStudente(velocita) {
-      const testo = document.getElementById('studentDisplayITA').innerText;
-      if (!testo || testo.startsWith('In attesa')) return;
-
+    function fermaLetturaStudente() {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(testo);
-        utterance.lang = 'it-IT';
-        const voceITA = selezionaVoceMigliore('it');
-        if (voceITA) utterance.voice = voceITA;
-        utterance.rate = velocita;
-        window.speechSynthesis.speak(utterance);
       }
+      letturaInCorso = false;
+      
+      // Ripristina testo puro
+      const displayITA = document.getElementById('studentDisplayITA');
+      if (testoOriginaleITA) displayITA.innerText = testoOriginaleITA;
+
+      const displayTrans = document.getElementById('studentDisplayText');
+      if (testoOriginaleTrans) displayTrans.innerText = testoOriginaleTrans;
+
+      // Ripristina pulsanti
+      document.getElementById('btnItaSlow').innerText = '🐢 Lento';
+      document.getElementById('btnItaSlow').classList.remove('active-speaking');
+      document.getElementById('btnItaNormal').innerText = '🔊 Ascolta ITA';
+      document.getElementById('btnItaNormal').classList.remove('active-speaking');
+
+      document.getElementById('btnTransSlow').innerText = '🐢 Lento';
+      document.getElementById('btnTransSlow').classList.remove('active-speaking');
+      document.getElementById('btnTransNormal').innerText = '🔊 Ascolta Traduzione';
+      document.getElementById('btnTransNormal').classList.remove('active-speaking');
+
+      targetLetturaCorrente = null;
     }
 
-    function leggiTestoStudente(velocita) {
+    function toggleLetturaItalianoStudente(velocita) {
+      if (letturaInCorso && targetLetturaCorrente === 'ita') {
+        fermaLetturaStudente();
+        return;
+      }
+      avviaLetturaStudente('ita', 'it-IT', velocita);
+    }
+
+    function toggleLetturaStudente(velocita) {
+      if (letturaInCorso && targetLetturaCorrente === 'trans') {
+        fermaLetturaStudente();
+        return;
+      }
       const lang = document.getElementById('myLangSelect').value;
-      const testo = document.getElementById('studentDisplayText').innerText;
-      if (!testo || testo.startsWith('In attesa')) return;
+      const obj = ELENCO_LINGUE.find(l => l.code === lang);
+      const voiceLang = obj ? obj.voice : lang;
+      avviaLetturaStudente('trans', voiceLang, velocita);
+    }
 
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(testo);
-        const obj = ELENCO_LINGUE.find(l => l.code === lang);
-        const langCode = obj ? obj.voice.split('-')[0] : lang;
-        const voceMigliore = selezionaVoceMigliore(langCode);
-        if (voceMigliore) utterance.voice = voceMigliore;
-        utterance.lang = obj ? obj.voice : lang;
-        utterance.rate = velocita;
-        window.speechSynthesis.speak(utterance);
-      }
+    function avviaLetturaStudente(target, voiceLang, velocita) {
+      fermaLetturaStudente();
+
+      const display = target === 'ita' ? document.getElementById('studentDisplayITA') : document.getElementById('studentDisplayText');
+      const testoPuro = display.innerText.trim();
+
+      if (!testoPuro || testoPuro.startsWith('In attesa')) return;
+
+      if (target === 'ita') testoOriginaleITA = testoPuro;
+      else testoOriginaleTrans = testoPuro;
+
+      if (!('speechSynthesis' in window)) return;
+
+      const utterance = new SpeechSynthesisUtterance(testoPuro);
+      const langCode = voiceLang.split('-')[0];
+      const voceMigliore = selezionaVoceMigliore(langCode);
+      if (voceMigliore) utterance.voice = voceMigliore;
+      utterance.lang = voiceLang;
+      utterance.rate = velocita;
+
+      // EVIDENZIAZIONE SINCRO PAROLA PER PAROLA (KARAOKE)
+      utterance.onboundary = (e) => {
+        if (e.name !== 'word') return;
+        const charIndex = e.charIndex;
+        const charLength = e.charLength || 6;
+
+        const prima = testoPuro.substring(0, charIndex);
+        const parola = testoPuro.substring(charIndex, charIndex + charLength);
+        const dopo = testoPuro.substring(charIndex + charLength);
+
+        display.innerHTML = `${escapeHTML(prima)}<mark class="highlight-word">${escapeHTML(parola)}</mark>${escapeHTML(dopo)}`;
+      };
+
+      utterance.onstart = () => {
+        letturaInCorso = true;
+        targetLetturaCorrente = target;
+
+        if (target === 'ita') {
+          const btn = velocita < 0.8 ? document.getElementById('btnItaSlow') : document.getElementById('btnItaNormal');
+          btn.innerText = '⏹️ Ferma';
+          btn.classList.add('active-speaking');
+        } else {
+          const btn = velocita < 0.8 ? document.getElementById('btnTransSlow') : document.getElementById('btnTransNormal');
+          btn.innerText = '⏹️ Ferma';
+          btn.classList.add('active-speaking');
+        }
+      };
+
+      utterance.onend = () => fermaLetturaStudente();
+      utterance.onerror = () => fermaLetturaStudente();
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
     function copiaTestoStudente() {
@@ -837,7 +925,9 @@
       testoITARicevutoRete = dati.ita || '';
 
       if (eStudente) {
-        document.getElementById('studentDisplayITA').innerText = testoITARicevutoRete || 'In attesa dell\'insegnante...';
+        if (letturaInCorso) fermaLetturaStudente();
+        testoOriginaleITA = testoITARicevutoRete || 'In attesa dell\'insegnante...';
+        document.getElementById('studentDisplayITA').innerText = testoOriginaleITA;
         cambiaLinguaStudente();
       } else {
         document.getElementById('testoITA').value = dati.ita;
@@ -1029,7 +1119,6 @@
       } else {
         let frasiDaScrivere = [...cronologiaLezione];
         
-        // Se non ci sono frasi salvate, prende il testo corrente
         if (frasiDaScrivere.length === 0) {
           const testoCorrenteITA = document.getElementById('testoITA').value.trim();
           if (testoCorrenteITA) {
@@ -1064,7 +1153,6 @@
       link.click();
     }
 
-    /* GENERAZIONE PDF INTELLIGENTE: SE NON CI SONO FRASI SALVATE USA IL TESTO IN CORSO */
     function stampaOEsportaPDF() {
       if (eStudente) {
         window.print();
@@ -1073,7 +1161,6 @@
 
       let frasiDaStampare = [...cronologiaLezione];
 
-      // Se non è stata premuta "Salva frase", prende automaticamente il testo corrente
       if (frasiDaStampare.length === 0) {
         const testoCorrenteITA = document.getElementById('testoITA').value.trim();
         if (testoCorrenteITA) {
