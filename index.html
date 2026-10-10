@@ -416,7 +416,6 @@
 
   <script>
     let timerDebounce = null;
-    let abortController = null;
     let fontSizeCorrente = 16;
     let linguaFocusCorrente = null;
     let cronologiaLezione = [];
@@ -430,7 +429,7 @@
       { code: 'sq', voice: 'sq-AL', name: '🇦🇱 Albanese' },
       { code: 'ar', voice: 'ar-SA', name: '🇸🇦 Arabo', rtl: true },
       { code: 'bn', voice: 'bn-BD', name: '🇧🇩 Bengalese' },
-      { code: 'zh-CN', voice: 'zh-CN', name: '🇨🇳 Cinese' },
+      { code: 'zh', voice: 'zh-CN', name: '🇨🇳 Cinese' },
       { code: 'fa', voice: 'fa-IR', name: '🇮🇷 Farsi', rtl: true },
       { code: 'fr', voice: 'fr-FR', name: '🇫🇷 Francese' },
       { code: 'hi', voice: 'hi-IN', name: '🇮🇳 Hindi' },
@@ -447,7 +446,7 @@
       { code: 'ur', voice: 'ur-PK', name: '🇵🇰 Urdu', rtl: true }
     ];
 
-    let lingueAttive = ['sq', 'ar', 'bn', 'zh-CN', 'fr', 'en', 'es', 'uk'];
+    let lingueAttive = ['sq', 'ar', 'bn', 'zh', 'fr', 'en', 'es', 'uk'];
 
     function inizializzaRete() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -813,21 +812,36 @@
       aggiornaStato('Pronto');
     }
 
-    async function traduciDaStudente(testo, langDa) {
-      if (!testo.trim()) return;
-      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${langDa}&tl=it&dt=t&q=${encodeURIComponent(testo)}`;
+    async function chiamaAPI(testo, sl, tl) {
+      const url = `https://api.linguatools.org/api/v1/translate?text=${encodeURIComponent(testo)}&lang=${sl}-${tl}`;
       try {
         const res = await fetch(url);
         const data = await res.json();
-        const traduzioneITA = data[0].map(item => item[0]).join('');
+        if (data && data.translation) return data.translation;
+      } catch(e) {}
+      
+      // Proxy di riserva per Google Translate
+      const fallbackUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${encodeURIComponent(testo)}`;
+      try {
+        const res = await fetch(fallbackUrl);
+        const data = await res.json();
+        if (data && data[0]) return data[0].map(item => item[0]).join('');
+      } catch(e) {}
+      return null;
+    }
+
+    async function traduciDaStudente(testo, langDa) {
+      if (!testo.trim()) return;
+      const traduzioneITA = await chiamaAPI(testo, langDa, 'it');
+      if (traduzioneITA) {
         document.getElementById('testoStudente').value = `[${langDa.toUpperCase()}]: ${testo}\n🇮🇹 [TRADUZIONE PER DOCENTE]: ${traduzioneITA}`;
-      } catch (e) { console.error(e); }
+      }
     }
 
     function gestisciInput() {
       aggiornaStato('Digitazione...');
       clearTimeout(timerDebounce);
-      timerDebounce = setTimeout(traduciTutto, 150);
+      timerDebounce = setTimeout(traduciTutto, 200);
     }
 
     async function traduciTutto() {
@@ -842,26 +856,17 @@
         return;
       }
 
-      if (abortController) abortController.abort();
-      abortController = new AbortController();
-
       aggiornaStato('Traduzione...');
-
       let traduzioniMap = {};
 
-      let promesse = lingueAttive.map(lang => {
-        const targetLang = lang.split('-')[0];
-        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=it&tl=${targetLang}&dt=t&q=${encodeURIComponent(testo)}`;
-        return fetch(url, { signal: abortController.signal })
-          .then(res => res.json())
-          .then(data => {
-            const traduzione = data[0].map(item => item[0]).join('');
-            const el = document.getElementById('box_' + lang);
-            if (el) el.innerText = traduzione;
-            if (linguaFocusCorrente === lang) document.getElementById('modalBody').innerText = traduzione;
-            traduzioniMap[lang] = traduzione;
-          })
-          .catch(() => {});
+      let promesse = lingueAttive.map(async (lang) => {
+        const trad = await chiamaAPI(testo, 'it', lang);
+        if (trad) {
+          const el = document.getElementById('box_' + lang);
+          if (el) el.innerText = trad;
+          if (linguaFocusCorrente === lang) document.getElementById('modalBody').innerText = trad;
+          traduzioniMap[lang] = trad;
+        }
       });
 
       Promise.all(promesse).then(() => {
