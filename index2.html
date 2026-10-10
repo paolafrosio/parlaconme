@@ -3,15 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ParlaConMe - Traduttore Live CPIA (Glass Edition)</title>
+  <title>ParlaConMe - Vista Studente</title>
   
   <link rel="icon" type="image/png" href="logo.png?v=3">
 
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     :root {
-      /* TEMA DARK NEON PREDEFINITO */
       --bg-gradient: radial-gradient(circle at 15% 15%, #06b6d4 0%, transparent 35%),
                      radial-gradient(circle at 85% 25%, #a855f7 0%, transparent 40%),
                      radial-gradient(circle at 50% 85%, #2563eb 0%, transparent 45%),
@@ -26,52 +24,34 @@
       --box-ita-bg: rgba(15, 23, 42, 0.7);
     }
 
-    body.light-mode {
-      /* TEMA LIGHT GLASS */
-      --bg-gradient: radial-gradient(circle at 15% 15%, #bae6fd 0%, transparent 40%),
-                     radial-gradient(circle at 85% 25%, #e9d5ff 0%, transparent 40%),
-                     radial-gradient(circle at 50% 85%, #93c5fd 0%, transparent 45%),
-                     #e2e8f0;
-      --card-bg: rgba(255, 255, 255, 0.75);
-      --card-border: rgba(2, 132, 199, 0.25);
-      --card-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-      --text-color: #0f172a;
-      --text-muted: #475569;
-      --primary-cyan: #0284c7;
-      --card-body-bg: rgba(248, 250, 252, 0.85);
-      --box-ita-bg: rgba(241, 245, 249, 0.9);
-    }
-
     * { box-sizing: border-box; }
     html, body {
       width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
       overflow-x: hidden;
     }
     body {
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       background: var(--bg-gradient);
       background-attachment: fixed;
-      margin: 0;
       padding: 12px;
       color: var(--text-color);
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      transition: background 0.3s, color 0.3s;
+      min-height: 100vh;
     }
 
-    /* HEADER GLASS */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
-      gap: 10px;
-      flex-wrap: wrap;
+      margin-bottom: 12px;
       background: var(--card-bg);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      padding: 10px 18px;
+      padding: 10px 16px;
       border-radius: 20px;
       box-shadow: var(--card-shadow);
       border: 1px solid var(--card-border);
@@ -79,349 +59,72 @@
     h1 {
       margin: 0;
       color: var(--text-color);
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .top-controls {
       display: flex;
       align-items: center;
       gap: 8px;
-      flex-wrap: wrap;
     }
 
-    .student-counter-badge {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--primary-cyan);
-      background: rgba(14, 165, 233, 0.15);
-      border: 1px solid var(--card-border);
-      padding: 6px 14px;
-      border-radius: 20px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-      min-width: 110px;
-      justify-content: center;
-      backdrop-filter: blur(8px);
-    }
-
-    .status-badge-student {
-      font-size: 12px;
-      font-weight: 600;
-      padding: 6px 14px;
-      border-radius: 20px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      white-space: nowrap;
-    }
-    .status-connected { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
-    .status-connecting { background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.3); }
-    .status-disconnected { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); }
-
-    .zoom-bar {
-      display: flex;
-      align-items: center;
-      background: var(--card-body-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 2px 8px;
-      flex-shrink: 0;
-    }
-    .btn-tool {
-      background: none;
-      border: none;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-color);
-      cursor: pointer;
-      padding: 5px 10px;
-      border-radius: 12px;
-      transition: all 0.2s;
-    }
-    .btn-tool:hover { background: rgba(255, 255, 255, 0.12); color: var(--primary-cyan); }
-    
-    .status {
-      font-size: 12px;
-      color: var(--text-muted);
-      font-weight: 600;
-      padding: 6px 12px;
-      background: var(--card-body-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
-      text-align: center;
-      display: inline-block;
-      flex-shrink: 0;
-      width: 120px;
-      box-sizing: border-box;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    
-    /* SOURCE BOX DOCENTE */
-    .source-box {
+    .login-card {
       background: var(--card-bg);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      padding: 18px;
       border-radius: 24px;
+      padding: 24px;
       box-shadow: var(--card-shadow);
-      margin-bottom: 16px;
       border: 1px solid var(--card-border);
+      max-width: 420px;
+      margin: auto;
+      width: 100%;
+      text-align: center;
     }
-    
-    .label-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    label {
+    .input-pin {
+      width: 100%;
+      padding: 14px;
+      font-size: 22px;
       font-weight: 700;
-      color: var(--text-color);
-      font-size: 15px;
-      white-space: nowrap;
-    }
-    .action-btns {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .btn-main {
-      background: rgba(14, 165, 233, 0.15);
-      color: var(--primary-cyan);
+      text-align: center;
+      border-radius: 16px;
       border: 1px solid var(--card-border);
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-weight: 600;
-      font-size: 13px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all 0.25s ease;
-      white-space: nowrap;
-      flex-shrink: 0;
-      backdrop-filter: blur(8px);
+      background: var(--card-body-bg);
+      color: #ffffff;
+      letter-spacing: 4px;
+      margin-bottom: 14px;
+      outline: none;
     }
-    .btn-main:hover {
-      transform: translateY(-2px);
-      background: rgba(14, 165, 233, 0.3);
-      color: var(--text-color);
+    .input-pin:focus {
       border-color: var(--primary-cyan);
       box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
     }
 
-    /* FIX SPOSTAMENTO PULSANTE MIC (PUNTO 3) */
-    .btn-mic-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      background: none;
-      border: none;
-      padding: 0;
-      outline: none;
-      min-width: 80px; /* LARGHEZZA FISSA PER EVITARE SPOSTAMENTI */
-      flex-shrink: 0;
-    }
-    .btn-mic-circle {
-      width: 58px;
-      height: 58px;
-      border-radius: 50%;
-      background: #06b6d4;
-      border: 2px solid #38bdf8;
-      box-shadow: 0 0 20px rgba(6, 182, 212, 0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.25s ease;
-      flex-shrink: 0;
-    }
-    .btn-mic-circle:hover {
-      transform: scale(1.06);
-      box-shadow: 0 0 30px rgba(6, 182, 212, 0.9);
-    }
-    .btn-mic-label {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-color);
-      margin-top: 4px;
-      text-align: center;
-      white-space: nowrap;
-      text-shadow: 0 0 6px rgba(0,0,0,0.5);
-    }
-    .btn-mic-container.recording .btn-mic-circle {
-      background: #ef4444 !important;
-      border-color: #f87171 !important;
-      box-shadow: 0 0 24px rgba(239, 68, 68, 0.8) !important;
-      animation: pulseNeon 1.5s infinite;
-    }
-
-    @keyframes pulseNeon {
-      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
-      70% { box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-    }
-    
-    textarea {
-      width: 100%;
-      height: 90px;
-      padding: 14px;
-      font-size: 16px;
+    .btn-main {
+      background: rgba(14, 165, 233, 0.2);
+      color: var(--primary-cyan);
       border: 1px solid var(--card-border);
-      border-radius: 16px;
-      resize: vertical;
-      outline: none;
-      background: var(--card-body-bg);
-      color: var(--text-color);
-      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    textarea:focus {
-      border-color: var(--primary-cyan);
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
-    }
-
-    .student-panel {
-      display: none;
-      background: rgba(14, 165, 233, 0.12);
-      border: 1px solid var(--card-border);
-      border-radius: 18px;
-      padding: 14px;
-      margin-bottom: 14px;
-      backdrop-filter: blur(12px);
-    }
-    .student-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-    .student-select {
-      padding: 8px 12px;
-      border-radius: 12px;
-      font-weight: 600;
-      border: 1px solid var(--card-border);
-      background: var(--card-body-bg);
-      color: var(--text-color);
-      max-width: 100%;
-    }
-
-    /* GRIGLIA SCHEDE GLASS */
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-      gap: 14px;
-      flex-grow: 1;
-      overflow-y: auto;
-    }
-    .card {
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      padding: 12px 24px;
       border-radius: 20px;
-      padding: 14px 16px;
-      box-shadow: var(--card-shadow);
-      border: 1px solid var(--card-border);
-      display: flex;
-      flex-direction: column;
-      min-height: 175px;
-      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-    }
-    .card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(56, 189, 248, 0.6);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    }
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .card-title {
       font-weight: 700;
-      font-size: 16px;
-      color: var(--primary-cyan);
-    }
-    .card-body {
-      background-color: var(--card-body-bg);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      padding: 12px;
       font-size: 15px;
-      line-height: 1.45;
-      white-space: pre-wrap;
-      word-break: break-word;
-      flex-grow: 1;
-      overflow-y: auto;
-      color: var(--text-color);
-      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25);
-    }
-    
-    /* PULSANTI ICONE FOOTER (PUNTO 1 E 2) */
-    .card-footer {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      gap: 12px;
-      margin-top: 10px;
-      flex-wrap: nowrap;
-    }
-    .btn-svg-icon {
-      background: transparent;
-      border: none;
-      padding: 4px;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--primary-cyan);
-      transition: all 0.2s ease;
-      flex-shrink: 0;
+      width: 100%;
+      transition: all 0.25s ease;
+      backdrop-filter: blur(8px);
     }
-    .btn-svg-icon svg {
-      width: 22px;
-      height: 22px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 1.8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-    .btn-svg-icon:hover {
+    .btn-main:hover {
+      background: rgba(14, 165, 233, 0.35);
       color: #ffffff;
-      transform: scale(1.15);
-      filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.8));
-    }
-    .btn-svg-icon.active-speaking {
-      color: #ef4444 !important;
-      filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.8)) !important;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
     }
 
-    /* VISTA STUDENTE GLASS */
     .student-view-container {
-      display: none;
+      display: flex;
       flex-direction: column;
       gap: 14px;
       flex-grow: 1;
       width: 100%;
+      max-width: 850px;
+      margin: 0 auto;
     }
     .student-card-main {
       background: var(--card-bg);
@@ -447,6 +150,16 @@
       border-radius: 16px;
       border: 1px solid var(--card-border);
     }
+    .student-select {
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      border: 1px solid var(--card-border);
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 15px;
+    }
+
     .student-display-text {
       background: var(--card-body-bg);
       border: 1px solid var(--card-border);
@@ -458,242 +171,107 @@
       overflow-y: auto;
       white-space: pre-wrap;
       word-break: break-word;
-      color: var(--text-color);
-      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
+      color: #ffffff;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
     }
     .student-display-ita-box {
       background: var(--box-ita-bg) !important;
       color: var(--text-color) !important;
     }
 
-    /* MODALE GLASS */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(5, 9, 20, 0.75);
-      backdrop-filter: blur(10px);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      padding: 14px;
-    }
-    .modal-card {
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      border-radius: 24px;
-      padding: 22px;
-      width: 100%;
-      max-width: 800px;
-      max-height: 85vh;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-      border: 1px solid var(--card-border);
-    }
-    .modal-header {
+    .card-footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
-      flex-wrap: wrap;
-      gap: 6px;
+      margin-top: 14px;
     }
-    .modal-title { font-size: 20px; font-weight: 700; color: var(--primary-cyan); }
-    .modal-body {
-      font-size: 22px;
-      line-height: 1.45;
-      background: var(--card-body-bg);
-      padding: 16px;
-      border-radius: 14px;
-      border: 1px solid var(--card-border);
-      flex-grow: 1;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      word-break: break-word;
-      color: var(--text-color);
-      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
-    }
-    .lang-grid-selector {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 8px;
-      max-height: 50vh;
-      overflow-y: auto;
-      padding: 12px;
-      background: var(--card-body-bg);
-      border-radius: 14px;
-      border: 1px solid var(--card-border);
-    }
-    .lang-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 14px;
-      font-weight: 500;
+    .btn-svg-icon {
+      background: transparent;
+      border: none;
+      padding: 6px;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-cyan);
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    .btn-svg-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .btn-svg-icon:hover {
+      color: #ffffff;
+      transform: scale(1.15);
+      filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.8));
+    }
+    .btn-svg-icon.active-speaking {
+      color: #ef4444 !important;
+      filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.9)) !important;
+      animation: pulseNeon 1.5s infinite;
     }
 
-    @media (max-width: 600px) {
-      body { padding: 6px; }
-      h1 { font-size: 18px; }
-      .header { flex-direction: column; align-items: flex-start; }
-      .top-controls { width: 100%; justify-content: flex-start; }
-      .student-lang-bar { flex-direction: column; align-items: flex-start; }
-      .student-select { width: 100%; }
+    @keyframes pulseNeon {
+      0% { filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.6)); }
+      50% { filter: drop-shadow(0 0 10px rgba(239, 68, 68, 1)); }
+      100% { filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.6)); }
     }
-
-    /* REGOLE DI STAMPA */
-    @media print {
-      @page { margin: 10mm; size: auto; }
-      html, body {
-        height: auto !important;
-        min-height: 0 !important;
-        max-height: none !important;
-        overflow: visible !important;
-        background: white !important;
-        color: black !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        display: block !important;
-      }
-      .header, .top-controls, .source-box, .student-panel, .action-btns, .card-footer, .student-lang-bar, button {
-        display: none !important;
-      }
-      .student-view-container, .student-card-main {
-        display: block !important;
-        height: auto !important;
-        box-shadow: none !important;
-        border: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-      }
-      .student-display-text {
-        max-height: none !important;
-        min-height: 0 !important;
-        height: auto !important;
-        overflow: visible !important;
-        display: block !important;
-        position: relative !important;
-        border: 1px solid #cbd5e1 !important;
-        background: #fff !important;
-        color: #000 !important;
-        font-size: 13pt !important;
-        padding: 10px !important;
-        margin-bottom: 15px !important;
-        box-shadow: none !important;
-        page-break-inside: auto !important;
-        break-inside: auto !important;
-      }
-    }
+    .rtl { direction: rtl; text-align: right; }
   </style>
 </head>
 <body>
 
-  <!-- INTESTAZIONE -->
   <div class="header">
-    <h1><img src="logo.png?v=3" alt="Logo" style="height: 28px; vertical-align: middle; margin-right: 6px;">ParlaConMe</h1>
-    <div class="top-controls">
-      <div id="studentCounterContainer" class="student-counter-badge">
-        👥 Studenti: <span id="studentCount">0</span>
-      </div>
-      <div id="studentStatusBadge" class="status-badge-student status-connecting" style="display: none;">
-        🟡 Connessione...
-      </div>
-      <button id="btnQR" class="btn-main" onclick="mostraQRCode()">📱 Trasmetti</button>
-      <button id="btnLangConfig" class="btn-tool" onclick="apriGestioneLingue()">⚙️ Lingue</button>
-      <button class="btn-tool" onclick="toggleDarkMode()">🌙</button>
-      <div class="zoom-bar">
-        <button class="btn-tool" onclick="cambiaZoom(-2)">A-</button>
-        <button class="btn-tool" onclick="resetZoom()">A</button>
-        <button class="btn-tool" onclick="cambiaZoom(2)">A+</button>
-      </div>
-      <button class="btn-main" style="width: auto;" onclick="stampaOEsportaPDF()">🖨️ PDF</button>
-      <button class="btn-main" style="width: auto;" onclick="scaricaLezione()">📥 TXT</button>
-      <span id="status" class="status">Pronto</span>
-    </div>
+    <h1><img src="logo.png?v=3" alt="Logo" style="height: 26px; vertical-align: middle;"> ParlaConMe</h1>
+    <span id="statusBadge" style="font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 20px; background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.3);">🟡 Disconnesso</span>
   </div>
 
-  <!-- INTERFACCIA DOCENTE -->
-  <div id="docenteContainer">
-    <div id="studentPanel" class="student-panel">
-      <div class="student-header">
-        <label>🗣️ <strong>Modalità Studente:</strong> Parla nella tua lingua ➔ Il docente leggerà la traduzione in italiano</label>
-        <div style="display: flex; gap: 6px; flex-wrap: wrap; width: 100%; margin-top: 4px;">
-          <select id="studentLangSelect" class="student-select" style="flex-grow: 1;"></select>
-          <button id="btnMicStudent" class="btn-main" style="width: auto;" onclick="toggleMicrofonoStudente()">🎙️ Parla</button>
-          <button class="btn-tool" onclick="chiudiModalitaStudente()">✖️</button>
-        </div>
-      </div>
-      <div style="display: flex; gap: 10px;">
-        <textarea id="testoStudente" placeholder="Trascrizione e traduzione per il docente..." style="height: 60px;"></textarea>
-      </div>
-    </div>
-
-    <div class="source-box">
-      <div class="label-row">
-        <label for="testoITA">🇮🇹 Parla o Scrivi in Italiano (Docente):</label>
-        <div class="action-btns">
-          <button class="btn-main" style="width: auto;" onclick="apriModalitaStudente()">🔄 Studente ➔ Docente</button>
-          <button class="btn-main" style="width: auto;" onclick="cancellaTutto()">🗑️ Cancella</button>
-          <button class="btn-main" style="width: auto;" onclick="salvaInCronologia()">📌 Salva Frase</button>
-          
-          <!-- PULSANTE MIC CIRCOLARE SVG CON POSIZIONE FISSA -->
-          <button id="btnMic" class="btn-mic-container" onclick="toggleMicrofonoDocente()">
-            <div class="btn-mic-circle">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                <line x1="12" y1="19" x2="12" y2="22"></line>
-                <line x1="8" y1="22" x2="16" y2="22"></line>
-                <line x1="2" y1="11" x2="2" y2="13"></line>
-                <line x1="22" y1="11" x2="22" y2="13"></line>
-              </svg>
-            </div>
-            <span id="micText" class="btn-mic-label">Attiva Mic</span>
-          </button>
-        </div>
-      </div>
-      <textarea id="testoITA" placeholder="Scrivi o premi il pulsante per parlare..." oninput="registraModificaManuale()"></textarea>
-    </div>
-
-    <div id="gridContainer" class="grid-container"></div>
+  <!-- PANNELLO INSERIMENTO PIN -->
+  <div id="loginPanel" class="login-card">
+    <h2 style="margin-top: 0; color: var(--primary-cyan); font-size: 22px;">🔑 Connetti alla Classe</h2>
+    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Inserisci il PIN di 4 cifre mostrato sulla LIM del docente:</p>
+    <input type="number" id="pinInput" class="input-pin" placeholder="1234" maxlength="4" onkeyup="if(event.key==='Enter') connettiConPIN()">
+    <button class="btn-main" onclick="connettiConPIN()">Entra in Aula</button>
   </div>
 
-  <!-- INTERFACCIA DEDICATA BILINGUE PER STUDENTI -->
-  <div id="studentViewContainer" class="student-view-container">
+  <!-- PANNELLO BILINGUE STUDENTE -->
+  <div id="studentViewContainer" class="student-view-container" style="display: none;">
     <div class="student-card-main">
       <div class="student-lang-bar">
         <label for="myLangSelect"><strong>Scegli la tua lingua / Choose language:</strong></label>
-        <select id="myLangSelect" class="student-select" style="font-size: 15px;" onchange="cambiaLinguaStudente()"></select>
+        <select id="myLangSelect" class="student-select" onchange="cambiaLinguaStudente()"></select>
       </div>
       
-      <!-- BOX ITALIANO (DOCENTE) -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 4px;">
+      <!-- BOX ITALIANO -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
         <div style="font-weight: 700; font-size: 14px; color: var(--primary-cyan);">🇮🇹 Italiano (Docente):</div>
-        <div style="display: flex; gap: 4px;">
-          <!-- TACHIMETRO / LENTO -->
-          <button id="btnItaSlow" class="btn-svg-icon" title="Ascolta Lento" onclick="toggleLetturaItalianoStudente(0.5)">
+        <div style="display: flex; gap: 6px;">
+          <button id="btnItaSlow" class="btn-svg-icon" title="Ascolta Lento" onclick="toggleLettura('ita', 0.5, this)">
             <svg viewBox="0 0 24 24"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>
           </button>
-          <!-- ALTOPARLANTE / ASCOLTA -->
-          <button id="btnItaNormal" class="btn-svg-icon" title="Ascolta Italiano" onclick="toggleLetturaItalianoStudente(0.9)">
+          <button id="btnItaNormal" class="btn-svg-icon" title="Ascolta Italiano" onclick="toggleLettura('ita', 0.9, this)">
             <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
           </button>
         </div>
       </div>
-      <div id="studentDisplayITA" class="student-display-text student-display-ita-box" style="flex-grow: 0; min-height: 60px; max-height: 140px; margin-bottom: 12px;">In attesa dell'insegnante...</div>
+      <div id="studentDisplayITA" class="student-display-text student-display-ita-box" style="flex-grow: 0; min-height: 60px; max-height: 140px; margin-bottom: 14px;">In attesa dell'insegnante...</div>
 
-      <!-- BOX TRADUZIONE (STUDENTE) -->
+      <!-- BOX TRADUZIONE -->
       <div style="font-weight: 700; font-size: 14px; margin-bottom: 6px; color: var(--primary-cyan);">🌐 Traduzione nella tua lingua:</div>
       <div id="studentDisplayText" class="student-display-text">In attesa della traduzione...</div>
 
-      <div class="card-footer" style="justify-content: space-between; margin-top: 10px; gap: 6px;">
-        <div style="display: flex; gap: 8px; flex-wrap: nowrap;">
-          <button id="btnTransSlow" class="btn-svg-icon" title="Ascolta Lento" onclick="toggleLetturaStudente(0.5)">
+      <div class="card-footer">
+        <div style="display: flex; gap: 10px;">
+          <button id="btnTransSlow" class="btn-svg-icon" title="Ascolta Lento" onclick="toggleLettura('trans', 0.5, this)">
             <svg viewBox="0 0 24 24"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>
           </button>
-          <button id="btnTransNormal" class="btn-svg-icon" title="Ascolta Traduzione" onclick="toggleLetturaStudente(0.9)">
+          <button id="btnTransNormal" class="btn-svg-icon" title="Ascolta Traduzione" onclick="toggleLettura('trans', 0.9, this)">
             <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
           </button>
         </div>
@@ -704,83 +282,12 @@
     </div>
   </div>
 
-  <!-- MODALI E FINESTRE DI DIALOGO -->
-  <div id="modalFocus" class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header">
-        <span id="modalTitle" class="modal-title">Lingua</span>
-        <div style="display: flex; gap: 6px;">
-          <button class="btn-svg-icon" title="Ascolta Lento" onclick="leggiTestoFocus(0.5)">
-            <svg viewBox="0 0 24 24"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>
-          </button>
-          <button class="btn-svg-icon" title="Ascolta" onclick="leggiTestoFocus(0.9)">
-            <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
-          </button>
-          <button class="btn-tool" onclick="chiudiFocus()">✖️</button>
-        </div>
-      </div>
-      <div id="modalBody" class="modal-body">...</div>
-    </div>
-  </div>
-
-  <div id="modalLangConfig" class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header">
-        <span class="modal-title">⚙️ Lingue della Classe</span>
-        <button class="btn-main" style="width: auto;" onclick="chiudiGestioneLingue()">✖️ Salva</button>
-      </div>
-      <p style="margin: 0 0 10px 0; color: var(--text-muted); font-size: 13px;">Spunta le lingue che desideri visualizzare sulla LIM:</p>
-      <div id="langSelectorList" class="lang-grid-selector"></div>
-    </div>
-  </div>
-
-  <div id="modalQR" class="modal-overlay">
-    <div class="modal-card" style="align-items: center; text-align: center; max-width: 400px;">
-      <h2 style="margin-top:0; color: var(--primary-cyan); font-size: 20px;">📱 Connetti gli Studenti</h2>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 5px;"><strong>Smartphone:</strong> Inquadra il QR Code</p>
-      <div id="qrcode" style="margin: 8px auto; padding: 12px; background: white; border-radius: 16px; box-shadow: var(--card-shadow);"></div>
-      
-      <div style="background: rgba(14, 165, 233, 0.15); border: 1px solid var(--card-border); border-radius: 14px; padding: 10px; width: 100%; box-sizing: border-box; margin-top: 8px;">
-        <p style="margin: 0; font-size: 13px; color: var(--primary-cyan);"><strong>Da PC (Laboratorio):</strong></p>
-        <p style="margin: 2px 0; font-size: 12px; color: var(--text-muted);">Vai su: <strong style="text-decoration: underline;">parlaconme/studente.html</strong></p>
-        <p style="margin: 0; font-weight: bold; font-size: 18px; color: #f87171;">PIN Stanza: <span id="roomCodeDisplay">...</span></p>
-      </div>
-
-      <button class="btn-main" style="width: auto; margin-top: 14px;" onclick="chiudiQRCode()">Chiudi</button>
-    </div>
-  </div>
-
   <script>
-    let timerDebounce = null;
-    let fontSizeCorrente = 16;
-    let linguaFocusCorrente = null;
-    let cronologiaLezione = [];
-    let testoConfermatoDocente = '';
-    let eStudente = false;
-    let traduzioniRicevuteRete = {};
-    let testoITARicevutoRete = '';
-
-    // STATI LETTURA VOCALE STUDENTE
-    let letturaInCorso = false;
-    let targetLetturaCorrente = null;
-
     let peer = null;
-    let connessioniStudenti = [];
-    let connStudenteAInsegnante = null;
-    let timerRiconnessione = null;
-    let ID_STANZA_DOCENTE = 'cpia-aula-' + Math.floor(1000 + Math.random() * 9000);
-
-    const CONFIGURAZIONE_PEER = {
-      config: {
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:stun1.l.google.com:19302' },
-          { urls: 'stun:stun2.l.google.com:19302' },
-          { urls: 'stun:stun3.l.google.com:19302' },
-          { urls: 'stun:stun4.l.google.com:19302' }
-        ]
-      }
-    };
+    let conn = null;
+    let traduzioniMap = {};
+    let testoITA = '';
+    let elementoAudioAttivo = null;
 
     const ELENCO_LINGUE = [
       { code: 'sq', voice: 'sq-AL', name: '🇦🇱 Albanese' },
@@ -803,103 +310,7 @@
       { code: 'ur', voice: 'ur-PK', name: '🇵🇰 Urdu', rtl: true }
     ];
 
-    let lingueAttive = ['sq', 'ar', 'bn', 'zh-CN', 'fr', 'en', 'es', 'uk'];
-
-    function aggiornaContatoreStudenti() {
-      const countEl = document.getElementById('studentCount');
-      if (countEl) countEl.innerText = connessioniStudenti.length;
-    }
-
-    function aggiornaStatoVisivoStudente(stato) {
-      const badge = document.getElementById('studentStatusBadge');
-      if (!badge) return;
-      badge.style.display = 'inline-flex';
-      badge.className = 'status-badge-student';
-
-      if (stato === 'connected') {
-        badge.classList.add('status-connected');
-        badge.innerHTML = '🟢 Connesso';
-      } else if (stato === 'connecting') {
-        badge.classList.add('status-connecting');
-        badge.innerHTML = '🟡 Riconnessione...';
-      } else {
-        badge.classList.add('status-disconnected');
-        badge.innerHTML = '🔴 Disconnesso';
-      }
-    }
-
-    function connettiAStanzaDocente(stanzaTarget) {
-      aggiornaStatoVisivoStudente('connecting');
-      connStudenteAInsegnante = peer.connect(stanzaTarget, { reliable: true });
-
-      connStudenteAInsegnante.on('open', () => {
-        clearInterval(timerRiconnessione);
-        aggiornaStatoVisivoStudente('connected');
-        connStudenteAInsegnante.send({ tipo: 'RICHIESTA_SINCRONIZZAZIONE' });
-        aggiornaStato('Connesso');
-      });
-
-      connStudenteAInsegnante.on('data', (dati) => applicaDatiRicevuti(dati));
-
-      connStudenteAInsegnante.on('close', () => {
-        aggiornaStatoVisivoStudente('disconnected');
-        avviaRiconnessioneAutomatica(stanzaTarget);
-      });
-
-      connStudenteAInsegnante.on('error', () => {
-        aggiornaStatoVisivoStudente('disconnected');
-        avviaRiconnessioneAutomatica(stanzaTarget);
-      });
-    }
-
-    function avviaRiconnessioneAutomatica(stanzaTarget) {
-      clearInterval(timerRiconnessione);
-      timerRiconnessione = setInterval(() => {
-        aggiornaStatoVisivoStudente('connecting');
-        if (peer && !peer.destroyed) {
-          connettiAStanzaDocente(stanzaTarget);
-        }
-      }, 4000);
-    }
-
-    function inizializzaRete() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const stanzaTarget = urlParams.get('stanza');
-
-      if (stanzaTarget) {
-        eStudente = true;
-        impostaVistaStudente();
-        peer = new Peer(CONFIGURAZIONE_PEER);
-        peer.on('open', () => {
-          connettiAStanzaDocente(stanzaTarget);
-        });
-      } else {
-        peer = new Peer(ID_STANZA_DOCENTE, CONFIGURAZIONE_PEER);
-        peer.on('connection', (conn) => {
-          connessioniStudenti.push(conn);
-          aggiornaContatoreStudenti();
-          
-          conn.on('data', (dati) => {
-            if (dati && dati.tipo === 'RICHIESTA_SINCRONIZZAZIONE') {
-              traduciTutto();
-            }
-          });
-
-          conn.on('close', () => {
-            connessioniStudenti = connessioniStudenti.filter(c => c !== conn);
-            aggiornaContatoreStudenti();
-          });
-        });
-      }
-    }
-
-    function impostaVistaStudente() {
-      document.getElementById('docenteContainer').style.display = 'none';
-      document.getElementById('btnQR').style.display = 'none';
-      document.getElementById('btnLangConfig').style.display = 'none';
-      document.getElementById('studentCounterContainer').style.display = 'none';
-      document.getElementById('studentViewContainer').style.display = 'flex';
-
+    function inizializzaSelectLingue() {
       const select = document.getElementById('myLangSelect');
       select.innerHTML = '';
       ELENCO_LINGUE.forEach(l => {
@@ -910,8 +321,48 @@
       });
     }
 
+    function connettiConPIN() {
+      const pin = document.getElementById('pinInput').value.trim();
+      if (!pin || pin.length < 4) return alert("Inserisci un PIN valido di 4 cifre.");
+
+      const stanzaTarget = 'cpia-aula-' + pin;
+      document.getElementById('statusBadge').innerText = '🟡 Connessione...';
+
+      peer = new Peer({
+        config: {
+          iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        }
+      });
+
+      peer.on('open', () => {
+        conn = peer.connect(stanzaTarget, { reliable: true });
+
+        conn.on('open', () => {
+          document.getElementById('statusBadge').innerText = '🟢 Connesso';
+          document.getElementById('statusBadge').style.background = 'rgba(34, 197, 94, 0.2)';
+          document.getElementById('statusBadge').style.color = '#4ade80';
+          document.getElementById('loginPanel').style.display = 'none';
+          document.getElementById('studentViewContainer').style.display = 'flex';
+          conn.send({ tipo: 'RICHIESTA_SINCRONIZZAZIONE' });
+        });
+
+        conn.on('data', (dati) => {
+          if (!dati) return;
+          traduzioniMap = dati.traduzioni || {};
+          testoITA = dati.ita || '';
+          fermaTuttaLettura();
+          document.getElementById('studentDisplayITA').innerText = testoITA || "In attesa dell'insegnante...";
+          cambiaLinguaStudente();
+        });
+
+        conn.on('close', () => {
+          document.getElementById('statusBadge').innerText = '🔴 Disconnesso';
+        });
+      });
+    }
+
     function cambiaLinguaStudente() {
-      if (letturaInCorso) fermaLetturaStudente();
+      fermaTuttaLettura();
       const lang = document.getElementById('myLangSelect').value;
       const display = document.getElementById('studentDisplayText');
       const langObj = ELENCO_LINGUE.find(l => l.code === lang);
@@ -919,74 +370,52 @@
       if (langObj && langObj.rtl) display.classList.add('rtl');
       else display.classList.remove('rtl');
 
-      display.innerText = traduzioniRicevuteRete[lang] || 'In attesa della traduzione...';
+      display.innerText = traduzioniMap[lang] || 'In attesa della traduzione...';
     }
 
-    function fermaLetturaStudente() {
+    function fermaTuttaLettura() {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
-      letturaInCorso = false;
-
-      document.getElementById('btnItaSlow').classList.remove('active-speaking');
-      document.getElementById('btnItaNormal').classList.remove('active-speaking');
-      document.getElementById('btnTransSlow').classList.remove('active-speaking');
-      document.getElementById('btnTransNormal').classList.remove('active-speaking');
-
-      targetLetturaCorrente = null;
+      document.querySelectorAll('.btn-svg-icon').forEach(btn => btn.classList.remove('active-speaking'));
+      elementoAudioAttivo = null;
     }
 
-    function toggleLetturaItalianoStudente(velocita) {
-      if (letturaInCorso && targetLetturaCorrente === 'ita') {
-        fermaLetturaStudente();
+    function toggleLettura(target, velocita, btnIcon) {
+      if (elementoAudioAttivo === btnIcon) {
+        fermaTuttaLettura();
         return;
       }
-      avviaLetturaStudente('ita', 'it-IT', velocita);
-    }
 
-    function toggleLetturaStudente(velocita) {
-      if (letturaInCorso && targetLetturaCorrente === 'trans') {
-        fermaLetturaStudente();
-        return;
+      fermaTuttaLettura();
+
+      let testo = '';
+      let voiceLang = 'it-IT';
+
+      if (target === 'ita') {
+        testo = document.getElementById('studentDisplayITA').innerText.trim();
+      } else {
+        testo = document.getElementById('studentDisplayText').innerText.trim();
+        const lang = document.getElementById('myLangSelect').value;
+        const obj = ELENCO_LINGUE.find(l => l.code === lang);
+        voiceLang = obj ? obj.voice : lang;
       }
-      const lang = document.getElementById('myLangSelect').value;
-      const obj = ELENCO_LINGUE.find(l => l.code === lang);
-      const voiceLang = obj ? obj.voice : lang;
-      avviaLetturaStudente('trans', voiceLang, velocita);
-    }
 
-    function avviaLetturaStudente(target, voiceLang, velocita) {
-      fermaLetturaStudente();
-
-      const display = target === 'ita' ? document.getElementById('studentDisplayITA') : document.getElementById('studentDisplayText');
-      const testoPuro = display.innerText.trim();
-
-      if (!testoPuro || testoPuro.startsWith('In attesa')) return;
+      if (!testo || testo.startsWith('In attesa')) return;
 
       if (!('speechSynthesis' in window)) return;
 
-      const utterance = new SpeechSynthesisUtterance(testoPuro);
-      const langCode = voiceLang.split('-')[0];
-      const voceMigliore = selezionaVoceMigliore(langCode);
-      if (voceMigliore) utterance.voice = voceMigliore;
+      const utterance = new SpeechSynthesisUtterance(testo);
       utterance.lang = voiceLang;
       utterance.rate = velocita;
 
       utterance.onstart = () => {
-        letturaInCorso = true;
-        targetLetturaCorrente = target;
-
-        if (target === 'ita') {
-          const btn = velocita < 0.8 ? document.getElementById('btnItaSlow') : document.getElementById('btnItaNormal');
-          btn.classList.add('active-speaking');
-        } else {
-          const btn = velocita < 0.8 ? document.getElementById('btnTransSlow') : document.getElementById('btnTransNormal');
-          btn.classList.add('active-speaking');
-        }
+        elementoAudioAttivo = btnIcon;
+        if (btnIcon) btnIcon.classList.add('active-speaking');
       };
 
-      utterance.onend = () => fermaLetturaStudente();
-      utterance.onerror = () => fermaLetturaStudente();
+      utterance.onend = () => fermaTuttaLettura();
+      utterance.onerror = () => fermaTuttaLettura();
 
       window.speechSynthesis.speak(utterance);
     }
@@ -994,543 +423,10 @@
     function copiaTestoStudente() {
       const testo = document.getElementById('studentDisplayText').innerText;
       if (!testo || testo.startsWith('In attesa')) return;
-      navigator.clipboard.writeText(testo).then(() => {
-        aggiornaStato('✓ Copiato');
-        setTimeout(() => aggiornaStato('Connesso'), 2000);
-      });
+      navigator.clipboard.writeText(testo);
     }
 
-    function trasmettiDatiRete(dati) {
-      connessioniStudenti.forEach(conn => {
-        if (conn.open) conn.send(dati);
-      });
-    }
-
-    function applicaDatiRicevuti(dati) {
-      if (!dati || dati.tipo === 'RICHIESTA_SINCRONIZZAZIONE') return;
-
-      traduzioniRicevuteRete = dati.traduzioni || {};
-      testoITARicevutoRete = dati.ita || '';
-
-      if (eStudente) {
-        if (letturaInCorso) fermaLetturaStudente();
-        document.getElementById('studentDisplayITA').innerText = testoITARicevutoRete || 'In attesa dell\'insegnante...';
-        cambiaLinguaStudente();
-      } else {
-        document.getElementById('testoITA').value = dati.ita;
-        for (const [lang, testo] of Object.entries(dati.traduzioni)) {
-          const el = document.getElementById('box_' + lang);
-          if (el) el.innerText = testo;
-        }
-      }
-    }
-
-    function mostraQRCode() {
-      const modal = document.getElementById('modalQR');
-      const container = document.getElementById('qrcode');
-      container.innerHTML = '';
-      
-      document.getElementById('roomCodeDisplay').innerText = ID_STANZA_DOCENTE.replace('cpia-aula-', '');
-
-      const urlLezione = window.location.href.split('?')[0] + '?stanza=' + ID_STANZA_DOCENTE;
-
-      new QRCode(container, {
-        text: urlLezione,
-        width: 160,
-        height: 160
-      });
-
-      modal.style.display = 'flex';
-    }
-
-    function chiudiQRCode() {
-      document.getElementById('modalQR').style.display = 'none';
-    }
-
-    function inizializzaGriglia() {
-      const container = document.getElementById('gridContainer');
-      const studentSelect = document.getElementById('studentLangSelect');
-      container.innerHTML = '';
-      studentSelect.innerHTML = '';
-
-      ELENCO_LINGUE.filter(l => lingueAttive.includes(l.code)).forEach(l => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <div class="card-header">
-            <span class="card-title">${l.name}</span>
-            <button class="btn-svg-icon" style="padding: 2px;" title="Focus" onclick="apriFocus('${l.code}', '${l.name}')">
-              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            </button>
-          </div>
-          <div id="box_${l.code}" class="card-body ${l.rtl ? 'rtl' : ''}">...</div>
-          <div class="card-footer">
-            <button class="btn-svg-icon" title="Copia" onclick="copiaTesto('${l.code}')">
-              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-            </button>
-            <button class="btn-svg-icon" title="Ascolta Lento" onclick="leggiTesto('${l.code}', 0.5)">
-              <svg viewBox="0 0 24 24"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>
-            </button>
-            <button class="btn-svg-icon" title="Ascolta" onclick="leggiTesto('${l.code}', 0.9)">
-              <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
-            </button>
-          </div>
-        `;
-        container.appendChild(card);
-
-        const opt = document.createElement('option');
-        opt.value = l.voice;
-        opt.innerText = l.name;
-        studentSelect.appendChild(opt);
-      });
-
-      gestisciInput();
-    }
-
-    function apriGestioneLingue() {
-      const list = document.getElementById('langSelectorList');
-      list.innerHTML = '';
-      ELENCO_LINGUE.forEach(l => {
-        const item = document.createElement('label');
-        item.className = 'lang-item';
-        const checked = lingueAttive.includes(l.code) ? 'checked' : '';
-        item.innerHTML = `<input type="checkbox" value="${l.code}" ${checked} onchange="toggleLingua('${l.code}')"> ${l.name}`;
-        list.appendChild(item);
-      });
-      document.getElementById('modalLangConfig').style.display = 'flex';
-    }
-
-    function toggleLingua(code) {
-      if (lingueAttive.includes(code)) {
-        if (lingueAttive.length <= 1) {
-          alert("Devi mantenere almeno una lingua attiva.");
-          return;
-        }
-        lingueAttive = lingueAttive.filter(c => c !== code);
-      } else {
-        lingueAttive.push(code);
-      }
-    }
-
-    function chiudiGestioneLingue() {
-      document.getElementById('modalLangConfig').style.display = 'none';
-      inizializzaGriglia();
-    }
-
-    function toggleDarkMode() {
-      document.body.classList.toggle('light-mode');
-    }
-
-    function cambiaZoom(delta) {
-      fontSizeCorrente = Math.max(12, Math.min(32, fontSizeCorrente + delta));
-      document.querySelectorAll('.card-body, .student-display-text').forEach(el => el.style.fontSize = fontSizeCorrente + 'px');
-      aggiornaStato(`Testo: ${fontSizeCorrente}px`);
-    }
-
-    function resetZoom() {
-      fontSizeCorrente = 16;
-      document.querySelectorAll('.card-body, .student-display-text').forEach(el => el.style.fontSize = '16px');
-      aggiornaStato('Zoom reset');
-    }
-
-    function copiaTesto(lang) {
-      const el = document.getElementById('box_' + lang);
-      if (!el) return;
-      const testo = el.innerText.trim();
-      if (!testo || testo === '...') return;
-      navigator.clipboard.writeText(testo).then(() => {
-        aggiornaStato(`✓ Copiato`);
-        setTimeout(() => aggiornaStato('Pronto'), 2000);
-      });
-    }
-
-    function cancellaTutto() {
-      testoConfermatoDocente = '';
-      document.getElementById('testoITA').value = '';
-      document.getElementById('testoStudente').value = '';
-      lingueAttive.forEach(l => {
-        const el = document.getElementById('box_' + l);
-        if (el) el.innerText = '...';
-      });
-      aggiornaStato('Pulito');
-      trasmettiDatiRete({ ita: '', traduzioni: {} });
-    }
-
-    function registraModificaManuale() {
-      testoConfermatoDocente = document.getElementById('testoITA').value;
-      gestisciInput();
-    }
-
-    function apriModalitaStudente() { document.getElementById('studentPanel').style.display = 'block'; }
-    function chiudiModalitaStudente() {
-      document.getElementById('studentPanel').style.display = 'none';
-      if (inAscoltoStudente) fermaAscoltoStudente();
-    }
-
-    function apriFocus(lang, titoloLingua) {
-      linguaFocusCorrente = lang;
-      const el = document.getElementById('box_' + lang);
-      const testo = el ? el.innerText : '...';
-      document.getElementById('modalTitle').innerText = titoloLingua;
-      const modalBody = document.getElementById('modalBody');
-      modalBody.innerText = testo;
-      const langObj = ELENCO_LINGUE.find(l => l.code === lang);
-      if (langObj && langObj.rtl) modalBody.classList.add('rtl');
-      else modalBody.classList.remove('rtl');
-      document.getElementById('modalFocus').style.display = 'flex';
-    }
-
-    function chiudiFocus() {
-      document.getElementById('modalFocus').style.display = 'none';
-      linguaFocusCorrente = null;
-    }
-
-    function leggiTestoFocus(velocita) {
-      if (linguaFocusCorrente) leggiTesto(linguaFocusCorrente, velocita);
-    }
-
-    function salvaInCronologia() {
-      const testoITA = document.getElementById('testoITA').value.trim();
-      if (!testoITA) return;
-      let riga = { ita: testoITA };
-      ELENCO_LINGUE.forEach(l => {
-        const el = document.getElementById('box_' + l.code);
-        if (el && el.innerText !== '...') riga[l.code] = el.innerText;
-        else if (traduzioniRicevuteRete[l.code]) riga[l.code] = traduzioniRicevuteRete[l.code];
-      });
-      cronologiaLezione.push(riga);
-      aggiornaStato(`Salvato (${cronologiaLezione.length})`);
-    }
-
-    function scaricaLezione() {
-      let contenuto = "VOCABOLARIO LEZIONE CPIA\n=========================\n\n";
-
-      if (eStudente) {
-        const lang = document.getElementById('myLangSelect').value;
-        const testoITA = document.getElementById('studentDisplayITA').innerText;
-        const testoTradotto = document.getElementById('studentDisplayText').innerText;
-        const obj = ELENCO_LINGUE.find(x => x.code === lang);
-        
-        contenuto += `🇮🇹 ITALIANO:\n${testoITA}\n\n`;
-        contenuto += `${obj ? obj.name : lang.toUpperCase()}:\n${testoTradotto}\n`;
-      } else {
-        let frasiDaScrivere = [...cronologiaLezione];
-        
-        if (frasiDaScrivere.length === 0) {
-          const testoCorrenteITA = document.getElementById('testoITA').value.trim();
-          if (testoCorrenteITA) {
-            let riga = { ita: testoCorrenteITA };
-            lingueAttive.forEach(l => {
-              const el = document.getElementById('box_' + l);
-              if (el && el.innerText !== '...') riga[l] = el.innerText;
-            });
-            frasiDaScrivere.push(riga);
-          }
-        }
-
-        if (frasiDaScrivere.length === 0) {
-          alert("Nessun testo da scaricare.");
-          return;
-        }
-
-        frasiDaScrivere.forEach((item, index) => {
-          contenuto += `FRASE ${index + 1}:\n🇮🇹 ITA: ${item.ita}\n`;
-          lingueAttive.forEach(l => {
-            const obj = ELENCO_LINGUE.find(x => x.code === l);
-            contenuto += `${obj ? obj.name : l}: ${item[l] || '...'}\n`;
-          });
-          contenuto += "-------------------------\n\n";
-        });
-      }
-
-      const blob = new Blob([contenuto], { type: 'text/plain;charset=utf-8' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `Lezione_CPIA_${new Date().toISOString().slice(0,10)}.txt`;
-      link.click();
-    }
-
-    function stampaOEsportaPDF() {
-      if (eStudente) {
-        window.print();
-        return;
-      }
-
-      let frasiDaStampare = [...cronologiaLezione];
-
-      if (frasiDaStampare.length === 0) {
-        const testoCorrenteITA = document.getElementById('testoITA').value.trim();
-        if (testoCorrenteITA) {
-          let rigaCorrente = { ita: testoCorrenteITA };
-          lingueAttive.forEach(l => {
-            const el = document.getElementById('box_' + l);
-            if (el && el.innerText !== '...') rigaCorrente[l] = el.innerText;
-          });
-          frasiDaStampare.push(rigaCorrente);
-        }
-      }
-
-      if (frasiDaStampare.length === 0) {
-        alert("Scrivi o parla prima di generare la scheda PDF/Stampa.");
-        return;
-      }
-
-      let win = window.open('', '_blank');
-      let dataOggi = new Date().toLocaleDateString('it-IT');
-      let html = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>Scheda Lezione CPIA - ${dataOggi}</title>
-          <style>
-            @page { margin: 8mm; size: A4; }
-            html, body { margin: 0; padding: 0; background: #fff; color: #1e293b; font-family: 'Segoe UI', system-ui, sans-serif; }
-            .container { padding: 4px; display: block !important; }
-            h1 { color: #0284c7; font-size: 16pt; margin: 0 0 2px 0; }
-            .date { color: #64748b; font-size: 9pt; margin-bottom: 10px; border-bottom: 2px solid #0284c7; padding-bottom: 4px; }
-            .block { margin-bottom: 10px; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; page-break-inside: auto; break-inside: auto; }
-            .ita { font-weight: bold; font-size: 11pt; color: #0284c7; margin-bottom: 4px; white-space: pre-wrap; word-break: break-word; }
-            .trans { font-size: 10pt; margin-left: 6px; color: #334155; margin-top: 2px; white-space: pre-wrap; word-break: break-word; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <h1>ParlaConMe - Scheda della Lezione</h1>
-            <div class="date">Data: ${dataOggi} | CPIA Centro Provinciale Istruzione Adulti</div>
-      `;
-
-      frasiDaStampare.forEach((item, index) => {
-        html += `<div class="block"><div class="ita">${index + 1}. 🇮🇹 ITA: ${item.ita}</div>`;
-        lingueAttive.forEach(l => {
-          const obj = ELENCO_LINGUE.find(x => x.code === l);
-          if (item[l]) {
-            html += `<div class="trans"><strong>${obj ? obj.name : l}:</strong> ${item[l]}</div>`;
-          }
-        });
-        html += `</div>`;
-      });
-
-      html += `</div><script>window.onload = function() { window.print(); }<\/script></body></html>`;
-      win.document.write(html);
-      win.document.close();
-    }
-
-    let vociDisponibili = [];
-    function caricaVoci() {
-      if ('speechSynthesis' in window) vociDisponibili = window.speechSynthesis.getVoices();
-    }
-    caricaVoci();
-    if ('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = caricaVoci;
-
-    function selezionaVoceMigliore(langCode) {
-      if (!vociDisponibili.length) caricaVoci();
-      const prefix = langCode.toLowerCase();
-      const compatibili = vociDisponibili.filter(v => v.lang.toLowerCase().startsWith(prefix));
-      if (!compatibili.length) return null;
-      let scelta = compatibili.find(v => v.name.includes('Online') || v.name.includes('Natural') || v.name.includes('Neural') || v.name.includes('Premium'));
-      if (!scelta) scelta = compatibili.find(v => v.name.includes('Google'));
-      return scelta || compatibili[0];
-    }
-
-    function leggiTesto(lang, velocita = 0.9) {
-      const el = document.getElementById('box_' + lang);
-      if (!el) return;
-      const testo = el.innerText.trim();
-      if (!testo || testo === '...') return;
-
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(testo);
-        const obj = ELENCO_LINGUE.find(l => l.code === lang);
-        const langCode = obj ? obj.voice.split('-')[0] : lang;
-        const voceMigliore = selezionaVoceMigliore(langCode);
-        if (voceMigliore) utterance.voice = voceMigliore;
-        utterance.lang = obj ? obj.voice : lang;
-        utterance.rate = velocita;
-        utterance.onstart = () => aggiornaStato(`Lettura (${lang.toUpperCase()})`);
-        utterance.onend = () => aggiornaStato('Pronto');
-        window.speechSynthesis.speak(utterance);
-      }
-    }
-
-    function applicaPunteggiatura(testo) {
-      return testo
-        .replace(/\bvirgola\b/gi, ',')
-        .replace(/\bpunto e virgola\b/gi, ';')
-        .replace(/\bdue punti\b/gi, ':')
-        .replace(/\bpunto di domanda\b|\bpunto interrogativo\b/gi, '?')
-        .replace(/\bpunto esclamativo\b/gi, '!')
-        .replace(/\bpunto\b/gi, '.')
-        .replace(/\bnuova linea\b|\ba capo\b/gi, '\n')
-        .replace(/\s+([,.?!:;])/g, '$1');
-    }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recDocente = null, inAscoltoDocente = false;
-
-    if (SpeechRecognition) {
-      recDocente = new SpeechRecognition();
-      recDocente.continuous = true;
-      recDocente.interimResults = true;
-      recDocente.lang = 'it-IT';
-
-      recDocente.onresult = (e) => {
-        let testoProvvisorio = '';
-        for (let i = e.resultIndex; i < e.results.length; i++) {
-          const transcript = e.results[i][0].transcript;
-          if (e.results[i].isFinal) testoConfermatoDocente += (testoConfermatoDocente ? ' ' : '') + transcript;
-          else testoProvvisorio += transcript;
-        }
-        let testoTotale = testoConfermatoDocente + (testoProvvisorio ? ' ' + testoProvvisorio : '');
-        document.getElementById('testoITA').value = applicaPunteggiatura(testoTotale);
-        gestisciInput();
-      };
-
-      recDocente.onerror = () => fermaAscoltoDocente();
-      recDocente.onend = () => { if (inAscoltoDocente) recDocente.start(); };
-    }
-
-    function toggleMicrofonoDocente() {
-      if (!recDocente) return alert("Browser non supportato. Usa Chrome o Edge.");
-      if (inAscoltoDocente) fermaAscoltoDocente();
-      else avviaAscoltoDocente();
-    }
-
-    function avviaAscoltoDocente() {
-      if (inAscoltoStudente) fermaAscoltoStudente();
-      testoConfermatoDocente = document.getElementById('testoITA').value;
-      try {
-        recDocente.start();
-        inAscoltoDocente = true;
-        const btn = document.getElementById('btnMic');
-        btn.classList.add('recording');
-        document.getElementById('micText').innerText = 'In ascolto...';
-        aggiornaStato('Mic Docente');
-      } catch (e) { console.error(e); }
-    }
-
-    function fermaAscoltoDocente() {
-      inAscoltoDocente = false;
-      if (recDocente) recDocente.stop();
-      const btn = document.getElementById('btnMic');
-      btn.classList.remove('recording');
-      document.getElementById('micText').innerText = 'Attiva Mic';
-      aggiornaStato('Pronto');
-    }
-
-    let recStudente = null, inAscoltoStudente = false;
-    function toggleMicrofonoStudente() {
-      if (!SpeechRecognition) return alert("Browser non supportato.");
-      if (inAscoltoStudente) fermaAscoltoStudente();
-      else avviaAscoltoStudente();
-    }
-
-    function avviaAscoltoStudente() {
-      if (inAscoltoDocente) fermaAscoltoDocente();
-      const langSel = document.getElementById('studentLangSelect').value;
-      recStudente = new SpeechRecognition();
-      recStudente.continuous = true;
-      recStudente.interimResults = true;
-      recStudente.lang = langSel;
-
-      recStudente.onresult = (e) => {
-        let t = '';
-        for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript;
-        traduciDaStudente(t, langSel.split('-')[0]);
-      };
-      recStudente.onerror = () => fermaAscoltoStudente();
-      recStudente.onend = () => { if (inAscoltoStudente) recStudente.start(); };
-
-      try {
-        recStudente.start();
-        inAscoltoStudente = true;
-        const btn = document.getElementById('btnMicStudent');
-        btn.classList.add('recording');
-        btn.innerText = '🔴 In ascolto...';
-        aggiornaStato('Mic Studente');
-      } catch (e) { console.error(e); }
-    }
-
-    function fermaAscoltoStudente() {
-      inAscoltoStudente = false;
-      if (recStudente) recStudente.stop();
-      const btn = document.getElementById('btnMicStudent');
-      btn.classList.remove('recording');
-      btn.innerText = '🎙️ Parla (Studente)';
-      aggiornaStato('Pronto');
-    }
-
-    async function chiamaGoogleTranslate(testo, linguaDa, linguaA) {
-      const targetLang = linguaA.split('-')[0];
-      const url = `https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=${linguaDa}&tl=${targetLang}&q=${encodeURIComponent(testo)}`;
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data && Array.isArray(data) && data[0]) {
-          return Array.isArray(data[0]) ? data[0].join(' ') : data[0];
-        } else if (typeof data === 'string') {
-          return data;
-        }
-      } catch (e) {
-        console.error(e);
-      }
-      return null;
-    }
-
-    async function traduciDaStudente(testo, langDa) {
-      if (!testo.trim()) return;
-      const trad = await chiamaGoogleTranslate(testo, langDa, 'it');
-      if (trad) {
-        document.getElementById('testoStudente').value = `[${langDa.toUpperCase()}]: ${testo}\n🇮🇹 [TRADUZIONE PER DOCENTE]: ${trad}`;
-      }
-    }
-
-    function gestisciInput() {
-      aggiornaStato('Digitazione...');
-      clearTimeout(timerDebounce);
-      timerDebounce = setTimeout(traduciTutto, 500);
-    }
-
-    function traduciTutto() {
-      const testo = document.getElementById('testoITA').value.trim();
-
-      if (!testo) {
-        ELENCO_LINGUE.forEach(l => {
-          const el = document.getElementById('box_' + l.code);
-          if (el) el.innerText = '...';
-        });
-        aggiornaStato('Pronto');
-        trasmettiDatiRete({ ita: '', traduzioni: {} });
-        return;
-      }
-
-      aggiornaStato('Traduzione...');
-      let traduzioniMap = {};
-
-      let promesse = ELENCO_LINGUE.map(l => {
-        return chiamaGoogleTranslate(testo, 'it', l.code).then(trad => {
-          if (trad) {
-            const el = document.getElementById('box_' + l.code);
-            if (el) el.innerText = trad;
-            if (linguaFocusCorrente === l.code) document.getElementById('modalBody').innerText = trad;
-            traduzioniMap[l.code] = trad;
-          }
-        });
-      });
-
-      Promise.all(promesse).then(() => {
-        aggiornaStato('Tradotto');
-        trasmettiDatiRete({
-          ita: testo,
-          traduzioni: traduzioniMap
-        });
-      });
-    }
-
-    function aggiornaStato(msg) { document.getElementById('status').innerText = msg; }
-
-    inizializzaGriglia();
-    inizializzaRete();
+    inizializzaSelectLingue();
   </script>
 </body>
 </html>
