@@ -736,7 +736,7 @@
             <svg viewBox="0 0 24 24"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>
           </button>
           <button class="btn-svg-icon" title="Ascolta" onclick="leggiTestoFocus(0.9, this)">
-            <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+            <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
           </button>
           <button class="btn-tool" onclick="chiudiFocus()">✖️</button>
         </div>
@@ -995,13 +995,20 @@
       const testoPuro = elText ? elText.innerText.trim() : '';
 
       if (!testoPuro || testoPuro === '...' || testoPuro.startsWith('In attesa')) return;
-
       if (!('speechSynthesis' in window)) return;
 
-      const utterance = new SpeechSynthesisUtterance(testoPuro);
       const langCode = voiceLang.split('-')[0];
       const voceMigliore = selezionaVoceMigliore(langCode);
-      if (voceMigliore) utterance.voice = voceMigliore;
+
+      // SE IL BROWSER NON HA PROPRIO ALCUNA VOCE PER QUESTA LINGUA
+      if (!voceMigliore) {
+        aggiornaStato('⚠️ Voce non supportata');
+        alert("Attenzione: Il tuo browser o sistema operativo non ha una voce installata per questa lingua.\n\nSuggerimento: Prova ad aprire il sito con Microsoft Edge oppure installa il pacchetto lingua TTS nelle impostazioni di Windows.");
+        return;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(testoPuro);
+      utterance.voice = voceMigliore;
       utterance.lang = voiceLang;
       utterance.rate = velocita;
 
@@ -1371,15 +1378,30 @@
       if ('speechSynthesis' in window) vociDisponibili = window.speechSynthesis.getVoices();
     }
     caricaVoci();
-    if ('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = caricaVoci;
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = caricaVoci;
+    }
 
     function selezionaVoceMigliore(langCode) {
       if (!vociDisponibili.length) caricaVoci();
-      const prefix = langCode.toLowerCase();
-      const compatibili = vociDisponibili.filter(v => v.lang.toLowerCase().startsWith(prefix));
+      const prefix = langCode.toLowerCase().split('-')[0];
+      
+      // 1. Cerca una voce esatta per la lingua
+      let compatibili = vociDisponibili.filter(v => v.lang.toLowerCase().startsWith(prefix));
+      
+      if (!compatibili.length) {
+        // 2. FALLBACK: Cerca voci contenenti il codice lingua o il nome lingua
+        compatibili = vociDisponibili.filter(v => 
+          v.name.toLowerCase().includes(prefix) || 
+          v.lang.toLowerCase().includes(prefix)
+        );
+      }
+
       if (!compatibili.length) return null;
-      let scelta = compatibili.find(v => v.name.includes('Online') || v.name.includes('Natural') || v.name.includes('Neural') || v.name.includes('Premium'));
-      if (!scelta) scelta = compatibili.find(v => v.name.includes('Google'));
+
+      // Preferisci voci di alta qualità (Natural / Google / Neural / Online)
+      let scelta = compatibili.find(v => v.name.includes('Online') || v.name.includes('Natural') || v.name.includes('Neural') || v.name.includes('Google'));
       return scelta || compatibili[0];
     }
 
