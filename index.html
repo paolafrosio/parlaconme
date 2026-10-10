@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ParlaConMe - Traduttore Live CPIA</title>
-<link rel="icon" type="image/png" href="logo.png?v=2">
+  
+  <link rel="icon" type="image/png" href="logo.png?v=3">
+
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
@@ -48,6 +50,9 @@
       margin: 0;
       color: var(--primary-color);
       font-size: 22px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
     .top-controls {
       display: flex;
@@ -152,9 +157,7 @@
       border: 1px solid #feefc3;
       width: 170px;
     }
-    #btnMic {
-      width: 140px;
-    }
+    #btnMic { width: 140px; }
 
     @keyframes pulse {
       0% { box-shadow: 0 0 0 0 rgba(217, 48, 37, 0.4); }
@@ -270,6 +273,42 @@
     }
     .rtl { direction: rtl; text-align: right; }
 
+    /* STILI DEDICATI VISTA BILINGUE STUDENTE */
+    .student-view-container {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      height: 100%;
+    }
+    .student-card-main {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-top: 6px solid var(--primary-color);
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+    .student-lang-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 10px;
+    }
+    .student-display-text {
+      background: var(--card-body-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 20px;
+      line-height: 1.4;
+      flex-grow: 1;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
     .modal-overlay {
       display: none;
       position: fixed;
@@ -332,10 +371,12 @@
 </head>
 <body>
 
+  <!-- INTESTAZIONE -->
   <div class="header">
-<h1><img src="logo.png" alt="Logo" style="height: 30px; vertical-align: middle; margin-right: 8px;">ParlaConMe</h1>    <div class="top-controls">
-      <button class="btn-main" onclick="mostraQRCode()">📱 Trasmetti agli Studenti</button>
-      <button class="btn-tool" onclick="apriGestioneLingue()">⚙️ Gestisci Lingue</button>
+    <h1><img src="logo.png?v=3" alt="Logo" style="height: 30px; vertical-align: middle; margin-right: 8px;">ParlaConMe</h1>
+    <div class="top-controls">
+      <button id="btnQR" class="btn-main" onclick="mostraQRCode()">📱 Trasmetti agli Studenti</button>
+      <button id="btnLangConfig" class="btn-tool" onclick="apriGestioneLingue()">⚙️ Gestisci Lingue</button>
       <button class="btn-tool" onclick="toggleDarkMode()">🌙 Alto Contrasto</button>
       <div class="zoom-bar">
         <span style="font-size: 12px; color: #5f6368; margin-right: 4px;">Testo:</span>
@@ -348,37 +389,73 @@
     </div>
   </div>
 
-  <div id="studentPanel" class="student-panel">
-    <div class="student-header">
-      <label>🗣️ <strong>Modalità Studente:</strong> Parla nella tua lingua ➔ Il docente leggerà la traduzione in italiano</label>
-      <div>
-        <select id="studentLangSelect" class="student-select"></select>
-        <button id="btnMicStudent" class="btn-main" style="width: auto;" onclick="toggleMicrofonoStudente()">🎙️ Parla (Studente)</button>
-        <button class="btn-tool" onclick="chiudiModalitaStudente()">✖️ Chiudi</button>
+  <!-- INTERFACCIA DOCENTE (NASCOSTA PER GLI STUDENTI) -->
+  <div id="docenteContainer">
+    <div id="studentPanel" class="student-panel">
+      <div class="student-header">
+        <label>🗣️ <strong>Modalità Studente:</strong> Parla nella tua lingua ➔ Il docente leggerà la traduzione in italiano</label>
+        <div>
+          <select id="studentLangSelect" class="student-select"></select>
+          <button id="btnMicStudent" class="btn-main" style="width: auto;" onclick="toggleMicrofonoStudente()">🎙️ Parla (Studente)</button>
+          <button class="btn-tool" onclick="chiudiModalitaStudente()">✖️ Chiudi</button>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <textarea id="testoStudente" placeholder="Trascrizione e traduzione per il docente..." style="height: 60px;"></textarea>
       </div>
     </div>
-    <div style="display: flex; gap: 10px;">
-      <textarea id="testoStudente" placeholder="Trascrizione e traduzione per il docente..." style="height: 60px;"></textarea>
+
+    <div class="source-box">
+      <div class="label-row">
+        <label for="testoITA">🇮🇹 Parla o Scrivi in Italiano (Docente):</label>
+        <div class="action-btns">
+          <button class="btn-main btn-student" onclick="apriModalitaStudente()">🔄 Studente ➔ Docente</button>
+          <button class="btn-main btn-clear" onclick="cancellaTutto()">🗑️ Cancella</button>
+          <button class="btn-main btn-save" onclick="salvaInCronologia()">📌 Salva Frase</button>
+          <button id="btnMic" class="btn-main" onclick="toggleMicrofonoDocente()">
+            <span id="micIcon">🎙️</span> <span id="micText">Attiva Mic</span>
+          </button>
+        </div>
+      </div>
+      <textarea id="testoITA" placeholder="Scrivi o premi il pulsante per parlare..." oninput="registraModificaManuale()"></textarea>
+    </div>
+
+    <div id="gridContainer" class="grid-container"></div>
+  </div>
+
+  <!-- INTERFACCIA DEDICATA BILINGUE PER STUDENTI -->
+  <div id="studentViewContainer" class="student-view-container">
+    <div class="student-card-main">
+      <div class="student-lang-bar">
+        <label for="myLangSelect"><strong>Scegli la tua lingua / Choose language:</strong></label>
+        <select id="myLangSelect" class="student-select" style="font-size: 16px; padding: 6px 12px;" onchange="cambiaLinguaStudente()"></select>
+      </div>
+      
+      <!-- BOX ITALIANO (DOCENTE) CON PULSANTI ASCOLTO -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+        <div style="font-weight: bold; font-size: 14px; color: var(--primary-color);">🇮🇹 Italiano (Docente):</div>
+        <div style="display: flex; gap: 4px;">
+          <button class="btn-card" style="padding: 3px 8px; font-size: 11px;" onclick="leggiTestoItalianoStudente(0.5)">🐢 Lento</button>
+          <button class="btn-card" style="padding: 3px 8px; font-size: 11px;" onclick="leggiTestoItalianoStudente(0.9)">🔊 Ascolta ITA</button>
+        </div>
+      </div>
+      <div id="studentDisplayITA" class="student-display-text" style="flex-grow: 0; min-height: 70px; max-height: 140px; margin-bottom: 12px; background: #ffffff;">In attesa dell'insegnante...</div>
+
+      <!-- BOX TRADUZIONE (STUDENTE) -->
+      <div style="font-weight: bold; font-size: 14px; margin-bottom: 4px; color: var(--primary-color);">🌐 Traduzione nella tua lingua:</div>
+      <div id="studentDisplayText" class="student-display-text">In attesa della traduzione...</div>
+
+      <div class="card-footer" style="justify-content: space-between; margin-top: 10px;">
+        <div style="display: flex; gap: 6px;">
+          <button class="btn-card" style="padding: 6px 12px; font-size: 13px;" onclick="leggiTestoStudente(0.5)">🐢 Lento</button>
+          <button class="btn-card" style="padding: 6px 12px; font-size: 13px;" onclick="leggiTestoStudente(0.9)">🔊 Ascolta Traduzione</button>
+        </div>
+        <button class="btn-card" style="padding: 6px 12px; font-size: 13px;" onclick="copiaTestoStudente()">📋 Copia</button>
+      </div>
     </div>
   </div>
 
-  <div class="source-box">
-    <div class="label-row">
-      <label for="testoITA">🇮🇹 Parla o Scrivi in Italiano (Docente):</label>
-      <div class="action-btns">
-        <button class="btn-main btn-student" onclick="apriModalitaStudente()">🔄 Studente ➔ Docente</button>
-        <button class="btn-main btn-clear" onclick="cancellaTutto()">🗑️ Cancella</button>
-        <button class="btn-main btn-save" onclick="salvaInCronologia()">📌 Salva Frase</button>
-        <button id="btnMic" class="btn-main" onclick="toggleMicrofonoDocente()">
-          <span id="micIcon">🎙️</span> <span id="micText">Attiva Mic</span>
-        </button>
-      </div>
-    </div>
-    <textarea id="testoITA" placeholder="Scrivi o premi il pulsante per parlare..." oninput="registraModificaManuale()"></textarea>
-  </div>
-
-  <div id="gridContainer" class="grid-container"></div>
-
+  <!-- MODALI E FINESTRE DI DIALOGO -->
   <div id="modalFocus" class="modal-overlay">
     <div class="modal-card">
       <div class="modal-header">
@@ -407,10 +484,16 @@
   <div id="modalQR" class="modal-overlay">
     <div class="modal-card" style="align-items: center; text-align: center; max-width: 450px;">
       <h2 style="margin-top:0; color: var(--primary-color);">📱 Connetti gli Studenti</h2>
-      <p style="font-size: 14px; color: #5f6368;">Gli studenti possono inquadrare questo QR Code per vedere le traduzioni in tempo reale sui loro dispositivi:</p>
-      <div id="qrcode" style="margin: 15px auto; padding: 10px; background: white; border-radius: 8px;"></div>
-      <p style="font-weight: bold; font-size: 14px;">Codice Stanza: <span id="roomCodeDisplay" style="color: #d93025;">...</span></p>
-      <button class="btn-main" style="width: auto;" onclick="chiudiQRCode()">Chiudi</button>
+      <p style="font-size: 14px; color: #5f6368; margin-bottom: 5px;"><strong>Da Smartphone:</strong> Inquadra il QR Code</p>
+      <div id="qrcode" style="margin: 10px auto; padding: 10px; background: white; border-radius: 8px;"></div>
+      
+      <div style="background: #e8f0fe; border: 1px solid #1a73e8; border-radius: 8px; padding: 10px; width: 100%; box-sizing: border-box; margin-top: 10px;">
+        <p style="margin: 0; font-size: 14px; color: #1a73e8;"><strong>Da PC (Laboratorio):</strong></p>
+        <p style="margin: 4px 0; font-size: 13px;">Vai su: <strong style="text-decoration: underline;">parlaconme/studente.html</strong></p>
+        <p style="margin: 0; font-weight: bold; font-size: 20px; color: #d93025;">PIN Stanza: <span id="roomCodeDisplay">...</span></p>
+      </div>
+
+      <button class="btn-main" style="width: auto; margin-top: 15px;" onclick="chiudiQRCode()">Chiudi</button>
     </div>
   </div>
 
@@ -420,6 +503,9 @@
     let linguaFocusCorrente = null;
     let cronologiaLezione = [];
     let testoConfermatoDocente = '';
+    let eStudente = false;
+    let traduzioniRicevuteRete = {};
+    let testoITARicevutoRete = '';
 
     let peer = null;
     let connessioniStudenti = [];
@@ -453,6 +539,8 @@
       const stanzaTarget = urlParams.get('stanza');
 
       if (stanzaTarget) {
+        eStudente = true;
+        impostaVistaStudente();
         peer = new Peer();
         peer.on('open', () => {
           const conn = peer.connect(stanzaTarget);
@@ -468,6 +556,79 @@
       }
     }
 
+    function impostaVistaStudente() {
+      document.getElementById('docenteContainer').style.display = 'none';
+      document.getElementById('btnQR').style.display = 'none';
+      document.getElementById('btnLangConfig').style.display = 'none';
+      document.getElementById('studentViewContainer').style.display = 'flex';
+
+      const select = document.getElementById('myLangSelect');
+      select.innerHTML = '';
+      ELENCO_LINGUE.forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l.code;
+        opt.innerText = l.name;
+        select.appendChild(opt);
+      });
+    }
+
+    function cambiaLinguaStudente() {
+      const lang = document.getElementById('myLangSelect').value;
+      const display = document.getElementById('studentDisplayText');
+      const langObj = ELENCO_LINGUE.find(l => l.code === lang);
+      
+      if (langObj && langObj.rtl) display.classList.add('rtl');
+      else display.classList.remove('rtl');
+
+      if (traduzioniRicevuteRete[lang]) {
+        display.innerText = traduzioniRicevuteRete[lang];
+      } else {
+        display.innerText = 'In attesa della traduzione...';
+      }
+    }
+
+    function leggiTestoItalianoStudente(velocita) {
+      const testo = document.getElementById('studentDisplayITA').innerText;
+      if (!testo || testo.startsWith('In attesa')) return;
+
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(testo);
+        utterance.lang = 'it-IT';
+        const voceITA = selezionaVoceMigliore('it');
+        if (voceITA) utterance.voice = voceITA;
+        utterance.rate = velocita;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function leggiTestoStudente(velocita) {
+      const lang = document.getElementById('myLangSelect').value;
+      const testo = document.getElementById('studentDisplayText').innerText;
+      if (!testo || testo.startsWith('In attesa')) return;
+
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(testo);
+        const obj = ELENCO_LINGUE.find(l => l.code === lang);
+        const langCode = obj ? obj.voice.split('-')[0] : lang;
+        const voceMigliore = selezionaVoceMigliore(langCode);
+        if (voceMigliore) utterance.voice = voceMigliore;
+        utterance.lang = obj ? obj.voice : lang;
+        utterance.rate = velocita;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function copiaTestoStudente() {
+      const testo = document.getElementById('studentDisplayText').innerText;
+      if (!testo || testo.startsWith('In attesa')) return;
+      navigator.clipboard.writeText(testo).then(() => {
+        aggiornaStato('✓ Copiato');
+        setTimeout(() => aggiornaStato('Connesso'), 2000);
+      });
+    }
+
     function trasmettiDatiRete(dati) {
       connessioniStudenti.forEach(conn => {
         if (conn.open) conn.send(dati);
@@ -475,10 +636,18 @@
     }
 
     function applicaDatiRicevuti(dati) {
-      document.getElementById('testoITA').value = dati.ita;
-      for (const [lang, testo] of Object.entries(dati.traduzioni)) {
-        const el = document.getElementById('box_' + lang);
-        if (el) el.innerText = testo;
+      traduzioniRicevuteRete = dati.traduzioni || {};
+      testoITARicevutoRete = dati.ita || '';
+
+      if (eStudente) {
+        document.getElementById('studentDisplayITA').innerText = testoITARicevutoRete || 'In attesa dell\'insegnante...';
+        cambiaLinguaStudente();
+      } else {
+        document.getElementById('testoITA').value = dati.ita;
+        for (const [lang, testo] of Object.entries(dati.traduzioni)) {
+          const el = document.getElementById('box_' + lang);
+          if (el) el.innerText = testo;
+        }
       }
     }
 
@@ -486,14 +655,15 @@
       const modal = document.getElementById('modalQR');
       const container = document.getElementById('qrcode');
       container.innerHTML = '';
-      document.getElementById('roomCodeDisplay').innerText = ID_STANZA_DOCENTE;
+      
+      document.getElementById('roomCodeDisplay').innerText = ID_STANZA_DOCENTE.replace('cpia-aula-', '');
 
       const urlLezione = window.location.href.split('?')[0] + '?stanza=' + ID_STANZA_DOCENTE;
 
       new QRCode(container, {
         text: urlLezione,
-        width: 200,
-        height: 200
+        width: 180,
+        height: 180
       });
 
       modal.style.display = 'flex';
@@ -569,13 +739,13 @@
 
     function cambiaZoom(delta) {
       fontSizeCorrente = Math.max(12, Math.min(32, fontSizeCorrente + delta));
-      document.querySelectorAll('.card-body').forEach(el => el.style.fontSize = fontSizeCorrente + 'px');
+      document.querySelectorAll('.card-body, .student-display-text').forEach(el => el.style.fontSize = fontSizeCorrente + 'px');
       aggiornaStato(`Testo: ${fontSizeCorrente}px`);
     }
 
     function resetZoom() {
       fontSizeCorrente = 16;
-      document.querySelectorAll('.card-body').forEach(el => el.style.fontSize = '16px');
+      document.querySelectorAll('.card-body, .student-display-text').forEach(el => el.style.fontSize = '16px');
       aggiornaStato('Zoom reset');
     }
 
@@ -638,28 +808,41 @@
       const testoITA = document.getElementById('testoITA').value.trim();
       if (!testoITA) return;
       let riga = { ita: testoITA };
-      lingueAttive.forEach(l => {
-        const el = document.getElementById('box_' + l);
-        riga[l] = el ? el.innerText : '...';
+      ELENCO_LINGUE.forEach(l => {
+        const el = document.getElementById('box_' + l.code);
+        if (el && el.innerText !== '...') riga[l.code] = el.innerText;
+        else if (traduzioniRicevuteRete[l.code]) riga[l.code] = traduzioniRicevuteRete[l.code];
       });
       cronologiaLezione.push(riga);
       aggiornaStato(`Salvato (${cronologiaLezione.length})`);
     }
 
     function scaricaLezione() {
-      if (cronologiaLezione.length === 0) {
-        alert("Nessuna frase salvata.");
-        return;
-      }
       let contenuto = "VOCABOLARIO LEZIONE CPIA\n=========================\n\n";
-      cronologiaLezione.forEach((item, index) => {
-        contenuto += `FRASE ${index + 1}:\n🇮🇹 ITA: ${item.ita}\n`;
-        lingueAttive.forEach(l => {
-          const obj = ELENCO_LINGUE.find(x => x.code === l);
-          contenuto += `${obj ? obj.name : l}: ${item[l]}\n`;
+
+      if (eStudente) {
+        const lang = document.getElementById('myLangSelect').value;
+        const testoITA = document.getElementById('studentDisplayITA').innerText;
+        const testoTradotto = document.getElementById('studentDisplayText').innerText;
+        const obj = ELENCO_LINGUE.find(x => x.code === lang);
+        
+        contenuto += `🇮🇹 ITALIANO:\n${testoITA}\n\n`;
+        contenuto += `${obj ? obj.name : lang.toUpperCase()}:\n${testoTradotto}\n`;
+      } else {
+        if (cronologiaLezione.length === 0) {
+          alert("Nessuna frase salvata.");
+          return;
+        }
+        cronologiaLezione.forEach((item, index) => {
+          contenuto += `FRASE ${index + 1}:\n🇮🇹 ITA: ${item.ita}\n`;
+          lingueAttive.forEach(l => {
+            const obj = ELENCO_LINGUE.find(x => x.code === l);
+            contenuto += `${obj ? obj.name : l}: ${item[l] || '...'}\n`;
+          });
+          contenuto += "-------------------------\n\n";
         });
-        contenuto += "-------------------------\n\n";
-      });
+      }
+
       const blob = new Blob([contenuto], { type: 'text/plain;charset=utf-8' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
@@ -812,7 +995,6 @@
       aggiornaStato('Pronto');
     }
 
-    // NUOVO API ENDPOINT STABILE GOOGLE DIZIONARI CHROME (Senza limiti CORS/IP)
     async function chiamaGoogleTranslate(testo, linguaDa, linguaA) {
       const targetLang = linguaA.split('-')[0];
       const url = `https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=${linguaDa}&tl=${targetLang}&q=${encodeURIComponent(testo)}`;
@@ -848,8 +1030,8 @@
       const testo = document.getElementById('testoITA').value.trim();
 
       if (!testo) {
-        lingueAttive.forEach(l => {
-          const el = document.getElementById('box_' + l);
+        ELENCO_LINGUE.forEach(l => {
+          const el = document.getElementById('box_' + l.code);
           if (el) el.innerText = '...';
         });
         aggiornaStato('Pronto');
@@ -859,13 +1041,13 @@
       aggiornaStato('Traduzione...');
       let traduzioniMap = {};
 
-      let promesse = lingueAttive.map(lang => {
-        return chiamaGoogleTranslate(testo, 'it', lang).then(trad => {
+      let promesse = ELENCO_LINGUE.map(l => {
+        return chiamaGoogleTranslate(testo, 'it', l.code).then(trad => {
           if (trad) {
-            const el = document.getElementById('box_' + lang);
+            const el = document.getElementById('box_' + l.code);
             if (el) el.innerText = trad;
-            if (linguaFocusCorrente === lang) document.getElementById('modalBody').innerText = trad;
-            traduzioniMap[lang] = trad;
+            if (linguaFocusCorrente === l.code) document.getElementById('modalBody').innerText = trad;
+            traduzioniMap[l.code] = trad;
           }
         });
       });
