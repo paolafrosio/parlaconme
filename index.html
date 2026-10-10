@@ -511,6 +511,19 @@
     let connessioniStudenti = [];
     let ID_STANZA_DOCENTE = 'cpia-aula-' + Math.floor(1000 + Math.random() * 9000);
 
+    // Configurazione dei server STUN pubblici di Google per superare i blocchi di rete/mDNS
+    const CONFIGURAZIONE_PEER = {
+      config: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' },
+          { urls: 'stun:stun2.l.google.com:19302' },
+          { urls: 'stun:stun3.l.google.com:19302' },
+          { urls: 'stun:stun4.l.google.com:19302' }
+        ]
+      }
+    };
+
     const ELENCO_LINGUE = [
       { code: 'sq', voice: 'sq-AL', name: '🇦🇱 Albanese' },
       { code: 'ar', voice: 'ar-SA', name: '🇸🇦 Arabo', rtl: true },
@@ -541,17 +554,26 @@
       if (stanzaTarget) {
         eStudente = true;
         impostaVistaStudente();
-        peer = new Peer();
+        peer = new Peer(CONFIGURAZIONE_PEER);
         peer.on('open', () => {
-          const conn = peer.connect(stanzaTarget);
+          const conn = peer.connect(stanzaTarget, { reliable: true });
+          conn.on('open', () => {
+            conn.send({ tipo: 'RICHIESTA_SINCRONIZZAZIONE' });
+            aggiornaStato('Connesso');
+          });
           conn.on('data', (dati) => applicaDatiRicevuti(dati));
-          aggiornaStato('Connesso');
         });
       } else {
-        peer = new Peer(ID_STANZA_DOCENTE);
+        peer = new Peer(ID_STANZA_DOCENTE, CONFIGURAZIONE_PEER);
         peer.on('connection', (conn) => {
           connessioniStudenti.push(conn);
           aggiornaStato(`Studenti: ${connessioniStudenti.length}`);
+          
+          conn.on('data', (dati) => {
+            if (dati && dati.tipo === 'RICHIESTA_SINCRONIZZAZIONE') {
+              traduciTutto();
+            }
+          });
         });
       }
     }
@@ -636,6 +658,8 @@
     }
 
     function applicaDatiRicevuti(dati) {
+      if (!dati || dati.tipo === 'RICHIESTA_SINCRONIZZAZIONE') return;
+
       traduzioniRicevuteRete = dati.traduzioni || {};
       testoITARicevutoRete = dati.ita || '';
 
@@ -769,6 +793,7 @@
         if (el) el.innerText = '...';
       });
       aggiornaStato('Pulito');
+      trasmettiDatiRete({ ita: '', traduzioni: {} });
     }
 
     function registraModificaManuale() {
@@ -1035,6 +1060,7 @@
           if (el) el.innerText = '...';
         });
         aggiornaStato('Pronto');
+        trasmettiDatiRete({ ita: '', traduzioni: {} });
         return;
       }
 
