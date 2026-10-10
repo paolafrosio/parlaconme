@@ -17,6 +17,7 @@
       --border-color: #dadce0;
       --card-body-bg: #f8f9fa;
       --primary-color: #1a73e8;
+      --box-ita-bg: #ffffff;
     }
 
     body.dark-mode {
@@ -26,6 +27,7 @@
       --border-color: #3c4043;
       --card-body-bg: #2d2d2d;
       --primary-color: #8ab4f8;
+      --box-ita-bg: #2d2d2d;
     }
 
     * { box-sizing: border-box; }
@@ -336,21 +338,22 @@
     }
     .rtl { direction: rtl; text-align: right; }
 
-    /* EVIDENZIAZIONE PAROLA (KARAOKE) CON SUPPORTO COMPLETO MOBILE */
+    /* EVIDENZIAZIONE SINCRO PERFETTA PER LIGHT E DARK MODE */
     mark.highlight-word {
       background-color: #fce8e6;
       color: #d93025;
       font-weight: bold;
       border-radius: 4px;
       padding: 2px 4px;
-      border: 1px solid #f9ab00;
+      border: 1px solid #ea4335;
     }
     body.dark-mode mark.highlight-word {
       background-color: #f9ab00;
-      color: #000;
+      color: #121212;
+      border-color: #fbbc04;
     }
 
-    /* STILI DEDICATI VISTA BILINGUE STUDENTE */
+    /* VISTA BILINGUE STUDENTE */
     .student-view-container {
       display: none;
       flex-direction: column;
@@ -387,6 +390,12 @@
       overflow-y: auto;
       white-space: pre-wrap;
       word-break: break-word;
+      color: var(--text-color);
+    }
+    /* CLASSE DEDICATA AL BOX ITALIANO PER DARK MODE CORRETTA */
+    .student-display-ita-box {
+      background: var(--box-ita-bg) !important;
+      color: var(--text-color) !important;
     }
 
     .modal-overlay {
@@ -462,7 +471,6 @@
       .card-footer { justify-content: flex-start; }
     }
 
-    /* FIX DEFINITIVO PER LA STAMPA/PDF DELLO STUDENTE (NESSUNA SOVRAPPOSIZIONE) */
     @media print {
       @page { margin: 12mm; size: auto; }
       html, body {
@@ -493,6 +501,7 @@
         position: relative !important;
         border: 1px solid #ccc !important;
         background: #fff !important;
+        color: #000 !important;
         font-size: 14pt !important;
         padding: 10px !important;
         margin-bottom: 20px !important;
@@ -569,7 +578,7 @@
         <select id="myLangSelect" class="student-select" style="font-size: 15px;" onchange="cambiaLinguaStudente()"></select>
       </div>
       
-      <!-- BOX ITALIANO (DOCENTE) CON PULSANTI ASCOLTO/FERMA -->
+      <!-- BOX ITALIANO (DOCENTE) CORRETTO PER DARK MODE -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; flex-wrap: wrap; gap: 4px;">
         <div style="font-weight: bold; font-size: 14px; color: var(--primary-color);">🇮🇹 Italiano (Docente):</div>
         <div style="display: flex; gap: 4px;">
@@ -577,9 +586,9 @@
           <button id="btnItaNormal" class="btn-card" onclick="toggleLetturaItalianoStudente(0.9)">🔊 Ascolta ITA</button>
         </div>
       </div>
-      <div id="studentDisplayITA" class="student-display-text" style="flex-grow: 0; min-height: 60px; max-height: 120px; margin-bottom: 10px; background: #ffffff;">In attesa dell'insegnante...</div>
+      <div id="studentDisplayITA" class="student-display-text student-display-ita-box" style="flex-grow: 0; min-height: 60px; max-height: 120px; margin-bottom: 10px;">In attesa dell'insegnante...</div>
 
-      <!-- BOX TRADUZIONE (STUDENTE) CON PULSANTI ASCOLTO/FERMA -->
+      <!-- BOX TRADUZIONE (STUDENTE) -->
       <div style="font-weight: bold; font-size: 14px; margin-bottom: 4px; color: var(--primary-color);">🌐 Traduzione nella tua lingua:</div>
       <div id="studentDisplayText" class="student-display-text">In attesa della traduzione...</div>
 
@@ -645,9 +654,9 @@
     let traduzioniRicevuteRete = {};
     let testoITARicevutoRete = '';
 
-    // STATI LETTURA VOCALE STUDENTE E TESTO ORIGINALE
+    // STATI LETTURA VOCALE STUDENTE
     let letturaInCorso = false;
-    let targetLetturaCorrente = null; // 'ita' oppure 'trans'
+    let targetLetturaCorrente = null;
     let testoOriginaleITA = '';
     let testoOriginaleTrans = '';
     let intervalFallbackHighlight = null;
@@ -815,7 +824,10 @@
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
-      clearInterval(intervalFallbackHighlight);
+      if (intervalFallbackHighlight) {
+        clearInterval(intervalFallbackHighlight);
+        intervalFallbackHighlight = null;
+      }
       letturaInCorso = false;
       
       const displayITA = document.getElementById('studentDisplayITA');
@@ -878,10 +890,15 @@
 
       let boundaryTriggered = false;
 
-      // EVIDENZIAZIONE NATIVA PER BROWSER COMPATIBILI (CHROME / ANDROID / DESKTOP)
+      // EVIDENZIAZIONE SINCRO NATIVA BROWSER COMPATIBILI
       utterance.onboundary = (e) => {
         if (e.name !== 'word') return;
         boundaryTriggered = true;
+        if (intervalFallbackHighlight) {
+          clearInterval(intervalFallbackHighlight);
+          intervalFallbackHighlight = null;
+        }
+
         const charIndex = e.charIndex;
         const charLength = e.charLength || 5;
 
@@ -906,17 +923,15 @@
           btn.classList.add('active-speaking');
         }
 
-        // FALLBACK TIMER PER iOS/SAFARI CHE NON SUPPORTANO ONBOUNDARY
+        // FALLBACK SINCRO ADATTIVA PER DISPOSITIVI CHE NON RILASCIANO ONBOUNDARY
         setTimeout(() => {
           if (!boundaryTriggered && letturaInCorso) {
             const parole = testoPuro.split(/(\s+)/);
             let indexParola = 0;
-            // Calcolo ms per parola in base alla velocità
-            const msPerParola = Math.max(250, Math.round(400 / velocita));
 
-            intervalFallbackHighlight = setInterval(() => {
+            const avanzaEvidenziazione = () => {
               if (!letturaInCorso || indexParola >= parole.length) {
-                clearInterval(intervalFallbackHighlight);
+                if (intervalFallbackHighlight) clearInterval(intervalFallbackHighlight);
                 return;
               }
 
@@ -929,10 +944,20 @@
                 }
               }
               display.innerHTML = htmlCostruito;
+
+              // Calcolo tempo dinamico basato su lunghezza della parola corrente
+              const parolaCorrente = parole[indexParola] || '';
+              const durataMs = Math.max(160, Math.round((parolaCorrente.length * 55) / velocita));
+              
               indexParola++;
-            }, msPerParola);
+              if (letturaInCorso && !boundaryTriggered) {
+                intervalFallbackHighlight = setTimeout(avanzaEvidenziazione, durataMs);
+              }
+            };
+
+            avanzaEvidenziazione();
           }
-        }, 300);
+        }, 150);
       };
 
       utterance.onend = () => fermaLetturaStudente();
