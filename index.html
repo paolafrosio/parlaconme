@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Traduttore Live CPIA Pro</title>
+  <title>ParlaConMe - Traduttore Live CPIA</title>
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
@@ -332,7 +332,7 @@
 <body>
 
   <div class="header">
-    <h1>🎙️ Traduttore Live CPIA Pro</h1>
+    <h1>🎙️ ParlaConMe</h1>
     <div class="top-controls">
       <button class="btn-main" onclick="mostraQRCode()">📱 Trasmetti agli Studenti</button>
       <button class="btn-tool" onclick="apriGestioneLingue()">⚙️ Gestisci Lingue</button>
@@ -416,6 +416,7 @@
 
   <script>
     let timerDebounce = null;
+    let abortController = null;
     let fontSizeCorrente = 16;
     let linguaFocusCorrente = null;
     let cronologiaLezione = [];
@@ -426,27 +427,27 @@
     let ID_STANZA_DOCENTE = 'cpia-aula-' + Math.floor(1000 + Math.random() * 9000);
 
     const ELENCO_LINGUE = [
-      { code: 'en', voice: 'en-US', name: '🇬🇧 Inglese' },
-      { code: 'fr', voice: 'fr-FR', name: '🇫🇷 Francese' },
-      { code: 'es', voice: 'es-ES', name: '🇪🇸 Spagnolo' },
-      { code: 'bn', voice: 'bn-BD', name: '🇧🇩 Bengalese' },
-      { code: 'ar', voice: 'ar-SA', name: '🇸🇦 Arabo', rtl: true },
-      { code: 'zh', voice: 'zh-CN', name: '🇨🇳 Cinese' },
       { code: 'sq', voice: 'sq-AL', name: '🇦🇱 Albanese' },
-      { code: 'uk', voice: 'uk-UA', name: '🇺🇦 Ucraino' },
-      { code: 'ro', voice: 'ro-RO', name: '🇷🇴 Rumeno' },
-      { code: 'ur', voice: 'ur-PK', name: '🇵🇰 Urdu', rtl: true },
-      { code: 'ps', voice: 'ps-AF', name: '🇦🇫 Pashto', rtl: true },
+      { code: 'ar', voice: 'ar-SA', name: '🇸🇦 Arabo', rtl: true },
+      { code: 'bn', voice: 'bn-BD', name: '🇧🇩 Bengalese' },
+      { code: 'zh-CN', voice: 'zh-CN', name: '🇨🇳 Cinese' },
       { code: 'fa', voice: 'fa-IR', name: '🇮🇷 Farsi', rtl: true },
+      { code: 'fr', voice: 'fr-FR', name: '🇫🇷 Francese' },
+      { code: 'hi', voice: 'hi-IN', name: '🇮🇳 Hindi' },
+      { code: 'en', voice: 'en-US', name: '🇬🇧 Inglese' },
+      { code: 'ps', voice: 'ps-AF', name: '🇦🇫 Pashto', rtl: true },
       { code: 'pt', voice: 'pt-PT', name: '🇵🇹 Portoghese' },
+      { code: 'ro', voice: 'ro-RO', name: '🇷🇴 Rumeno' },
       { code: 'ru', voice: 'ru-RU', name: '🇷🇺 Russo' },
-      { code: 'de', voice: 'de-DE', name: '🇩🇪 Tedesco' },
+      { code: 'es', voice: 'es-ES', name: '🇪🇸 Spagnolo' },
       { code: 'tl', voice: 'tl-PH', name: '🇵🇭 Tagalog' },
+      { code: 'de', voice: 'de-DE', name: '🇩🇪 Tedesco' },
       { code: 'ti', voice: 'ti-ET', name: '🇪🇷 Tigrino' },
-      { code: 'hi', voice: 'hi-IN', name: '🇮🇳 Hindi' }
+      { code: 'uk', voice: 'uk-UA', name: '🇺🇦 Ucraino' },
+      { code: 'ur', voice: 'ur-PK', name: '🇵🇰 Urdu', rtl: true }
     ];
 
-    let lingueAttive = JSON.parse(localStorage.getItem('cpia_lingue_attive')) || ['en', 'fr', 'es', 'bn', 'ar', 'zh', 'sq', 'uk'];
+    let lingueAttive = ['sq', 'ar', 'bn', 'zh-CN', 'fr', 'en', 'es', 'uk'];
 
     function inizializzaRete() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -558,7 +559,6 @@
       } else {
         lingueAttive.push(code);
       }
-      localStorage.setItem('cpia_lingue_attive', JSON.stringify(lingueAttive));
     }
 
     function chiudiGestioneLingue() {
@@ -813,45 +813,24 @@
       aggiornaStato('Pronto');
     }
 
-    // Motore di traduzione resiliente con fallback automatico
-    async function eseguiTraduzione(testo, linguaDa, linguaA) {
-      // Metodo 1: Endpoint MyMemory via HTTPS pulito
-      try {
-        const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(testo)}&langpair=${linguaDa}|${linguaA}`);
-        const data = await res.json();
-        if (data && data.responseData && data.responseData.translatedText && !data.responseData.translatedText.includes('MYMEMORY WARNING')) {
-          return data.responseData.translatedText;
-        }
-      } catch (e) {}
-
-      // Metodo 2: Google Translate via Proxy CORS
-      try {
-        const target = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${linguaDa}&tl=${linguaA}&dt=t&q=${encodeURIComponent(testo)}`;
-        const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`);
-        const data = await res.json();
-        if (data && data[0]) {
-          return data[0].map(item => item[0]).join('');
-        }
-      } catch (e) {}
-
-      return null;
-    }
-
     async function traduciDaStudente(testo, langDa) {
       if (!testo.trim()) return;
-      const trad = await eseguiTraduzione(testo, langDa, 'it');
-      if (trad) {
-        document.getElementById('testoStudente').value = `[${langDa.toUpperCase()}]: ${testo}\n🇮🇹 [TRADUZIONE PER DOCENTE]: ${trad}`;
-      }
+      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${langDa}&tl=it&dt=t&q=${encodeURIComponent(testo)}`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        const traduzioneITA = data[0].map(item => item[0]).join('');
+        document.getElementById('testoStudente').value = `[${langDa.toUpperCase()}]: ${testo}\n🇮🇹 [TRADUZIONE PER DOCENTE]: ${traduzioneITA}`;
+      } catch (e) { console.error(e); }
     }
 
     function gestisciInput() {
       aggiornaStato('Digitazione...');
       clearTimeout(timerDebounce);
-      timerDebounce = setTimeout(traduciTutto, 300);
+      timerDebounce = setTimeout(traduciTutto, 100);
     }
 
-    async function traduciTutto() {
+    function traduciTutto() {
       const testo = document.getElementById('testoITA').value.trim();
 
       if (!testo) {
@@ -863,24 +842,36 @@
         return;
       }
 
+      if (abortController) abortController.abort();
+      abortController = new AbortController();
+
       aggiornaStato('Traduzione...');
+
       let traduzioniMap = {};
 
-      let promesse = lingueAttive.map(async (lang) => {
-        const trad = await eseguiTraduzione(testo, 'it', lang);
-        if (trad) {
-          const el = document.getElementById('box_' + lang);
-          if (el) el.innerText = trad;
-          if (linguaFocusCorrente === lang) document.getElementById('modalBody').innerText = trad;
-          traduzioniMap[lang] = trad;
-        }
+      let promesse = lingueAttive.map(lang => {
+        const targetLang = lang.split('-')[0];
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=it&tl=${targetLang}&dt=t&q=${encodeURIComponent(testo)}`;
+        return fetch(url, { signal: abortController.signal })
+          .then(res => res.json())
+          .then(data => {
+            if (data && data[0]) {
+              const traduzione = data[0].map(item => item[0]).join('');
+              const el = document.getElementById('box_' + lang);
+              if (el) el.innerText = traduzione;
+              if (linguaFocusCorrente === lang) document.getElementById('modalBody').innerText = traduzione;
+              traduzioniMap[lang] = traduzione;
+            }
+          })
+          .catch(() => {});
       });
 
-      await Promise.all(promesse);
-      aggiornaStato('Tradotto');
-      trasmettiDatiRete({
-        ita: testo,
-        traduzioni: traduzioniMap
+      Promise.all(promesse).then(() => {
+        aggiornaStato('Tradotto');
+        trasmettiDatiRete({
+          ita: testo,
+          traduzioni: traduzioniMap
+        });
       });
     }
 
