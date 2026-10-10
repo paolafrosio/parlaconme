@@ -279,7 +279,7 @@
     
     textarea {
       width: 100%;
-      height: 90px;
+      height: 95px;
       padding: 14px;
       font-size: 16px;
       border: 1px solid var(--card-border);
@@ -674,7 +674,7 @@
     <div id="gridContainer" class="grid-container"></div>
   </div>
 
-  <!-- INTERFACCIA DEDICATA BILINGUE PER STUDENTI (GRAFICA NEON GLASS MATCHING) -->
+  <!-- INTERFACCIA DEDICATA BILINGUE PER STUDENTI -->
   <div id="studentViewContainer" class="student-view-container">
     <div id="mainStudentCard" class="student-card-main">
       <div class="student-lang-bar">
@@ -764,6 +764,7 @@
 
   <script>
     let timerDebounce = null;
+    let timerPausaSilenzio = null;
     let fontSizeCorrente = 16;
     let linguaFocusCorrente = null;
     let cronologiaLezione = [];
@@ -931,6 +932,7 @@
       else display.classList.remove('rtl');
 
       display.innerText = traduzioniRicevuteRete[lang] || 'In attesa della traduzione...';
+      display.scrollTop = display.scrollHeight;
     }
 
     /* SISTEMA UNIFICATO STOP & ROSSO ATTIVO PER AUDIO */
@@ -1027,13 +1029,21 @@
 
       if (eStudente) {
         fermaTuttaLettura();
-        document.getElementById('studentDisplayITA').innerText = testoITARicevutoRete || 'In attesa dell\'insegnante...';
+        const displayITA = document.getElementById('studentDisplayITA');
+        displayITA.innerText = testoITARicevutoRete || 'In attesa dell\'insegnante...';
+        displayITA.scrollTop = displayITA.scrollHeight;
         cambiaLinguaStudente();
       } else {
-        document.getElementById('testoITA').value = dati.ita;
+        const textareaITA = document.getElementById('testoITA');
+        textareaITA.value = dati.ita;
+        textareaITA.scrollTop = textareaITA.scrollHeight;
+
         for (const [lang, testo] of Object.entries(dati.traduzioni)) {
           const el = document.getElementById('box_' + lang);
-          if (el) el.innerText = testo;
+          if (el) {
+            el.innerText = testo;
+            el.scrollTop = el.scrollHeight;
+          }
         }
       }
     }
@@ -1159,6 +1169,7 @@
     }
 
     function cancellaTutto() {
+      clearTimeout(timerPausaSilenzio);
       testoConfermatoDocente = '';
       document.getElementById('testoITA').value = '';
       document.getElementById('testoStudente').value = '';
@@ -1188,6 +1199,7 @@
       document.getElementById('modalTitle').innerText = titoloLingua;
       const modalBody = document.getElementById('modalBody');
       modalBody.innerText = testo;
+      modalBody.scrollTop = modalBody.scrollHeight;
       const langObj = ELENCO_LINGUE.find(l => l.code === lang);
       if (langObj && langObj.rtl) modalBody.classList.add('rtl');
       else modalBody.classList.remove('rtl');
@@ -1349,16 +1361,24 @@
       return scelta || compatibili[0];
     }
 
-    function applicaPunteggiatura(testo) {
-      return testo
+    /* PUNTEGGIATURA E FORMATTAZIONE VOCALE AVANZATA */
+    function applicaPunteggiaturaAvanzata(testo) {
+      let t = testo
         .replace(/\bvirgola\b/gi, ',')
         .replace(/\bpunto e virgola\b/gi, ';')
         .replace(/\bdue punti\b/gi, ':')
         .replace(/\bpunto di domanda\b|\bpunto interrogativo\b/gi, '?')
         .replace(/\bpunto esclamativo\b/gi, '!')
         .replace(/\bpunto\b/gi, '.')
-        .replace(/\bnuova linea\b|\ba capo\b/gi, '\n')
-        .replace(/\s+([,.?!:;])/g, '$1');
+        .replace(/\bnuova linea\b|\ba capo\b|\bvada a capo\b/gi, '\n')
+        .replace(/\bapri parentesi\b/gi, '(')
+        .replace(/\bchiudi parentesi\b/gi, ')')
+        .replace(/\bapri virgolette\b/gi, '"')
+        .replace(/\bchiudi virgolette\b/gi, '"')
+        .replace(/\s+([,.?!:;])/g, '$1')
+        .replace(/\(\s+/g, '(')         .replace(/\s+\)/g, ')');
+
+      return t.replace(/(^|[.?!]\s+|\n+)([a-zàèéìòù])/g, (match, p1, p2) => p1 + p2.toUpperCase());
     }
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1372,14 +1392,31 @@
 
       recDocente.onresult = (e) => {
         let testoProvvisorio = '';
+        clearTimeout(timerPausaSilenzio);
+
         for (let i = e.resultIndex; i < e.results.length; i++) {
           const transcript = e.results[i][0].transcript;
           if (e.results[i].isFinal) testoConfermatoDocente += (testoConfermatoDocente ? ' ' : '') + transcript;
           else testoProvvisorio += transcript;
         }
+
         let testoTotale = testoConfermatoDocente + (testoProvvisorio ? ' ' + testoProvvisorio : '');
-        document.getElementById('testoITA').value = applicaPunteggiatura(testoTotale);
+        const textareaITA = document.getElementById('testoITA');
+        textareaITA.value = applicaPunteggiaturaAvanzata(testoTotale);
+        textareaITA.scrollTop = textareaITA.scrollHeight;
         gestisciInput();
+
+        // RILEVAMENTO SILENZIO AUTOMATICO (PUNTO E A CAPO DOPO 1.8 SECONDI DI PAUSA)
+        if (inAscoltoDocente) {
+          timerPausaSilenzio = setTimeout(() => {
+            if (testoConfermatoDocente.trim() && !/[.?!]\s*$/.test(testoConfermatoDocente.trim())) {
+              testoConfermatoDocente = testoConfermatoDocente.trim() + '.\n';
+              textareaITA.value = applicaPunteggiaturaAvanzata(testoConfermatoDocente);
+              textareaITA.scrollTop = textareaITA.scrollHeight;
+              gestisciInput();
+            }
+          }, 1800);
+        }
       };
 
       recDocente.onerror = () => fermaAscoltoDocente();
@@ -1406,6 +1443,7 @@
     }
 
     function fermaAscoltoDocente() {
+      clearTimeout(timerPausaSilenzio);
       inAscoltoDocente = false;
       if (recDocente) recDocente.stop();
       const btn = document.getElementById('btnMic');
@@ -1507,8 +1545,15 @@
         return chiamaGoogleTranslate(testo, 'it', l.code).then(trad => {
           if (trad) {
             const el = document.getElementById('box_' + l.code);
-            if (el) el.innerText = trad;
-            if (linguaFocusCorrente === l.code) document.getElementById('modalBody').innerText = trad;
+            if (el) {
+              el.innerText = trad;
+              el.scrollTop = el.scrollHeight;
+            }
+            if (linguaFocusCorrente === l.code) {
+              const mBody = document.getElementById('modalBody');
+              mBody.innerText = trad;
+              mBody.scrollTop = mBody.scrollHeight;
+            }
             traduzioniMap[l.code] = trad;
           }
         });
