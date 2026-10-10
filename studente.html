@@ -2,466 +2,121 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ParlaConMe - Vista Studente</title>
-  
-  <link rel="icon" type="image/png" href="logo.png?v=3">
-
-  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ParlaConMe - Accesso Aula CPIA</title>
   <style>
     :root {
-      /* TEMA DARK NEON GLASS */
-      --bg-gradient: radial-gradient(circle at 15% 15%, #06b6d4 0%, transparent 35%),
-                     radial-gradient(circle at 85% 25%, #a855f7 0%, transparent 40%),
-                     radial-gradient(circle at 50% 85%, #2563eb 0%, transparent 45%),
-                     #070b14;
-      --card-bg: rgba(15, 23, 42, 0.65);
+      --bg: #070b14;
+      --card-bg: rgba(15, 23, 42, 0.75);
       --card-border: rgba(56, 189, 248, 0.3);
-      --card-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.12);
-      --text-color: #f8fafc;
-      --text-muted: #94a3b8;
-      --primary-cyan: #38bdf8;
-      --card-body-bg: rgba(10, 15, 29, 0.6);
-      --box-ita-bg: rgba(15, 23, 42, 0.7);
-    }
-
-    * { box-sizing: border-box; }
-    html, body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
+      --primary: #38bdf8;
+      --text: #f8fafc;
     }
     body {
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: var(--bg-gradient);
+      background: radial-gradient(circle at 50% 30%, #0284c7 0%, transparent 60%), var(--bg);
       background-attachment: fixed;
-      padding: 12px;
-      color: var(--text-color);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    /* HEADER GLASS */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      padding: 10px 18px;
-      border-radius: 20px;
-      box-shadow: var(--card-shadow);
-      border: 1px solid var(--card-border);
-    }
-    h1 {
+      color: var(--text);
       margin: 0;
-      color: var(--text-color);
-      font-size: 20px;
-      font-weight: 700;
+      padding: 16px;
+      min-height: 100vh;
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      box-sizing: border-box;
     }
-
-    .status-badge {
-      font-size: 12px;
-      font-weight: 600;
-      padding: 6px 14px;
-      border-radius: 20px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      white-space: nowrap;
-      background: rgba(234, 179, 8, 0.2);
-      color: #facc15;
-      border: 1px solid rgba(250, 204, 21, 0.3);
-    }
-    .status-connected { background: rgba(34, 197, 94, 0.2) !important; color: #4ade80 !important; border-color: rgba(74, 222, 128, 0.3) !important; }
-    .status-disconnected { background: rgba(239, 68, 68, 0.2) !important; color: #f87171 !important; border-color: rgba(248, 113, 113, 0.3) !important; }
-
-    /* CARD LOGIN PIN */
     .login-card {
       background: var(--card-bg);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border-radius: 24px;
-      padding: 28px 24px;
-      box-shadow: var(--card-shadow);
       border: 1px solid var(--card-border);
-      max-width: 420px;
-      margin: auto;
+      border-radius: 24px;
+      padding: 28px 20px;
       width: 100%;
+      max-width: 380px;
       text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     }
-    .input-pin {
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 24px;
+      color: var(--primary);
+    }
+    p {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    input {
       width: 100%;
       padding: 14px;
-      font-size: 24px;
-      font-weight: 700;
+      font-size: 22px;
+      font-weight: bold;
       text-align: center;
-      border-radius: 16px;
-      border: 1px solid var(--card-border);
-      background: var(--card-body-bg);
-      color: var(--text-color);
-      letter-spacing: 6px;
-      margin-bottom: 18px;
-      outline: none;
-      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .input-pin:focus {
-      border-color: var(--primary-cyan);
-      box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
-    }
-
-    .btn-main {
-      background: rgba(14, 165, 233, 0.2);
-      color: var(--primary-cyan);
-      border: 1px solid var(--card-border);
-      padding: 12px 24px;
-      border-radius: 20px;
-      font-weight: 700;
-      font-size: 15px;
-      cursor: pointer;
-      width: 100%;
-      transition: all 0.25s ease;
-      backdrop-filter: blur(8px);
-    }
-    .btn-main:hover {
-      background: rgba(14, 165, 233, 0.35);
-      color: #ffffff;
-      box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
-    }
-
-    /* CARD PRINCIPALE STUDENTE */
-    .student-view-container {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      flex-grow: 1;
-      width: 100%;
-      max-width: 850px;
-      margin: 0 auto;
-    }
-    .student-card-main {
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-radius: 24px;
-      padding: 20px;
-      box-shadow: var(--card-shadow);
-      border: 1px solid var(--card-border);
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      transition: border-color 0.25s ease, box-shadow 0.25s ease;
-    }
-    .student-card-main.speaking-card {
-      border-color: #ef4444 !important;
-      box-shadow: 0 0 25px rgba(239, 68, 68, 0.6) !important;
-    }
-
-    .student-lang-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-      gap: 8px;
-      flex-wrap: wrap;
-      background: var(--card-body-bg);
-      padding: 12px 16px;
-      border-radius: 16px;
-      border: 1px solid var(--card-border);
-    }
-    .student-select {
-      padding: 8px 12px;
-      border-radius: 12px;
-      font-weight: 600;
-      border: 1px solid var(--card-border);
-      background: var(--card-body-bg);
-      color: var(--text-color);
-      font-size: 15px;
-    }
-
-    .student-display-text {
-      background: var(--card-body-bg);
+      letter-spacing: 3px;
       border: 1px solid var(--card-border);
       border-radius: 14px;
-      padding: 16px;
-      font-size: 18px;
-      line-height: 1.5;
-      flex-grow: 1;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      word-break: break-word;
-      color: var(--text-color);
-      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
+      background: rgba(10, 15, 29, 0.8);
+      color: #fff;
+      margin-bottom: 18px;
+      box-sizing: border-box;
+      outline: none;
     }
-    .student-display-ita-box {
-      background: var(--box-ita-bg) !important;
-      color: var(--text-color) !important;
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
     }
-
-    /* FOOTER & PULSANTI SVG */
-    .card-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 14px;
-    }
-    .btn-svg-icon {
-      background: transparent;
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #070b14;
+      background: var(--primary);
       border: none;
-      padding: 6px;
+      border-radius: 14px;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--primary-cyan);
       transition: all 0.2s ease;
-      flex-shrink: 0;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
     }
-    .btn-svg-icon svg {
-      width: 24px;
-      height: 24px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 1.8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 24px rgba(56, 189, 248, 0.7);
     }
-    .btn-svg-icon:hover {
-      color: #ffffff;
-      transform: scale(1.15);
-      filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.8));
-    }
-    .btn-svg-icon.active-speaking {
-      color: #ef4444 !important;
-      filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.9)) !important;
-      animation: pulseNeon 1.5s infinite;
-    }
-
-    @keyframes pulseNeon {
-      0% { filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.6)); }
-      50% { filter: drop-shadow(0 0 10px rgba(239, 68, 68, 1)); }
-      100% { filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.6)); }
-    }
-    .rtl { direction: rtl; text-align: right; }
   </style>
 </head>
 <body>
 
-  <!-- INTESTAZIONE -->
-  <div class="header">
-    <h1><img src="logo.png?v=3" alt="Logo" style="height: 26px; vertical-align: middle;"> ParlaConMe</h1>
-    <span id="statusBadge" class="status-badge">🟡 Disconnesso</span>
-  </div>
-
-  <!-- PANNELLO INSERIMENTO PIN -->
-  <div id="loginPanel" class="login-card">
-    <h2 style="margin-top: 0; color: var(--primary-cyan); font-size: 22px;">🔑 Connetti alla Classe</h2>
-    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Inserisci il PIN di 4 cifre mostrato sulla LIM del docente:</p>
-    <input type="number" id="pinInput" class="input-pin" placeholder="1234" maxlength="4" onkeyup="if(event.key==='Enter') connettiConPIN()">
-    <button class="btn-main" onclick="connettiConPIN()">Entra in Aula</button>
-  </div>
-
-  <!-- PANNELLO BILINGUE STUDENTE -->
-  <div id="studentViewContainer" class="student-view-container" style="display: none;">
-    <div id="mainCard" class="student-card-main">
-      <div class="student-lang-bar">
-        <label for="myLangSelect"><strong>Scegli la tua lingua / Choose language:</strong></label>
-        <select id="myLangSelect" class="student-select" onchange="cambiaLinguaStudente()"></select>
-      </div>
-      
-      <!-- BOX ITALIANO (DOCENTE) -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-        <div style="font-weight: 700; font-size: 14px; color: var(--primary-cyan);">🇮🇹 Italiano (Docente):</div>
-        <div style="display: flex; gap: 8px;">
-          <button id="btnItaSlow" class="btn-svg-icon" title="Ascolta Lento" onclick="toggleLettura('ita', 0.5, this)">
-            <svg viewBox="0 0 24 24"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>
-          </button>
-          <button id="btnItaNormal" class="btn-svg-icon" title="Ascolta Italiano" onclick="toggleLettura('ita', 0.9, this)">
-            <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
-          </button>
-        </div>
-      </div>
-      <div id="studentDisplayITA" class="student-display-text student-display-ita-box" style="flex-grow: 0; min-height: 60px; max-height: 140px; margin-bottom: 14px;">In attesa dell'insegnante...</div>
-
-      <!-- BOX TRADUZIONE (STUDENTE) -->
-      <div style="font-weight: 700; font-size: 14px; margin-bottom: 6px; color: var(--primary-cyan);">🌐 Traduzione nella tua lingua:</div>
-      <div id="studentDisplayText" class="student-display-text">In attesa della traduzione...</div>
-
-      <div class="card-footer">
-        <div style="display: flex; gap: 12px;">
-          <button id="btnTransSlow" class="btn-svg-icon" title="Ascolta Lento" onclick="toggleLettura('trans', 0.5, this)">
-            <svg viewBox="0 0 24 24"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>
-          </button>
-          <button id="btnTransNormal" class="btn-svg-icon" title="Ascolta Traduzione" onclick="toggleLettura('trans', 0.9, this)">
-            <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
-          </button>
-        </div>
-        <button class="btn-svg-icon" title="Copia Testo" onclick="copiaTestoStudente()">
-          <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-        </button>
-      </div>
-    </div>
+  <div class="login-card">
+    <h1>🌐 ParlaConMe</h1>
+    <p>Inserisci il PIN della stanza mostrato sulla LIM dal docente:</p>
+    
+    <input type="text" id="pinInput" placeholder="Es. 1234" maxlength="15" autocomplete="off" onkeypress="gestisciInvio(event)">
+    <button onclick="connettiAllaStanza()">Entra in Aula ➔</button>
   </div>
 
   <script>
-    let peer = null;
-    let conn = null;
-    let traduzioniMap = {};
-    let testoITA = '';
-    let elementoAudioAttivo = null;
-
-    const ELENCO_LINGUE = [
-      { code: 'sq', voice: 'sq-AL', name: '🇦🇱 Albanese' },
-      { code: 'ar', voice: 'ar-SA', name: '🇸🇦 Arabo', rtl: true },
-      { code: 'bn', voice: 'bn-BD', name: '🇧🇩 Bengalese' },
-      { code: 'zh-CN', voice: 'zh-CN', name: '🇨🇳 Cinese' },
-      { code: 'fa', voice: 'fa-IR', name: '🇮🇷 Farsi', rtl: true },
-      { code: 'fr', voice: 'fr-FR', name: '🇫🇷 Francese' },
-      { code: 'hi', voice: 'hi-IN', name: '🇮🇳 Hindi' },
-      { code: 'en', voice: 'en-US', name: '🇬🇧 Inglese' },
-      { code: 'ps', voice: 'ps-AF', name: '🇦🇫 Pashto', rtl: true },
-      { code: 'pt', voice: 'pt-PT', name: '🇵🇹 Portoghese' },
-      { code: 'ro', voice: 'ro-RO', name: '🇷🇴 Rumeno' },
-      { code: 'ru', voice: 'ru-RU', name: '🇷🇺 Russo' },
-      { code: 'es', voice: 'es-ES', name: '🇪🇸 Spagnolo' },
-      { code: 'tl', voice: 'tl-PH', name: '🇵🇭 Tagalog' },
-      { code: 'de', voice: 'de-DE', name: '🇩🇪 Tedesco' },
-      { code: 'ti', voice: 'ti-ET', name: '🇪🇷 Tigrino' },
-      { code: 'uk', voice: 'uk-UA', name: '🇺🇦 Ucraino' },
-      { code: 'ur', voice: 'ur-PK', name: '🇵🇰 Urdu', rtl: true }
-    ];
-
-    function inizializzaSelectLingue() {
-      const select = document.getElementById('myLangSelect');
-      select.innerHTML = '';
-      ELENCO_LINGUE.forEach(l => {
-        const opt = document.createElement('option');
-        opt.value = l.code;
-        opt.innerText = l.name;
-        select.appendChild(opt);
-      });
-    }
-
-    function connettiConPIN() {
-      const pin = document.getElementById('pinInput').value.trim();
-      if (!pin || pin.length < 4) return alert("Inserisci un PIN valido di 4 cifre.");
-
-      const stanzaTarget = 'cpia-aula-' + pin;
-      const badge = document.getElementById('statusBadge');
-      badge.innerText = '🟡 Connessione...';
-
-      peer = new Peer({
-        config: {
-          iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-        }
-      });
-
-      peer.on('open', () => {
-        conn = peer.connect(stanzaTarget, { reliable: true });
-
-        conn.on('open', () => {
-          badge.innerText = '🟢 Connesso';
-          badge.className = 'status-badge status-connected';
-          document.getElementById('loginPanel').style.display = 'none';
-          document.getElementById('studentViewContainer').style.display = 'flex';
-          conn.send({ tipo: 'RICHIESTA_SINCRONIZZAZIONE' });
-        });
-
-        conn.on('data', (dati) => {
-          if (!dati) return;
-          traduzioniMap = dati.traduzioni || {};
-          testoITA = dati.ita || '';
-          fermaTuttaLettura();
-          document.getElementById('studentDisplayITA').innerText = testoITA || "In attesa dell'insegnante...";
-          cambiaLinguaStudente();
-        });
-
-        conn.on('close', () => {
-          badge.innerText = '🔴 Disconnesso';
-          badge.className = 'status-badge status-disconnected';
-        });
-      });
-    }
-
-    function cambiaLinguaStudente() {
-      fermaTuttaLettura();
-      const lang = document.getElementById('myLangSelect').value;
-      const display = document.getElementById('studentDisplayText');
-      const langObj = ELENCO_LINGUE.find(l => l.code === lang);
+    function connettiAllaStanza() {
+      const inputEl = document.getElementById('pinInput');
+      let pin = inputEl.value.trim();
       
-      if (langObj && langObj.rtl) display.classList.add('rtl');
-      else display.classList.remove('rtl');
-
-      display.innerText = traduzioniMap[lang] || 'In attesa della traduzione...';
-    }
-
-    function fermaTuttaLettura() {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
-      document.querySelectorAll('.btn-svg-icon').forEach(btn => btn.classList.remove('active-speaking'));
-      const card = document.getElementById('mainCard');
-      if (card) card.classList.remove('speaking-card');
-      elementoAudioAttivo = null;
-    }
-
-    function toggleLettura(target, velocita, btnIcon) {
-      if (elementoAudioAttivo === btnIcon) {
-        fermaTuttaLettura();
+      if (!pin) {
+        alert("Per favore, inserisci il PIN della stanza.");
         return;
       }
 
-      fermaTuttaLettura();
+      // Normalizza il PIN inserito
+      const stanzaId = pin.startsWith('cpia-aula-') ? pin : 'cpia-aula-' + pin;
+      
+      // Reindirizza a index.html passando la stanza nell'URL
+      window.location.href = 'index.html?stanza=' + encodeURIComponent(stanzaId);
+    }
 
-      let testo = '';
-      let voiceLang = 'it-IT';
-
-      if (target === 'ita') {
-        testo = document.getElementById('studentDisplayITA').innerText.trim();
-      } else {
-        testo = document.getElementById('studentDisplayText').innerText.trim();
-        const lang = document.getElementById('myLangSelect').value;
-        const obj = ELENCO_LINGUE.find(l => l.code === lang);
-        voiceLang = obj ? obj.voice : lang;
+    function gestisciInvio(e) {
+      if (e.key === 'Enter') {
+        connettiAllaStanza();
       }
-
-      if (!testo || testo.startsWith('In attesa')) return;
-
-      if (!('speechSynthesis' in window)) return;
-
-      const utterance = new SpeechSynthesisUtterance(testo);
-      utterance.lang = voiceLang;
-      utterance.rate = velocita;
-
-      utterance.onstart = () => {
-        elementoAudioAttivo = btnIcon;
-        if (btnIcon) btnIcon.classList.add('active-speaking');
-        const card = document.getElementById('mainCard');
-        if (card) card.classList.add('speaking-card');
-      };
-
-      utterance.onend = () => fermaTuttaLettura();
-      utterance.onerror = () => fermaTuttaLettura();
-
-      window.speechSynthesis.speak(utterance);
     }
-
-    function copiaTestoStudente() {
-      const testo = document.getElementById('studentDisplayText').innerText;
-      if (!testo || testo.startsWith('In attesa')) return;
-      navigator.clipboard.writeText(testo);
-    }
-
-    inizializzaSelectLingue();
   </script>
 </body>
 </html>
