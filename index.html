@@ -1,897 +1,573 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="it">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.7">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Traduttore Live CPIA Pro</title>
+  <!-- LIBRERIE ONLINE PER RETE E QR CODE (SENZA INSTALLAZIONE) -->
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --bg-color: #f8f9fa;
+      --card-bg: #ffffff;
+      --text-color: #202124;
+      --border-color: #dadce0;
+      --card-body-bg: #f8f9fa;
+      --primary-color: #1a73e8;
+    }
+
+    body.dark-mode {
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --text-color: #e8eaed;
+      --border-color: #3c4043;
+      --card-body-bg: #2d2d2d;
+      --primary-color: #8ab4f8;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-color);
+      margin: 0;
+      padding: 14px;
+      color: var(--text-color);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    h1 {
+      margin: 0;
+      color: var(--primary-color);
+      font-size: 22px;
+    }
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .zoom-bar {
+      display: flex;
+      align-items: center;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 2px 8px;
+    }
+    .btn-tool {
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--text-color);
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 12px;
+      transition: background 0.2s;
+    }
+    .btn-tool:hover { background: var(--border-color); }
+    .status {
+      font-size: 13px;
+      color: #5f6368;
+      font-weight: bold;
+      padding: 4px 10px;
+      background: #e8eaed;
+      border-radius: 16px;
+    }
+    
+    .source-box {
+      background: var(--card-bg);
+      padding: 10px 14px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      margin-bottom: 10px;
+      border: 1px solid var(--border-color);
+    }
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    label {
+      font-weight: bold;
+      color: var(--text-color);
+      font-size: 15px;
+    }
+    .action-btns {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-main {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 18px;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+    body.dark-mode .btn-main { color: #121212; }
+    .btn-main:hover { opacity: 0.9; }
+    .btn-main.recording {
+      background-color: #d93025 !important;
+      color: white !important;
+      animation: pulse 1.5s infinite;
+    }
+    .btn-clear {
+      background-color: #f1f3f4;
+      color: #5f6368;
+      border: 1px solid var(--border-color);
+    }
+    .btn-save {
+      background-color: #e6f4ea;
+      color: #137333;
+      border: 1px solid #ceead6;
+    }
+    .btn-student {
+      background-color: #fef7e0;
+      color: #b06000;
+      border: 1px solid #feefc3;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(217, 48, 37, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(217, 48, 37, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(217, 48, 37, 0); }
+    }
+    
+    textarea {
+      width: 100%;
+      height: 80px;
+      padding: 8px 10px;
+      font-size: 18px;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      resize: vertical;
+      outline: none;
+      background: var(--card-bg);
+      color: var(--text-color);
+    }
+    textarea:focus { border-color: var(--primary-color); }
+
+    /* TRADUZIONE INVERSA */
+    .student-panel {
+      display: none;
+      background: #fef7e0;
+      border: 2px solid #f9ab00;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+    }
+    body.dark-mode .student-panel {
+      background: #3c2f00;
+      border-color: #f9ab00;
+    }
+    .student-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .student-select {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: bold;
+      border: 1px solid #f9ab00;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 10px;
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      border-top: 4px solid var(--primary-color);
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      min-height: 160px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .card-title {
+      font-weight: bold;
+      font-size: 16px;
+      color: var(--primary-color);
+    }
+    .card-body {
+      background-color: var(--card-body-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 16px;
+      line-height: 1.35;
+      white-space: pre-wrap;
+      word-break: break-word;
+      flex-grow: 1;
+      overflow-y: auto;
+      color: var(--text-color);
+    }
+    .card-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 4px;
+      margin-top: 6px;
+    }
+    .btn-card {
+      background-color: #e8f0fe;
+      color: #1a73e8;
+      border: 1px solid #d2e3fc;
+      border-radius: 14px;
+      padding: 3px 6px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .btn-card:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    .rtl { direction: rtl; text-align: right; }
+
+    /* MODALE FOCUS, GESTIONE LINGUE E QR CODE */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .modal-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      border-top: 8px solid var(--primary-color);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .modal-title { font-size: 24px; font-weight: bold; color: var(--primary-color); }
+    .modal-body {
+      font-size: 28px;
+      line-height: 1.4;
+      background: var(--card-body-bg);
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      flex-grow: 1;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      color: var(--text-color);
+    }
+    .lang-grid-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-height: 50vh;
+      overflow-y: auto;
+      padding: 10px;
+      background: var(--card-body-bg);
+      border-radius: 8px;
+    }
+    .lang-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="it"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;Traduttore Live CPIA Pro&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- LIBRERIE ONLINE PER RETE E QR CODE (SENZA INSTALLAZIONE) --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"&gt;&lt;/script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"&gt;&lt;/script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>:root {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--bg-color: #f8f9fa;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--card-bg: #ffffff;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--text-color: #202124;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--border-color: #dadce0;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--card-body-bg: #f8f9fa;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--primary-color: #1a73e8;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>body.dark-mode {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--bg-color: #121212;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--card-bg: #1e1e1e;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--text-color: #e8eaed;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--border-color: #3c4043;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--card-body-bg: #2d2d2d;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--primary-color: #8ab4f8;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>* { box-sizing: border-box; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>body {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background-color: var(--bg-color);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin: 0;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 14px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: var(--text-color);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>height: 100vh;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>flex-direction: column;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>transition: background-color 0.3s, color 0.3s;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.header {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>justify-content: space-between;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 8px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>h1 {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin: 0;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: var(--primary-color);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 22px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.top-controls {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.zoom-bar {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: var(--card-bg);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid var(--border-color);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 20px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 2px 8px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.btn-tool {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: none;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: none;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 14px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: bold;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: var(--text-color);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>cursor: pointer;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 4px 8px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>transition: background 0.2s;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.btn-tool:hover { background: var(--border-color); }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.status {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 13px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: #5f6368;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: bold;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 4px 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: #e8eaed;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 16px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.source-box {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: var(--card-bg);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 10px 14px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>box-shadow: 0 2px 6px rgba(0,0,0,0.06);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid var(--border-color);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.label-row {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>justify-content: space-between;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 6px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>label {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: bold;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: var(--text-color);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 15px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.action-btns {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap: 8px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.btn-main {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background-color: var(--primary-color);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: white;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: none;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 6px 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 18px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: bold;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 13px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>cursor: pointer;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap: 5px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>transition: all 0.2s;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>body.dark-mode .btn-main { color: #121212; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.btn-main:hover { opacity: 0.9; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.btn-main.recording {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background-color: #d93025 !important;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: white !important;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>animation: pulse 1.5s infinite;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.btn-clear {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background-color: #f1f3f4;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: #5f6368;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid var(--border-color);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.btn-save {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background-color: #e6f4ea;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: #137333;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid #ceead6;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.btn-student {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background-color: #fef7e0;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: #b06000;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid #feefc3;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>@keyframes pulse {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>0% { box-shadow: 0 0 0 0 rgba(217, 48, 37, 0.4); }</p>
-<p class="p1"><span class="Apple-converted-space">      </span>70% { box-shadow: 0 0 0 10px rgba(217, 48, 37, 0); }</p>
-<p class="p1"><span class="Apple-converted-space">      </span>100% { box-shadow: 0 0 0 0 rgba(217, 48, 37, 0); }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>textarea {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>width: 100%;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>height: 80px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 8px 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 18px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 2px solid var(--border-color);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 8px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>resize: vertical;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>outline: none;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: var(--card-bg);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: var(--text-color);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>textarea:focus { border-color: var(--primary-color); }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>/* TRADUZIONE INVERSA */</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.student-panel {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: none;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: #fef7e0;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 2px solid #f9ab00;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 10px 14px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>body.dark-mode .student-panel {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: #3c2f00;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-color: #f9ab00;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.student-header {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>justify-content: space-between;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 6px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.student-select {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 4px 8px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 6px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: bold;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid #f9ab00;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>.grid-container {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: grid;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>flex-grow: 1;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>overflow-y: auto;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.card {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: var(--card-bg);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 8px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>box-shadow: 0 2px 5px rgba(0,0,0,0.05);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-top: 4px solid var(--primary-color);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-left: 1px solid var(--border-color);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-right: 1px solid var(--border-color);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-bottom: 1px solid var(--border-color);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>flex-direction: column;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>min-height: 160px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.card-header {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>justify-content: space-between;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 6px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.card-title {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: bold;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 16px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: var(--primary-color);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.card-body {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background-color: var(--card-body-bg);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid var(--border-color);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 6px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 8px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 16px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>line-height: 1.35;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>white-space: pre-wrap;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>word-break: break-word;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>flex-grow: 1;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>overflow-y: auto;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: var(--text-color);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.card-footer {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>justify-content: flex-end;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap: 4px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 6px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.btn-card {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background-color: #e8f0fe;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: #1a73e8;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid #d2e3fc;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 14px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 3px 6px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 11px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: bold;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>cursor: pointer;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap: 2px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.btn-card:hover {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background-color: var(--primary-color);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: white;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.rtl { direction: rtl; text-align: right; }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>/* MODALE FOCUS, GESTIONE LINGUE E QR CODE */</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.modal-overlay {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: none;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>position: fixed;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>top: 0; left: 0; width: 100%; height: 100%;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: rgba(0, 0, 0, 0.7);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>z-index: 1000;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>justify-content: center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 20px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.modal-card {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: var(--card-bg);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 20px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>width: 90%;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>max-width: 800px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>max-height: 80vh;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>flex-direction: column;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-top: 8px solid var(--primary-color);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.modal-header {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>justify-content: space-between;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.modal-title { font-size: 24px; font-weight: bold; color: var(--primary-color); }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.modal-body {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 28px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>line-height: 1.4;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: var(--card-body-bg);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 16px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 8px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid var(--border-color);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>flex-grow: 1;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>overflow-y: auto;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>white-space: pre-wrap;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color: var(--text-color);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.lang-grid-selector {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: grid;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>grid-template-columns: repeat(3, 1fr);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>max-height: 50vh;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>overflow-y: auto;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: var(--card-body-bg);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 8px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.lang-item {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap: 8px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size: 15px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 500;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>cursor: pointer;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="header"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;h1&gt;🎙️ Traduttore Live CPIA Pro&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="top-controls"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;button class="btn-main" onclick="mostraQRCode()"&gt;📱 Trasmetti agli Studenti&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;button class="btn-tool" onclick="apriGestioneLingue()"&gt;⚙️ Gestisci Lingue&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;button class="btn-tool" onclick="toggleDarkMode()"&gt;🌙 Alto Contrasto&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="zoom-bar"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;span style="font-size: 12px; color: #5f6368; margin-right: 4px;"&gt;Testo:&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="btn-tool" onclick="cambiaZoom(-2)"&gt;A-&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="btn-tool" onclick="resetZoom()"&gt;A&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="btn-tool" onclick="cambiaZoom(2)"&gt;A+&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;button class="btn-main btn-save" onclick="scaricaLezione()"&gt;📥 Scarica Lezione&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;span id="status" class="status"&gt;Pronto&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- TRADUZIONE INVERSA --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="studentPanel" class="student-panel"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="student-header"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;label&gt;🗣️ &lt;strong&gt;Modalità Studente:&lt;/strong&gt; Parla nella tua lingua ➔ Il docente leggerà la traduzione in italiano&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;select id="studentLangSelect" class="student-select"&gt;&lt;/select&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button id="btnMicStudent" class="btn-main" onclick="toggleMicrofonoStudente()"&gt;🎙️ Parla (Studente)&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="btn-tool" onclick="chiudiModalitaStudente()"&gt;✖️ Chiudi&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div style="display: flex; gap: 10px;"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;textarea id="testoStudente" placeholder="Trascrizione e traduzione per il docente..." style="height: 60px;"&gt;&lt;/textarea&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="source-box"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="label-row"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;label for="testoITA"&gt;🇮🇹 Parla o Scrivi in Italiano (Docente):&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="action-btns"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="btn-main btn-student" onclick="apriModalitaStudente()"&gt;🔄 Studente ➔ Docente&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="btn-main btn-clear" onclick="cancellaTutto()"&gt;🗑️ Cancella&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="btn-main btn-save" onclick="salvaInCronologia()"&gt;📌 Salva Frase&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button id="btnMic" class="btn-main" onclick="toggleMicrofonoDocente()"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;span id="micIcon"&gt;🎙️&lt;/span&gt; &lt;span id="micText"&gt;Attiva Mic&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;textarea id="testoITA" placeholder="Scrivi o premi il pulsante per parlare..." oninput="registraModificaManuale()"&gt;&lt;/textarea&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- GRIGLIA LINGUE --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="gridContainer" class="grid-container"&gt;&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- MODALE FOCUS --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="modalFocus" class="modal-overlay"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="modal-card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="modal-header"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;span id="modalTitle" class="modal-title"&gt;Lingua&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div style="display: flex; gap: 8px;"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;button class="btn-main" onclick="leggiTestoFocus(0.5)"&gt;🐢 Lento&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;button class="btn-main" onclick="leggiTestoFocus(0.9)"&gt;🔊 Ascolta&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;button class="btn-main btn-clear" onclick="chiudiFocus()"&gt;✖️ Chiudi&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div id="modalBody" class="modal-body"&gt;...&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- MODALE GESTIONE LINGUE --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="modalLangConfig" class="modal-overlay"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="modal-card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="modal-header"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;span class="modal-title"&gt;⚙️ Seleziona le Lingue della Classe&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="btn-main btn-clear" onclick="chiudiGestioneLingue()"&gt;✖️ Chiudi e Salva&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;p style="margin: 0 0 10px 0; color: #5f6368; font-size: 14px;"&gt;Spunta le lingue che desideri visualizzare sulla LIM:&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div id="langSelectorList" class="lang-grid-selector"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- MODALE QR CODE STUDENTI --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="modalQR" class="modal-overlay"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="modal-card" style="align-items: center; text-align: center; max-width: 450px;"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;h2 style="margin-top:0; color: var(--primary-color);"&gt;📱 Connetti gli Studenti&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;p style="font-size: 14px; color: #5f6368;"&gt;Gli studenti possono inquadrare questo QR Code per vedere le traduzioni in tempo reale sui loro dispositivi:&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div id="qrcode" style="margin: 15px auto; padding: 10px; background: white; border-radius: 8px;"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;p style="font-weight: bold; font-size: 14px;"&gt;Codice Stanza: &lt;span id="roomCodeDisplay" style="color: #d93025;"&gt;...&lt;/span&gt;&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;button class="btn-main" onclick="chiudiQRCode()"&gt;Chiudi&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let timerDebounce = null;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let abortController = null;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let fontSizeCorrente = 16;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let linguaFocusCorrente = null;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let cronologiaLezione = [];</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let testoConfermatoDocente = '';</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// GESTIONE RETE PEERJS (STREAMING LIVE SENZA SERVER)</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let peer = null;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let connessioniStudenti = [];</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let ID_STANZA_DOCENTE = 'cpia-aula-' + Math.floor(1000 + Math.random() * 9000);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>const ELENCO_LINGUE = [</p>
-<p class="p1"><span class="Apple-converted-space">      </span>{ code: 'en', voice: 'en-US', name: '🇬🇧 Inglese' },</p>
-<p class="p1"><span class="Apple-converted-space">      </span>{ code: 'fr', voice: 'fr-FR', name: '🇫🇷 Francese' },</p>
-<p class="p1"><span class="Apple-converted-space">      </span>{ code: 'es', voice: 'es-ES', name: '🇪🇸 Spagnolo' },</p>
-<p class="p1"><span class="Apple-converted-space">      </span>{ code: 'bn', voice: 'bn-BD', name: '🇧🇩 Bengalese' },</p>
-<p class="p1"><span class="Apple-converted-space">      </span>{ code: 'ar', voice: 'ar-SA', name: '🇸🇦 Arabo', rtl: true },</p>
-<p class="p1"><span class="Apple-converted-space">      </span>{ code: 'zh', voice: 'zh-CN', name: '🇨🇳 Cinese' },</p>
-<p class="p1"><span class="Apple-converted-space">      </span>{ code: 'sq', voice: 'sq-AL', name: '🇦🇱 Albanese' },</p>
-<p class="p1"><span class="Apple-converted-space">      </span>{ code: 'uk', voice: 'uk-UA', name: '🇺🇦 Ucraino' },</p>
-<p class="p1"><span class="Apple-converted-space">      </span>{ code: 'ro', voice: 'ro-RO', name: '🇷🇴 Rumeno' },</p>
-<p class="p1"><span class="Apple-converted-space">      </span>{ code: 'ur', voice: 'ur-PK', name: '🇵🇰 Urdu', rtl: true },</p>
-<p class="p1"><span class="Apple-converted-space">      </span>{ code: 'ps', voice: 'ps-AF', name: '🇦🇫 Pashto', rtl: true },</p>
-<p class="p1"><span class="Apple-converted-space">      </span>{ code: 'fa', voice: 'fa-IR', name: '🇮🇷 Farsi', rtl: true },</p>
-<p class="p1"><span class="Apple-converted-space">      </span>{ code: 'pt', voice: 'pt-PT', name: '🇵🇹 Portoghese' },</p>
-<p class="p1"><span class="Apple-converted-space">      </span>{ code: 'ru', voice: 'ru-RU', name: '🇷🇺 Russo' },</p>
-<p class="p1"><span class="Apple-converted-space">      </span>{ code: 'de', voice: 'de-DE', name: '🇩🇪 Tedesco' },</p>
-<p class="p1"><span class="Apple-converted-space">      </span>{ code: 'tl', voice: 'tl-PH', name: '🇵🇭 Tagalog' },</p>
-<p class="p1"><span class="Apple-converted-space">      </span>{ code: 'ti', voice: 'ti-ET', name: '🇪🇷 Tigrino' },</p>
-<p class="p1"><span class="Apple-converted-space">      </span>{ code: 'hi', voice: 'hi-IN', name: '🇮🇳 Hindi' }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>];</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>let lingueAttive = JSON.parse(localStorage.getItem('cpia_lingue_attive')) || ['en', 'fr', 'es', 'bn', 'ar', 'zh', 'sq', 'uk'];</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>// INIZIALIZZAZIONE RETE</p>
-<p class="p1"><span class="Apple-converted-space">    </span>function inizializzaRete() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const urlParams = new URLSearchParams(window.location.search);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const stanzaTarget = urlParams.get('stanza');</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (stanzaTarget) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>// MODALITÀ RICEVENTE (STUDENTE)</p>
-<p class="p1"><span class="Apple-converted-space">        </span>peer = new Peer();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>peer.on('open', () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>const conn = peer.connect(stanzaTarget);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>conn.on('data', (dati) =&gt; applicaDatiRicevuti(dati));</p>
-<p class="p1"><span class="Apple-converted-space">          </span>aggiornaStato('Connesso alla lezione');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>});</p>
-<p class="p1"><span class="Apple-converted-space">      </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>// MODALITÀ TRASMETTITORE (DOCENTE)</p>
-<p class="p1"><span class="Apple-converted-space">        </span>peer = new Peer(ID_STANZA_DOCENTE);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>peer.on('connection', (conn) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>connessioniStudenti.push(conn);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>aggiornaStato(`Studenti connessi: ${connessioniStudenti.length}`);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>});</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function trasmettiDatiRete(dati) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>connessioniStudenti.forEach(conn =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (conn.open) conn.send(dati);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function applicaDatiRicevuti(dati) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('testoITA').value = dati.ita;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>for (const [lang, testo] of Object.entries(dati.traduzioni)) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const el = document.getElementById('box_' + lang);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (el) el.innerText = testo;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function mostraQRCode() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const modal = document.getElementById('modalQR');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const container = document.getElementById('qrcode');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>container.innerHTML = '';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('roomCodeDisplay').innerText = ID_STANZA_DOCENTE;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>const urlLezione = window.location.href.split('?')[0] + '?stanza=' + ID_STANZA_DOCENTE;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>new QRCode(container, {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>text: urlLezione,</p>
-<p class="p1"><span class="Apple-converted-space">        </span>width: 200,</p>
-<p class="p1"><span class="Apple-converted-space">        </span>height: 200</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>modal.style.display = 'flex';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function chiudiQRCode() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('modalQR').style.display = 'none';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function inizializzaGriglia() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const container = document.getElementById('gridContainer');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const studentSelect = document.getElementById('studentLangSelect');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>container.innerHTML = '';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>studentSelect.innerHTML = '';</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>ELENCO_LINGUE.filter(l =&gt; lingueAttive.includes(l.code)).forEach(l =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const card = document.createElement('div');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>card.className = 'card';</p>
-<p class="p1"><span class="Apple-converted-space">        </span>card.innerHTML = `</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="card-header"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="card-title"&gt;${l.name}&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;button class="btn-tool" onclick="apriFocus('${l.code}', '${l.name}')"&gt;🔍 Espandi&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div id="box_${l.code}" class="card-body ${l.rtl ? 'rtl' : ''}"&gt;...&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="card-footer"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;button class="btn-card" onclick="copiaTesto('${l.code}')"&gt;📋 Copia&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;button class="btn-card" onclick="leggiTesto('${l.code}', 0.5)"&gt;🐢 Lento&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;button class="btn-card" onclick="leggiTesto('${l.code}', 0.9)"&gt;🔊 Ascolta&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>container.appendChild(card);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const opt = document.createElement('option');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>opt.value = l.voice;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>opt.innerText = l.name;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>studentSelect.appendChild(opt);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>gestisciInput();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function apriGestioneLingue() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const list = document.getElementById('langSelectorList');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>list.innerHTML = '';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>ELENCO_LINGUE.forEach(l =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const item = document.createElement('label');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>item.className = 'lang-item';</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const checked = lingueAttive.includes(l.code) ? 'checked' : '';</p>
-<p class="p1"><span class="Apple-converted-space">        </span>item.innerHTML = `&lt;input type="checkbox" value="${l.code}" ${checked} onchange="toggleLingua('${l.code}')"&gt; ${l.name}`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>list.appendChild(item);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('modalLangConfig').style.display = 'flex';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function toggleLingua(code) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (lingueAttive.includes(code)) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (lingueAttive.length &lt;= 1) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>alert("Devi mantenere almeno una lingua attiva.");</p>
-<p class="p1"><span class="Apple-converted-space">          </span>return;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>lingueAttive = lingueAttive.filter(c =&gt; c !== code);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>lingueAttive.push(code);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p1"><span class="Apple-converted-space">      </span>localStorage.setItem('cpia_lingue_attive', JSON.stringify(lingueAttive));</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function chiudiGestioneLingue() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('modalLangConfig').style.display = 'none';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>inizializzaGriglia();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function cambiaZoom(delta) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>fontSizeCorrente = Math.max(12, Math.min(32, fontSizeCorrente + delta));</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.querySelectorAll('.card-body').forEach(el =&gt; el.style.fontSize = fontSizeCorrente + 'px');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>aggiornaStato(`Testo: ${fontSizeCorrente}px`);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function resetZoom() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>fontSizeCorrente = 16;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.querySelectorAll('.card-body').forEach(el =&gt; el.style.fontSize = '16px');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>aggiornaStato('Zoom ripristinato');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function copiaTesto(lang) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const el = document.getElementById('box_' + lang);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!el) return;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const testo = el.innerText.trim();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!testo || testo === '...') return;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>navigator.clipboard.writeText(testo).then(() =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>aggiornaStato(`✓ Copiato in ${lang.toUpperCase()}!`);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>setTimeout(() =&gt; aggiornaStato('Pronto'), 2000);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function cancellaTutto() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>testoConfermatoDocente = '';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('testoITA').value = '';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('testoStudente').value = '';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>lingueAttive.forEach(l =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const el = document.getElementById('box_' + l);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (el) el.innerText = '...';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p1"><span class="Apple-converted-space">      </span>aggiornaStato('Schermata pulita');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function registraModificaManuale() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>testoConfermatoDocente = document.getElementById('testoITA').value;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gestisciInput();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function apriModalitaStudente() { document.getElementById('studentPanel').style.display = 'block'; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>function chiudiModalitaStudente() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('studentPanel').style.display = 'none';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (inAscoltoStudente) fermaAscoltoStudente();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function apriFocus(lang, titoloLingua) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>linguaFocusCorrente = lang;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const el = document.getElementById('box_' + lang);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const testo = el ? el.innerText : '...';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('modalTitle').innerText = titoloLingua;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const modalBody = document.getElementById('modalBody');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>modalBody.innerText = testo;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const langObj = ELENCO_LINGUE.find(l =&gt; l.code === lang);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (langObj &amp;&amp; langObj.rtl) modalBody.classList.add('rtl');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>else modalBody.classList.remove('rtl');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('modalFocus').style.display = 'flex';</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function chiudiFocus() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('modalFocus').style.display = 'none';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>linguaFocusCorrente = null;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function leggiTestoFocus(velocita) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (linguaFocusCorrente) leggiTesto(linguaFocusCorrente, velocita);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function salvaInCronologia() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const testoITA = document.getElementById('testoITA').value.trim();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!testoITA) return;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>let riga = { ita: testoITA };</p>
-<p class="p1"><span class="Apple-converted-space">      </span>lingueAttive.forEach(l =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const el = document.getElementById('box_' + l);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>riga[l] = el ? el.innerText : '...';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p1"><span class="Apple-converted-space">      </span>cronologiaLezione.push(riga);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>aggiornaStato(`📌 Frase salvata (${cronologiaLezione.length} totali)`);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function scaricaLezione() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (cronologiaLezione.length === 0) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>alert("Nessuna frase salvata.");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>return;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p1"><span class="Apple-converted-space">      </span>let contenuto = "VOCABOLARIO LEZIONE CPIA\n=========================\n\n";</p>
-<p class="p1"><span class="Apple-converted-space">      </span>cronologiaLezione.forEach((item, index) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>contenuto += `FRASE ${index + 1}:\n🇮🇹 ITA: ${item.ita}\n`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>lingueAttive.forEach(l =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>const obj = ELENCO_LINGUE.find(x =&gt; x.code === l);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>contenuto += `${obj ? obj.name : l}: ${item[l]}\n`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>});</p>
-<p class="p1"><span class="Apple-converted-space">        </span>contenuto += "-------------------------\n\n";</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const blob = new Blob([contenuto], { type: 'text/plain;charset=utf-8' });</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const link = document.createElement('a');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>link.href = URL.createObjectURL(blob);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>link.download = `Lezione_CPIA_${new Date().toISOString().slice(0,10)}.txt`;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>link.click();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>let vociDisponibili = [];</p>
-<p class="p1"><span class="Apple-converted-space">    </span>function caricaVoci() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if ('speechSynthesis' in window) vociDisponibili = window.speechSynthesis.getVoices();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>caricaVoci();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>if ('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = caricaVoci;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function selezionaVoceMigliore(langCode) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!vociDisponibili.length) caricaVoci();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const prefix = langCode.toLowerCase();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const compatibili = vociDisponibili.filter(v =&gt; v.lang.toLowerCase().startsWith(prefix));</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!compatibili.length) return null;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>let scelta = compatibili.find(v =&gt; v.name.includes('Online') || v.name.includes('Natural') || v.name.includes('Neural') || v.name.includes('Premium'));</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!scelta) scelta = compatibili.find(v =&gt; v.name.includes('Google'));</p>
-<p class="p1"><span class="Apple-converted-space">      </span>return scelta || compatibili[0];</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function leggiTesto(lang, velocita = 0.9) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const el = document.getElementById('box_' + lang);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!el) return;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const testo = el.innerText.trim();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!testo || testo === '...') return;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>if ('speechSynthesis' in window) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>window.speechSynthesis.cancel();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const utterance = new SpeechSynthesisUtterance(testo);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const obj = ELENCO_LINGUE.find(l =&gt; l.code === lang);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const langCode = obj ? obj.voice.split('-')[0] : lang;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const voceMigliore = selezionaVoceMigliore(langCode);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (voceMigliore) utterance.voice = voceMigliore;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>utterance.lang = obj ? obj.voice : lang;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>utterance.rate = velocita;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>utterance.onstart = () =&gt; aggiornaStato(`Lettura (${lang.toUpperCase()})...`);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>utterance.onend = () =&gt; aggiornaStato('Pronto');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>window.speechSynthesis.speak(utterance);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function applicaPunteggiatura(testo) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>return testo</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.replace(/\bvirgola\b/gi, ',')</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.replace(/\bpunto e virgola\b/gi, ';')</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.replace(/\bdue punti\b/gi, ':')</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.replace(/\bpunto di domanda\b|\bpunto interrogativo\b/gi, '?')</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.replace(/\bpunto esclamativo\b/gi, '!')</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.replace(/\bpunto\b/gi, '.')</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.replace(/\bnuova linea\b|\ba capo\b/gi, '\n')</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.replace(/\s+([,.?!:;])/g, '$1');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let recDocente = null, inAscoltoDocente = false;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>if (SpeechRecognition) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>recDocente = new SpeechRecognition();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>recDocente.continuous = true;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>recDocente.interimResults = true;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>recDocente.lang = 'it-IT';</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>recDocente.onresult = (e) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let testoProvvisorio = '';</p>
-<p class="p1"><span class="Apple-converted-space">        </span>for (let i = e.resultIndex; i &lt; e.results.length; i++) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>const transcript = e.results[i][0].transcript;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>if (e.results[i].isFinal) testoConfermatoDocente += (testoConfermatoDocente ? ' ' : '') + transcript;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>else testoProvvisorio += transcript;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let testoTotale = testoConfermatoDocente + (testoProvvisorio ? ' ' + testoProvvisorio : '');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('testoITA').value = applicaPunteggiatura(testoTotale);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>gestisciInput();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>recDocente.onerror = () =&gt; fermaAscoltoDocente();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>recDocente.onend = () =&gt; { if (inAscoltoDocente) recDocente.start(); };</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function toggleMicrofonoDocente() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!recDocente) return alert("Browser non supportato. Usa Chrome o Edge.");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (inAscoltoDocente) fermaAscoltoDocente();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>else avviaAscoltoDocente();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function avviaAscoltoDocente() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (inAscoltoStudente) fermaAscoltoStudente();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>testoConfermatoDocente = document.getElementById('testoITA').value;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>try {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>recDocente.start();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>inAscoltoDocente = true;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const btn = document.getElementById('btnMic');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>btn.classList.add('recording');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('micText').innerText = 'In ascolto...';</p>
-<p class="p1"><span class="Apple-converted-space">        </span>aggiornaStato('Mic Docente attivo');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>} catch (e) { console.error(e); }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function fermaAscoltoDocente() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>inAscoltoDocente = false;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (recDocente) recDocente.stop();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const btn = document.getElementById('btnMic');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>btn.classList.remove('recording');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById('micText').innerText = 'Attiva Mic';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>aggiornaStato('Pronto');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>let recStudente = null, inAscoltoStudente = false;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>function toggleMicrofonoStudente() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!SpeechRecognition) return alert("Browser non supportato.");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (inAscoltoStudente) fermaAscoltoStudente();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>else avviaAscoltoStudente();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function avviaAscoltoStudente() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (inAscoltoDocente) fermaAscoltoDocente();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const langSel = document.getElementById('studentLangSelect').value;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>recStudente = new SpeechRecognition();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>recStudente.continuous = true;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>recStudente.interimResults = true;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>recStudente.lang = langSel;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>recStudente.onresult = (e) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let t = '';</p>
-<p class="p1"><span class="Apple-converted-space">        </span>for (let i = e.resultIndex; i &lt; e.results.length; i++) t += e.results[i][0].transcript;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>traduciDaStudente(t, langSel.split('-')[0]);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>};</p>
-<p class="p1"><span class="Apple-converted-space">      </span>recStudente.onerror = () =&gt; fermaAscoltoStudente();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>recStudente.onend = () =&gt; { if (inAscoltoStudente) recStudente.start(); };</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>try {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>recStudente.start();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>inAscoltoStudente = true;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const btn = document.getElementById('btnMicStudent');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>btn.classList.add('recording');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>btn.innerText = '🔴 In ascolto (Studente)...';</p>
-<p class="p1"><span class="Apple-converted-space">        </span>aggiornaStato('Mic Studente attivo');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>} catch (e) { console.error(e); }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function fermaAscoltoStudente() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>inAscoltoStudente = false;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (recStudente) recStudente.stop();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const btn = document.getElementById('btnMicStudent');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>btn.classList.remove('recording');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>btn.innerText = '🎙️ Parla (Studente)';</p>
-<p class="p1"><span class="Apple-converted-space">      </span>aggiornaStato('Pronto');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>async function traduciDaStudente(testo, langDa) {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!testo.trim()) return;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const url = `https://translate.googleapis.com/translate_a/single?client=gtx&amp;sl=${langDa}&amp;tl=it&amp;dt=t&amp;q=${encodeURIComponent(testo)}`;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>try {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const res = await fetch(url);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const data = await res.json();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const traduzioneITA = data[0].map(item =&gt; item[0]).join('');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('testoStudente').value = `[${langDa.toUpperCase()}]: ${testo}\n🇮🇹 [TRADUZIONE PER DOCENTE]: ${traduzioneITA}`;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>} catch (e) { console.error(e); }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function gestisciInput() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>aggiornaStato('Digitazione...');</p>
-<p class="p1"><span class="Apple-converted-space">      </span>clearTimeout(timerDebounce);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>timerDebounce = setTimeout(traduciTutto, 150);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>async function traduciTutto() {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const testo = document.getElementById('testoITA').value.trim();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (!testo) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>lingueAttive.forEach(l =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>const el = document.getElementById('box_' + l);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>if (el) el.innerText = '...';</p>
-<p class="p1"><span class="Apple-converted-space">        </span>});</p>
-<p class="p1"><span class="Apple-converted-space">        </span>aggiornaStato('Pronto');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>return;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (abortController) abortController.abort();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>abortController = new AbortController();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>aggiornaStato('Traduzione...');</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>let traduzioniMap = {};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>let promesse = lingueAttive.map(lang =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const url = `https://translate.googleapis.com/translate_a/single?client=gtx&amp;sl=it&amp;tl=${lang}&amp;dt=t&amp;q=${encodeURIComponent(testo)}`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>return fetch(url, { signal: abortController.signal })</p>
-<p class="p1"><span class="Apple-converted-space">          </span>.then(res =&gt; res.json())</p>
-<p class="p1"><span class="Apple-converted-space">          </span>.then(data =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const traduzione = data[0].map(item =&gt; item[0]).join('');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const el = document.getElementById('box_' + lang);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (el) el.innerText = traduzione;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (linguaFocusCorrente === lang) document.getElementById('modalBody').innerText = traduzione;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>traduzioniMap[lang] = traduzione;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>})</p>
-<p class="p1"><span class="Apple-converted-space">          </span>.catch(() =&gt; {});</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>Promise.all(promesse).then(() =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>aggiornaStato('Tradotto');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>trasmettiDatiRete({</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ita: testo,</p>
-<p class="p1"><span class="Apple-converted-space">          </span>traduzioni: traduzioniMap</p>
-<p class="p1"><span class="Apple-converted-space">        </span>});</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function aggiornaStato(msg) { document.getElementById('status').innerText = msg; }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>inizializzaGriglia();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>inizializzaRete();</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
-</body>
-</html>
+
+  <div class="header">
+    <h1>🎙️ Traduttore Live CPIA Pro</h1>
+    <div class="top-controls">
+      <button class="btn-main" onclick="mostraQRCode()">📱 Trasmetti agli Studenti</button>
+      <button class="btn-tool" onclick="apriGestioneLingue()">⚙️ Gestisci Lingue</button>
+      <button class="btn-tool" onclick="toggleDarkMode()">🌙 Alto Contrasto</button>
+      <div class="zoom-bar">
+        <span style="font-size: 12px; color: #5f6368; margin-right: 4px;">Testo:</span>
+        <button class="btn-tool" onclick="cambiaZoom(-2)">A-</button>
+        <button class="btn-tool" onclick="resetZoom()">A</button>
+        <button class="btn-tool" onclick="cambiaZoom(2)">A+</button>
+      </div>
+      <button class="btn-main btn-save" onclick="scaricaLezione()">📥 Scarica Lezione</button>
+      <span id="status" class="status">Pronto</span>
+    </div>
+  </div>
+
+  <!-- TRADUZIONE INVERSA -->
+  <div id="studentPanel" class="student-panel">
+    <div class="student-header">
+      <label>🗣️ <strong>Modalità Studente:</strong> Parla nella tua lingua ➔ Il docente leggerà la traduzione in italiano</label>
+      <div>
+        <select id="studentLangSelect" class="student-select"></select>
+        <button id="btnMicStudent" class="btn-main" onclick="toggleMicrofonoStudente()">🎙️ Parla (Studente)</button>
+        <button class="btn-tool" onclick="chiudiModalitaStudente()">✖️ Chiudi</button>
+      </div>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <textarea id="testoStudente" placeholder="Trascrizione e traduzione per il docente..." style="height: 60px;"></textarea>
+    </div>
+  </div>
+
+  <div class="source-box">
+    <div class="label-row">
+      <label for="testoITA">🇮🇹 Parla o Scrivi in Italiano (Docente):</label>
+      <div class="action-btns">
+        <button class="btn-main btn-student" onclick="apriModalitaStudente()">🔄 Studente ➔ Docente</button>
+        <button class="btn-main btn-clear" onclick="cancellaTutto()">🗑️ Cancella</button>
+        <button class="btn-main btn-save" onclick="salvaInCronologia()">📌 Salva Frase</button>
+        <button id="btnMic" class="btn-main" onclick="toggleMicrofonoDocente()">
+          <span id="micIcon">🎙️</span> <span id="micText">Attiva Mic</span>
+        </button>
+      </div>
+    </div>
+    <textarea id="testoITA" placeholder="Scrivi o premi il pulsante per parlare..." oninput="registraModificaManuale()"></textarea>
+  </div>
+
+  <!-- GRIGLIA LINGUE -->
+  <div id="gridContainer" class="grid-container"></div>
+
+  <!-- MODALE FOCUS -->
+  <div id="modalFocus" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span id="modalTitle" class="modal-title">Lingua</span>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-main" onclick="leggiTestoFocus(0.5)">🐢 Lento</button>
+          <button class="btn-main" onclick="leggiTestoFocus(0.9)">🔊 Ascolta</button>
+          <button class="btn-main btn-clear" onclick="chiudiFocus()">✖️ Chiudi</button>
+        </div>
+      </div>
+      <div id="modalBody" class="modal-body">...</div>
+    </div>
+  </div>
+
+  <!-- MODALE GESTIONE LINGUE -->
+  <div id="modalLangConfig" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-title">⚙️ Seleziona le Lingue della Classe</span>
+        <button class="btn-main btn-clear" onclick="chiudiGestioneLingue()">✖️ Chiudi e Salva</button>
+      </div>
+      <p style="margin: 0 0 10px 0; color: #5f6368; font-size: 14px;">Spunta le lingue che desideri visualizzare sulla LIM:</p>
+      <div id="langSelectorList" class="lang-grid-selector"></div>
+    </div>
+  </div>
+
+  <!-- MODALE QR CODE STUDENTI -->
+  <div id="modalQR" class="modal-overlay">
+    <div class="modal-card" style="align-items: center; text-align: center; max-width: 450px;">
+      <h2 style="margin-top:0; color: var(--primary-color);">📱 Connetti gli Studenti</h2>
+      <p style="font-size: 14px; color: #5f6368;">Gli studenti possono inquadrare questo QR Code per vedere le traduzioni in tempo reale sui loro dispositivi:</p>
+      <div id="qrcode" style="margin: 15px auto; padding: 10px; background: white; border-radius: 8px;"></div>
+      <p style="font-weight: bold; font-size: 14px;">Codice Stanza: <span id="roomCodeDisplay" style="color: #d93025;">...</span></p>
+      <button class="btn-main" onclick="chiudiQRCode()">Chiudi</button>
+    </div>
+  </div>
+
+  <script>
+    let timerDebounce = null;
+    let abortController = null;
+    let fontSizeCorrente = 16;
+    let linguaFocusCorrente = null;
+    let cronologiaLezione = [];
+    let testoConfermatoDocente = '';
+
+    // GESTIONE RETE PEERJS (STREAMING LIVE SENZA SERVER)
+    let peer = null;
+    let connessioniStudenti = [];
+    let ID_STANZA_DOCENTE = 'cpia-aula-' + Math.floor(1000 + Math.random() * 9000);
+
+    const ELENCO_LINGUE = [
+      { code: 'en', voice: 'en-US', name: '🇬🇧 Inglese' },
+      { code: 'fr', voice: 'fr-FR', name: '🇫🇷 Francese' },
+      { code: 'es', voice: 'es-ES', name: '🇪🇸 Spagnolo' },
+      { code: 'bn', voice: 'bn-BD', name: '🇧🇩 Bengalese' },
+      { code: 'ar', voice: 'ar-SA', name: '🇸🇦 Arabo', rtl: true },
+      { code: 'zh', voice: 'zh-CN', name: '🇨🇳 Cinese' },
+      { code: 'sq', voice: 'sq-AL', name: '🇦🇱 Albanese' },
+      { code: 'uk', voice: 'uk-UA', name: '🇺🇦 Ucraino' },
+      { code: 'ro', voice: 'ro-RO', name: '🇷🇴 Rumeno' },
+      { code: 'ur', voice: 'ur-PK', name: '🇵🇰 Urdu', rtl: true },
+      { code: 'ps', voice: 'ps-AF', name: '🇦🇫 Pashto', rtl: true },
+      { code: 'fa', voice: 'fa-IR', name: '🇮🇷 Farsi', rtl: true },
+      { code: 'pt', voice: 'pt-PT', name: '🇵🇹 Portoghese' },
+      { code: 'ru', voice: 'ru-RU', name: '🇷🇺 Russo' },
+      { code: 'de', voice: 'de-DE', name: '🇩🇪 Tedesco' },
+      { code: 'tl', voice: 'tl-PH', name: '🇵🇭 Tagalog' },
+      { code: 'ti', voice: 'ti-ET', name: '🇪🇷 Tigrino' },
+      { code: 'hi', voice: 'hi-IN', name: '🇮🇳 Hindi' }
+    ];
+
+    let lingueAttive = JSON.parse(localStorage.getItem('cpia_lingue_attive')) || ['en', 'fr', 'es', 'bn', 'ar', 'zh', 'sq', 'uk'];
+
+    // INIZIALIZZAZIONE RETE
+    function inizializzaRete() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const stanzaTarget = urlParams.get('stanza');
+
+      if (stanzaTarget) {
+        // MODALITÀ RICEVENTE (STUDENTE)
+        peer = new Peer();
+        peer.on('open', () => {
+          const conn = peer.connect(stanzaTarget);
+          conn.on('data', (dati) => applicaDatiRicevuti(dati));
+          aggiornaStato('Connesso alla lezione');
+        });
+      } else {
+        // MODALITÀ TRASMETTITORE (DOCENTE)
+        peer = new Peer(ID_STANZA_DOCENTE);
+        peer.on('connection', (conn) => {
+          connessioniStudenti.push(conn);
+          aggiornaStato(`Studenti connessi: ${connessioniStudenti.length}`);
+        });
+      }
+    }
+
+    function trasmettiDatiRete(dati) {
+      connessioniStudenti.forEach(conn => {
+        if (conn.open) conn.send(dati);
+      });
+    }
+
+    function applicaDatiRicevuti(dati) {
+      document.getElementById('testoITA').value = dati.ita;
+      for (const [lang, testo] of Object.entries(dati.traduzioni)) {
+        const el = document.getElementById('box_' + lang);
+        if (el) el.innerText = testo;
+      }
+    }
+
+    function mostraQRCode() {
+      const modal = document.getElementById('modalQR');
+      const container = document.getElementById('qrcode');
+      container.innerHTML = '';
+      document.getElementById('roomCodeDisplay').innerText = ID_STANZA_DOCENTE;
+
+      const urlLezione = window.location.href.split('?')[0] + '?stanza=' + ID_STANZA_DOCENTE;
+
+      new QRCode(container, {
+        text: urlLezione,
+        width: 200,
+        height: 200
+      });
+
+      modal.style.display = 'flex';
+    }
+
+    function chiudiQRCode() {
+      document.getElementById('modalQR').style.display = 'none';
+    }
+
+    function inizializzaGriglia() {
+      const container = document.getElementById('gridContainer');
+      const studentSelect = document.getElementById('studentLangSelect');
+      container.innerHTML = '';
+      studentSelect.innerHTML = '';
+
+      ELENCO_LINGUE.filter(l => lingueAttive.includes(l.code)).forEach(l => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="card-header">
+            <span class="card-title">${l.name}</span>
+            <button class="btn-tool" onclick="apriFocus('${l.code}', '${l.name}')">🔍 Espandi</button>
+          </div>
+          <div id="box_${l.code}" class="card-body ${l.rtl ? 'rtl' : ''}">...</div>
+          <div class="card-footer">
+            <button class="btn-card" onclick="copiaTesto('${l.code}')">📋 Copia</button>
+            <button class="btn-card" onclick="leggiTesto('${l.code}', 0.5)">🐢 Lento</button>
+            <button class="btn-card" onclick="leggiTesto('${l.code}', 0.9)">🔊 Ascolta</button>
+          </div>
+        `;
+        container.appendChild(card);
+
+        const opt = document.createElement('option');
+        opt.value = l.voice;
+        opt.innerText = l.name;
+        studentSelect.appendChild(opt);
+      });
+
+      gestisciInput();
+    }
+
+    function apriGestioneLingue() {
+      const list = document.getElementById('langSelectorList');
+      list.innerHTML = '';
+      ELENCO_LINGUE.forEach(l => {
+        const item = document.createElement('label');
+        item.className = 'lang-item';
+        const checked = lingueAttive.includes(l.code) ? 'checked' : '';
+        item.innerHTML = `<input type="checkbox" value="${l.code}" ${checked} onchange="toggleLingua('${l.code}')"> ${l.name}`;
+        list.appendChild(item);
+      });
+      document.getElementById('modalLangConfig').style.display = 'flex';
+    }
+
+    function toggleLingua(code) {
+      if (lingueAttive.includes(code)) {
+        if (lingueAttive.length <= 1) {
+          alert("Devi mantenere almeno una lingua attiva.");
+          return;
+        }
+        lingueAttive = lingueAttive.filter(c => c !== code);
+      } else {
+        lingueAttive.push(code);
+      }
+      localStorage.setItem('cpia_lingue_attive', JSON.stringify(lingueAttive));
+    }
+
+    function chiudiGestioneLingue() {
+      document.getElementById('modalLangConfig').style.display = 'none';
+      inizializzaGriglia();
+    }
+
+    function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
+
+    function cambiaZoom(delta) {
+      fontSizeCorrente = Math.max(12, Math.min(32, fontSizeCorrente + delta));
+      document.querySelectorAll('.card-body').forEach(el => el.style.fontSize =
