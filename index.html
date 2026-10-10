@@ -622,8 +622,8 @@
         <button class="btn-tool" onclick="resetZoom()">A</button>
         <button class="btn-tool" onclick="cambiaZoom(2)">A+</button>
       </div>
-      <button class="btn-main" style="width: auto;" onclick="stampaOEsportaPDF()">🖨️ PDF</button>
-      <button class="btn-main" style="width: auto;" onclick="scaricaLezione()">📥 TXT</button>
+      <button id="btnTopPDF" class="btn-main" style="width: auto;" onclick="stampaOEsportaPDF()">🖨️ PDF</button>
+      <button id="btnTopTXT" class="btn-main" style="width: auto;" onclick="scaricaLezione()">📥 TXT</button>
       <span id="status" class="status">Pronto</span>
     </div>
   </div>
@@ -679,7 +679,11 @@
     <div id="mainStudentCard" class="student-card-main">
       <div class="student-lang-bar">
         <label for="myLangSelect"><strong>Scegli la tua lingua / Choose language:</strong></label>
-        <select id="myLangSelect" class="student-select" style="font-size: 15px;" onchange="cambiaLinguaStudente()"></select>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; width: 100%; margin-top: 6px;">
+          <select id="myLangSelect" class="student-select" style="font-size: 15px; flex-grow: 1;" onchange="cambiaLinguaStudente()"></select>
+          <button class="btn-main" style="width: auto; padding: 6px 14px;" onclick="stampaOEsportaPDF()">🖨️ PDF</button>
+          <button class="btn-main" style="width: auto; padding: 6px 14px;" onclick="scaricaLezione()">📥 TXT</button>
+        </div>
       </div>
       
       <!-- BOX ITALIANO (DOCENTE) -->
@@ -910,6 +914,8 @@
       document.getElementById('btnQR').style.display = 'none';
       document.getElementById('btnLangConfig').style.display = 'none';
       document.getElementById('studentCounterContainer').style.display = 'none';
+      document.getElementById('btnTopPDF').style.display = 'none';
+      document.getElementById('btnTopTXT').style.display = 'none';
       document.getElementById('studentViewContainer').style.display = 'flex';
 
       const select = document.getElementById('myLangSelect');
