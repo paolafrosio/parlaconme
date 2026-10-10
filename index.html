@@ -415,11 +415,10 @@
   </div>
 
   <script>
-    // RESET FORZATO DELLA CACHE DEL BROWSER PER EVITARE BLOCCHI
-    localStorage.clear();
+    // AZZERAMENTO MEMORIA LOCALE OBSOLETA
+    try { localStorage.clear(); } catch(e) {}
 
     let timerDebounce = null;
-    let abortController = null;
     let fontSizeCorrente = 16;
     let linguaFocusCorrente = null;
     let cronologiaLezione = [];
@@ -435,7 +434,7 @@
       { code: 'es', voice: 'es-ES', name: '🇪🇸 Spagnolo' },
       { code: 'bn', voice: 'bn-BD', name: '🇧🇩 Bengalese' },
       { code: 'ar', voice: 'ar-SA', name: '🇸🇦 Arabo', rtl: true },
-      { code: 'zh', voice: 'zh-CN', name: '🇨🇳 Cinese' },
+      { code: 'zh-CN', voice: 'zh-CN', name: '🇨🇳 Cinese' },
       { code: 'sq', voice: 'sq-AL', name: '🇦🇱 Albanese' },
       { code: 'uk', voice: 'uk-UA', name: '🇺🇦 Ucraino' },
       { code: 'ro', voice: 'ro-RO', name: '🇷🇴 Rumeno' },
@@ -450,31 +449,34 @@
       { code: 'hi', voice: 'hi-IN', name: '🇮🇳 Hindi' }
     ];
 
-    let lingueAttive = ['en', 'fr', 'es', 'bn', 'ar', 'zh', 'sq', 'uk'];
+    let lingueAttive = ['en', 'fr', 'es', 'bn', 'ar', 'zh-CN', 'sq', 'uk'];
 
     function inizializzaRete() {
+      if (typeof Peer === 'undefined') return;
       const urlParams = new URLSearchParams(window.location.search);
       const stanzaTarget = urlParams.get('stanza');
 
-      if (stanzaTarget) {
-        peer = new Peer();
-        peer.on('open', () => {
-          const conn = peer.connect(stanzaTarget);
-          conn.on('data', (dati) => applicaDatiRicevuti(dati));
-          aggiornaStato('Connesso');
-        });
-      } else {
-        peer = new Peer(ID_STANZA_DOCENTE);
-        peer.on('connection', (conn) => {
-          connessioniStudenti.push(conn);
-          aggiornaStato(`Studenti: ${connessioniStudenti.length}`);
-        });
-      }
+      try {
+        if (stanzaTarget) {
+          peer = new Peer();
+          peer.on('open', () => {
+            const conn = peer.connect(stanzaTarget);
+            conn.on('data', (dati) => applicaDatiRicevuti(dati));
+            aggiornaStato('Connesso');
+          });
+        } else {
+          peer = new Peer(ID_STANZA_DOCENTE);
+          peer.on('connection', (conn) => {
+            connessioniStudenti.push(conn);
+            aggiornaStato(`Studenti: ${connessioniStudenti.length}`);
+          });
+        }
+      } catch(e) {}
     }
 
     function trasmettiDatiRete(dati) {
       connessioniStudenti.forEach(conn => {
-        if (conn.open) conn.send(dati);
+        if (conn && conn.open) conn.send(dati);
       });
     }
 
@@ -494,11 +496,11 @@
 
       const urlLezione = window.location.href.split('?')[0] + '?stanza=' + ID_STANZA_DOCENTE;
 
-      new QRCode(container, {
-        text: urlLezione,
-        width: 200,
-        height: 200
-      });
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(container, { text: urlLezione, width: 200, height: 200 });
+      } else {
+        container.innerText = urlLezione;
+      }
 
       modal.style.display = 'flex';
     }
@@ -535,8 +537,6 @@
         opt.innerText = l.name;
         studentSelect.appendChild(opt);
       });
-
-      gestisciInput();
     }
 
     function apriGestioneLingue() {
@@ -567,6 +567,7 @@
     function chiudiGestioneLingue() {
       document.getElementById('modalLangConfig').style.display = 'none';
       inizializzaGriglia();
+      gestisciInput();
     }
 
     function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
@@ -818,19 +819,41 @@
 
     async function traduciDaStudente(testo, langDa) {
       if (!testo.trim()) return;
-      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${langDa}&tl=it&dt=t&q=${encodeURIComponent(testo)}`;
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        const traduzioneITA = data[0].map(item => item[0]).join('');
+      let traduzioneITA = await eseguiChiamataTraduzione(testo, langDa, 'it');
+      if (traduzioneITA) {
         document.getElementById('testoStudente').value = `[${langDa.toUpperCase()}]: ${testo}\n🇮🇹 [TRADUZIONE PER DOCENTE]: ${traduzioneITA}`;
-      } catch (e) { console.error(e); }
+      }
     }
 
     function gestisciInput() {
       aggiornaStato('Digitazione...');
       clearTimeout(timerDebounce);
-      timerDebounce = setTimeout(traduciTutto, 150);
+      timerDebounce = setTimeout(traduciTutto, 250);
+    }
+
+    // MOTORE DI TRADUZIONE CON FALLBACK AUTOMATICO MULTI-SERVER
+    async function eseguiChiamataTraduzione(testo, linguaOrigine, linguaDestinazione) {
+      const targetLang = linguaDestinazione.split('-')[0];
+      const url1 = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${linguaOrigine}&tl=${targetLang}&dt=t&q=${encodeURIComponent(testo)}`;
+      const url2 = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(testo)}&langpair=${linguaOrigine}|${targetLang}`;
+
+      try {
+        const res = await fetch(url1);
+        const data = await res.json();
+        if (data && data[0]) {
+          return data[0].map(item => item[0]).join('');
+        }
+      } catch (e) {
+        // Fallback sul secondo server se Google viene bloccato
+        try {
+          const res2 = await fetch(url2);
+          const data2 = await res2.json();
+          if (data2 && data2.responseData) {
+            return data2.responseData.translatedText;
+          }
+        } catch(err) {}
+      }
+      return null;
     }
 
     async function traduciTutto() {
@@ -845,38 +868,38 @@
         return;
       }
 
-      if (abortController) abortController.abort();
-      abortController = new AbortController();
-
       aggiornaStato('Traduzione...');
-
       let traduzioniMap = {};
 
-      let promesse = lingueAttive.map(lang => {
-        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=it&tl=${lang}&dt=t&q=${encodeURIComponent(testo)}`;
-        return fetch(url, { signal: abortController.signal })
-          .then(res => res.json())
-          .then(data => {
-            const traduzione = data[0].map(item => item[0]).join('');
-            const el = document.getElementById('box_' + lang);
-            if (el) el.innerText = traduzione;
-            if (linguaFocusCorrente === lang) document.getElementById('modalBody').innerText = traduzione;
-            traduzioniMap[lang] = traduzione;
-          })
-          .catch(() => {});
+      let promesse = lingueAttive.map(async (lang) => {
+        let traduzione = await eseguiChiamataTraduzione(testo, 'it', lang);
+        if (traduzione) {
+          const el = document.getElementById('box_' + lang);
+          if (el) el.innerText = traduzione;
+          if (linguaFocusCorrente === lang) {
+            document.getElementById('modalBody').innerText = traduzione;
+          }
+          traduzioniMap[lang] = traduzione;
+        }
       });
 
-      Promise.all(promesse).then(() => {
-        aggiornaStato('Tradotto');
-        trasmettiDatiRete({
-          ita: testo,
-          traduzioni: traduzioniMap
-        });
-      });
+      await Promise.all(promesse);
+      aggiornaStato('Tradotto');
+      trasmettiDatiRete({ ita: testo, traduzioni: traduzioniMap });
     }
 
-    function aggiornaStato(msg) { document.getElementById('status').innerText = msg; }
+    function aggiornaStato(msg) {
+      const el = document.getElementById('status');
+      if (el) el.innerText = msg;
+    }
 
+    // INIZIALIZZAZIONE SICURA
+    window.addEventListener('DOMContentLoaded', () => {
+      inizializzaGriglia();
+      inizializzaRete();
+    });
+
+    // Inizializzazione immediata per sicurezza
     inizializzaGriglia();
     inizializzaRete();
   </script>
