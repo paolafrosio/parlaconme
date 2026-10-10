@@ -383,6 +383,7 @@
     }
     .rtl { direction: rtl; text-align: right; }
 
+    /* VISTA BILINGUE STUDENTE RESTYLING */
     .student-view-container {
       display: none;
       flex-direction: column;
@@ -392,7 +393,7 @@
     }
     .student-card-main {
       background: var(--card-bg);
-      border-radius: 18px;
+      border-radius: 20px;
       padding: 16px;
       box-shadow: var(--card-shadow);
       border: 1px solid var(--border-color);
@@ -407,12 +408,16 @@
       margin-bottom: 12px;
       gap: 8px;
       flex-wrap: wrap;
+      background: var(--card-body-bg);
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border-color);
     }
     .student-display-text {
       background: var(--card-body-bg);
       border: 1px solid var(--border-color);
       border-radius: 12px;
-      padding: 12px;
+      padding: 14px;
       font-size: 18px;
       line-height: 1.45;
       flex-grow: 1;
@@ -503,8 +508,9 @@
       .card-footer { justify-content: flex-start; }
     }
 
+    /* REGOLE DI STAMPA OTTIMIZZATE (SENZA SALTI PAGINA INDESIDERATI) */
     @media print {
-      @page { margin: 12mm; size: auto; }
+      @page { margin: 10mm; size: auto; }
       html, body {
         height: auto !important;
         min-height: 0 !important;
@@ -513,6 +519,7 @@
         color: black !important;
         padding: 0 !important;
         margin: 0 !important;
+        display: block !important;
       }
       .header, .top-controls, .source-box, .student-panel, .action-btns, .card-footer, .student-lang-bar, button {
         display: none !important;
@@ -523,6 +530,7 @@
         box-shadow: none !important;
         border: none !important;
         padding: 0 !important;
+        margin: 0 !important;
       }
       .student-display-text {
         max-height: none !important;
@@ -531,13 +539,19 @@
         overflow: visible !important;
         display: block !important;
         position: relative !important;
-        border: 1px solid #ccc !important;
+        border: 1px solid #cbd5e1 !important;
         background: #fff !important;
         color: #000 !important;
-        font-size: 14pt !important;
+        font-size: 13pt !important;
         padding: 10px !important;
-        margin-bottom: 20px !important;
-        page-break-inside: avoid !important;
+        margin-bottom: 15px !important;
+        box-shadow: none !important;
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+      }
+      .student-card-main > div {
+        page-break-inside: avoid;
+        break-inside: avoid;
       }
     }
   </style>
@@ -611,21 +625,21 @@
       </div>
       
       <!-- BOX ITALIANO (DOCENTE) -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; flex-wrap: wrap; gap: 4px;">
-        <div style="font-weight: bold; font-size: 14px; color: var(--primary-color);">🇮🇹 Italiano (Docente):</div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 4px;">
+        <div style="font-weight: 700; font-size: 14px; color: var(--primary-color);">🇮🇹 Italiano (Docente):</div>
         <div style="display: flex; gap: 4px;">
           <button id="btnItaSlow" class="btn-card" onclick="toggleLetturaItalianoStudente(0.5)">🐢 Lento</button>
           <button id="btnItaNormal" class="btn-card" onclick="toggleLetturaItalianoStudente(0.9)">🔊 Ascolta ITA</button>
         </div>
       </div>
-      <div id="studentDisplayITA" class="student-display-text student-display-ita-box" style="flex-grow: 0; min-height: 60px; max-height: 120px; margin-bottom: 10px;">In attesa dell'insegnante...</div>
+      <div id="studentDisplayITA" class="student-display-text student-display-ita-box" style="flex-grow: 0; min-height: 60px; max-height: 140px; margin-bottom: 12px;">In attesa dell'insegnante...</div>
 
       <!-- BOX TRADUZIONE (STUDENTE) -->
-      <div style="font-weight: bold; font-size: 14px; margin-bottom: 4px; color: var(--primary-color);">🌐 Traduzione nella tua lingua:</div>
+      <div style="font-weight: 700; font-size: 14px; margin-bottom: 6px; color: var(--primary-color);">🌐 Traduzione nella tua lingua:</div>
       <div id="studentDisplayText" class="student-display-text">In attesa della traduzione...</div>
 
-      <div class="card-footer" style="justify-content: space-between; margin-top: 8px; gap: 6px;">
-        <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+      <div class="card-footer" style="justify-content: space-between; margin-top: 10px; gap: 6px;">
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
           <button id="btnTransSlow" class="btn-card" onclick="toggleLetturaStudente(0.5)">🐢 Lento</button>
           <button id="btnTransNormal" class="btn-card" onclick="toggleLetturaStudente(0.9)">🔊 Ascolta Traduzione</button>
         </div>
@@ -1207,12 +1221,12 @@
           <title>Scheda Lezione CPIA - ${dataOggi}</title>
           <style>
             @page { margin: 10mm; }
-            body { font-family: Arial, sans-serif; padding: 15px; line-height: 1.4; color: #202124; margin: 0; }
+            body { font-family: 'Segoe UI', Arial, sans-serif; padding: 15px; line-height: 1.4; color: #1e293b; margin: 0; background: #fff; }
             h1 { color: #0284c7; font-size: 18pt; margin: 0 0 4px 0; }
             .date { color: #64748b; font-size: 10pt; margin-bottom: 15px; border-bottom: 2px solid #0284c7; padding-bottom: 6px; }
-            .block { margin-bottom: 12px; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; page-break-inside: avoid; }
-            .ita { font-weight: bold; font-size: 12pt; color: #0284c7; margin-bottom: 4px; }
-            .trans { font-size: 11pt; margin-left: 8px; color: #334155; }
+            .block { margin-bottom: 14px; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; page-break-inside: avoid; break-inside: avoid; background: #f8fafc; }
+            .ita { font-weight: bold; font-size: 12pt; color: #0284c7; margin-bottom: 6px; }
+            .trans { font-size: 11pt; margin-left: 8px; color: #334155; margin-top: 3px; }
           </style>
         </head>
         <body>
