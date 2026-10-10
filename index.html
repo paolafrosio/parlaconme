@@ -916,25 +916,32 @@
     }
 
     function impostaVistaStudente() {
+      // Nasconde i pannelli esclusivi del docente
       document.getElementById('docenteContainer').style.display = 'none';
       document.getElementById('btnQR').style.display = 'none';
       document.getElementById('btnLangConfig').style.display = 'none';
       document.getElementById('studentCounterContainer').style.display = 'none';
       
-      /* NASCONDE I PULSANTI IN ALTO MA MANTIENE QUELLI INTERNI ALLA SCHEDA STUDENTE */
-      document.getElementById('btnTopPDF').style.display = 'none';
-      document.getElementById('btnTopTXT').style.display = 'none';
+      // MANTIENI FORZATAMENTE VISIBILI I PULSANTI PDF E TXT IN ALTO
+      const btnPDF = document.getElementById('btnTopPDF');
+      const btnTXT = document.getElementById('btnTopTXT');
+      if (btnPDF) btnPDF.style.display = 'inline-flex';
+      if (btnTXT) btnTXT.style.display = 'inline-flex';
 
+      // Mostra il contenitore della vista studente
       document.getElementById('studentViewContainer').style.display = 'flex';
 
+      // Popola la selezione lingua
       const select = document.getElementById('myLangSelect');
-      select.innerHTML = '';
-      ELENCO_LINGUE.forEach(l => {
-        const opt = document.createElement('option');
-        opt.value = l.code;
-        opt.innerText = l.name;
-        select.appendChild(opt);
-      });
+      if (select) {
+        select.innerHTML = '';
+        ELENCO_LINGUE.forEach(l => {
+          const opt = document.createElement('option');
+          opt.value = l.code;
+          opt.innerText = l.name;
+          select.appendChild(opt);
+        });
+      }
     }
 
     function cambiaLinguaStudente() {
