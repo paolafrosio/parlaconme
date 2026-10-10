@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ParlaConMe - Ingresso Studente</title>
+  <link rel="icon" type="image/png" href="logo.png?v=3">
+  <style>
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    .join-card {
+      background: white;
+      padding: 30px 24px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 380px;
+      width: 100%;
+      border-top: 6px solid #1a73e8;
+    }
+    h1 {
+      color: #1a73e8;
+      font-size: 24px;
+      margin-top: 0;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    p {
+      color: #5f6368;
+      font-size: 15px;
+      margin-bottom: 24px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+      letter-spacing: 4px;
+      border: 2px solid #dadce0;
+      border-radius: 10px;
+      box-sizing: border-box;
+      margin-bottom: 16px;
+      outline: none;
+    }
+    input:focus {
+      border-color: #1a73e8;
+    }
+    button {
+      width: 100%;
+      background-color: #1a73e8;
+      color: white;
+      border: none;
+      padding: 14px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background-color: #1557b0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="join-card">
+    <h1><img src="logo.png?v=3" alt="Logo" style="height: 32px;"> ParlaConMe</h1>
+    <p>Inserisci il codice della stanza mostrato sulla LIM dal docente:</p>
+    
+    <form onsubmit="entra(event)">
+      <input type="text" id="code" placeholder="0000" maxlength="10" required autofocus autocomplete="off">
+      <button type="submit">ENTRA NELLA LEZIONE</button>
+    </form>
+  </div>
+
+  <script>
+    function entra(e) {
+      e.preventDefault();
+      let codice = document.getElementById('code').value.trim();
+      if (!codice) return;
+      
+      // Aggiunge il prefisso se l'alunno ha inserito solo i numeri
+      if (!codice.startsWith('cpia-aula-')) {
+        codice = 'cpia-aula-' + codice;
+      }
+      
+      // Reindirizza direttamente alla lezione del docente
+      window.location.href = 'index.html?stanza=' + codice;
+    }
+  </script>
+
+</body>
+</html>
