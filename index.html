@@ -83,6 +83,19 @@
       color: #8ab4f8;
       border-color: #8ab4f8;
     }
+    .status-badge-student {
+      font-size: 12px;
+      font-weight: bold;
+      padding: 4px 10px;
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .status-connected { background: #e6f4ea; color: #137333; border: 1px solid #ceead6; }
+    .status-connecting { background: #fef7e0; color: #b06000; border: 1px solid #feefc3; }
+    .status-disconnected { background: #fce8e6; color: #c5221f; border: 1px solid #fad2cf; }
+
     .zoom-bar {
       display: flex;
       align-items: center;
@@ -411,6 +424,23 @@
       .student-select { width: 100%; }
       .card-footer { justify-content: flex-start; }
     }
+
+    /* STILI STAMPA / SCHEDA PDF */
+    @media print {
+      body { background: white; color: black; padding: 0; }
+      .header, .top-controls, .source-box, .student-panel, .action-btns, .card-footer, .student-lang-bar, button {
+        display: none !important;
+      }
+      .student-card-main, .card {
+        border: none !important;
+        box-shadow: none !important;
+      }
+      .student-display-text, .card-body {
+        border: 1px solid #ccc !important;
+        background: #fff !important;
+        font-size: 16pt !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -422,6 +452,9 @@
       <div id="studentCounterContainer" class="student-counter-badge">
         👥 Studenti: <span id="studentCount">0</span>
       </div>
+      <div id="studentStatusBadge" class="status-badge-student status-connecting" style="display: none;">
+        🟡 Connessione...
+      </div>
       <button id="btnQR" class="btn-main" onclick="mostraQRCode()">📱 Trasmetti</button>
       <button id="btnLangConfig" class="btn-tool" onclick="apriGestioneLingue()">⚙️ Lingue</button>
       <button class="btn-tool" onclick="toggleDarkMode()">🌙</button>
@@ -430,7 +463,8 @@
         <button class="btn-tool" onclick="resetZoom()">A</button>
         <button class="btn-tool" onclick="cambiaZoom(2)">A+</button>
       </div>
-      <button class="btn-main btn-save" style="width: auto;" onclick="scaricaLezione()">📥 Scarica</button>
+      <button class="btn-main btn-save" style="width: auto;" onclick="stampaOEsportaPDF()">🖨️ PDF / Stampa</button>
+      <button class="btn-main btn-clear" style="width: auto;" onclick="scaricaLezione()">📥 TXT</button>
       <span id="status" class="status">Pronto</span>
     </div>
   </div>
@@ -555,6 +589,8 @@
 
     let peer = null;
     let connessioniStudenti = [];
+    let connStudenteAInsegnante = null;
+    let timerRiconnessione = null;
     let ID_STANZA_DOCENTE = 'cpia-aula-' + Math.floor(1000 + Math.random() * 9000);
 
     const CONFIGURAZIONE_PEER = {
@@ -594,9 +630,59 @@
 
     function aggiornaContatoreStudenti() {
       const countEl = document.getElementById('studentCount');
-      if (countEl) {
-        countEl.innerText = connessioniStudenti.length;
+      if (countEl) countEl.innerText = connessioniStudenti.length;
+    }
+
+    function aggiornaStatoVisivoStudente(stato) {
+      const badge = document.getElementById('studentStatusBadge');
+      if (!badge) return;
+      badge.style.display = 'inline-flex';
+      badge.className = 'status-badge-student';
+
+      if (stato === 'connected') {
+        badge.classList.add('status-connected');
+        badge.innerHTML = '🟢 Connesso';
+      } else if (stato === 'connecting') {
+        badge.classList.add('status-connecting');
+        badge.innerHTML = '🟡 Riconnessione...';
+      } else {
+        badge.classList.add('status-disconnected');
+        badge.innerHTML = '🔴 Disconnesso';
       }
+    }
+
+    function connettiAStanzaDocente(stanzaTarget) {
+      aggiornaStatoVisivoStudente('connecting');
+      connStudenteAInsegnante = peer.connect(stanzaTarget, { reliable: true });
+
+      connStudenteAInsegnante.on('open', () => {
+        clearInterval(timerRiconnessione);
+        aggiornaStatoVisivoStudente('connected');
+        connStudenteAInsegnante.send({ tipo: 'RICHIESTA_SINCRONIZZAZIONE' });
+        aggiornaStato('Connesso');
+      });
+
+      connStudenteAInsegnante.on('data', (dati) => applicaDatiRicevuti(dati));
+
+      connStudenteAInsegnante.on('close', () => {
+        aggiornaStatoVisivoStudente('disconnected');
+        avviaRiconnessioneAutomatica(stanzaTarget);
+      });
+
+      connStudenteAInsegnante.on('error', () => {
+        aggiornaStatoVisivoStudente('disconnected');
+        avviaRiconnessioneAutomatica(stanzaTarget);
+      });
+    }
+
+    function avviaRiconnessioneAutomatica(stanzaTarget) {
+      clearInterval(timerRiconnessione);
+      timerRiconnessione = setInterval(() => {
+        aggiornaStatoVisivoStudente('connecting');
+        if (peer && !peer.destroyed) {
+          connettiAStanzaDocente(stanzaTarget);
+        }
+      }, 4000);
     }
 
     function inizializzaRete() {
@@ -608,12 +694,7 @@
         impostaVistaStudente();
         peer = new Peer(CONFIGURAZIONE_PEER);
         peer.on('open', () => {
-          const conn = peer.connect(stanzaTarget, { reliable: true });
-          conn.on('open', () => {
-            conn.send({ tipo: 'RICHIESTA_SINCRONIZZAZIONE' });
-            aggiornaStato('Connesso');
-          });
-          conn.on('data', (dati) => applicaDatiRicevuti(dati));
+          connettiAStanzaDocente(stanzaTarget);
         });
       } else {
         peer = new Peer(ID_STANZA_DOCENTE, CONFIGURAZIONE_PEER);
@@ -933,6 +1014,55 @@
       link.click();
     }
 
+    function stampaOEsportaPDF() {
+      if (eStudente) {
+        window.print();
+        return;
+      }
+
+      if (cronologiaLezione.length === 0) {
+        alert("Prima salva qualche frase con '📌 Salva Frase' per generare la scheda stampabile/PDF.");
+        return;
+      }
+
+      let win = window.open('', '_blank');
+      let dataOggi = new Date().toLocaleDateString('it-IT');
+      let html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Scheda Lezione CPIA - ${dataOggi}</title>
+
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.5; color: #202124; }
+            h1 { color: #1a73e8; font-size: 20pt; margin-bottom: 4px; }
+            .date { color: #5f6368; font-size: 10pt; margin-bottom: 20px; border-bottom: 2px solid #1a73e8; padding-bottom: 8px; }
+            .block { margin-bottom: 18px; padding: 12px; border: 1px solid #dadce0; border-radius: 8px; page-break-inside: avoid; }
+            .ita { font-weight: bold; font-size: 13pt; color: #1a73e8; margin-bottom: 6px; }
+            .trans { font-size: 11pt; margin-left: 10px; color: #3c4043; }
+          </style>
+        </head>
+        <body>
+          <h1>ParlaConMe - Scheda della Lezione</h1>
+          <div class="date">Data: ${dataOggi} | CPIA Centro Provinciale Istruzione Adulti</div>
+      `;
+
+      cronologiaLezione.forEach((item, index) => {
+        html += `<div class="block"><div class="ita">${index + 1}. 🇮🇹 ITA: ${item.ita}</div>`;
+        lingueAttive.forEach(l => {
+          const obj = ELENCO_LINGUE.find(x => x.code === l);
+          if (item[l]) {
+            html += `<div class="trans"><strong>${obj ? obj.name : l}:</strong> ${item[l]}</div>`;
+          }
+        });
+        html += `</div>`;
+      });
+
+      html += `<script>window.onload = function() { window.print(); }<\/script></body></html>`;
+      win.document.write(html);
+      win.document.close();
+    }
+
     let vociDisponibili = [];
     function caricaVoci() {
       if ('speechSynthesis' in window) vociDisponibili = window.speechSynthesis.getVoices();
@@ -1106,7 +1236,7 @@
     function gestisciInput() {
       aggiornaStato('Digitazione...');
       clearTimeout(timerDebounce);
-      timerDebounce = setTimeout(traduciTutto, 300);
+      timerDebounce = setTimeout(traduciTutto, 500);
     }
 
     function traduciTutto() {
