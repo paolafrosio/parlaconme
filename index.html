@@ -59,6 +59,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      white-space: nowrap;
     }
     .top-controls {
       display: flex;
@@ -77,6 +78,7 @@
       display: inline-flex;
       align-items: center;
       gap: 5px;
+      white-space: nowrap;
     }
     body.dark-mode .student-counter-badge {
       background: #1e293b;
@@ -91,6 +93,7 @@
       display: inline-flex;
       align-items: center;
       gap: 5px;
+      white-space: nowrap;
     }
     .status-connected { background: #e6f4ea; color: #137333; border: 1px solid #ceead6; }
     .status-connecting { background: #fef7e0; color: #b06000; border: 1px solid #feefc3; }
@@ -116,6 +119,8 @@
       transition: background 0.2s;
     }
     .btn-tool:hover { background: var(--border-color); }
+    
+    /* BADGE STATO A LARGHEZZA FISSA PER EVITARE SPOSTAMENTI DEI PULSANTI */
     .status {
       font-size: 12px;
       color: #5f6368;
@@ -126,6 +131,11 @@
       text-align: center;
       display: inline-block;
       flex-shrink: 0;
+      min-width: 110px;
+      box-sizing: border-box;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     
     .source-box {
@@ -417,9 +427,7 @@
       body { padding: 8px; }
       h1 { font-size: 18px; }
       .header { flex-direction: column; align-items: flex-start; }
-      .top-controls { width: 100%; justify-content: space-between; }
-      .btn-main { width: 100%; }
-      .action-btns { width: 100%; }
+      .top-controls { width: 100%; justify-content: flex-start; }
       .student-lang-bar { flex-direction: column; align-items: flex-start; }
       .student-select { width: 100%; }
       .card-footer { justify-content: flex-start; }
@@ -1032,7 +1040,6 @@
         <html>
         <head>
           <title>Scheda Lezione CPIA - ${dataOggi}</title>
-
           <style>
             body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.5; color: #202124; }
             h1 { color: #1a73e8; font-size: 20pt; margin-bottom: 4px; }
