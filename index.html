@@ -338,19 +338,20 @@
     }
     .rtl { direction: rtl; text-align: right; }
 
-    /* EVIDENZIAZIONE SINCRO PERFETTA PER LIGHT E DARK MODE */
-    mark.highlight-word {
+    /* EVIDENZIAZIONE SENZA SPOSTAMENTO DI LAYOUT (NO PADDING, NO BORDER, STESSA GRANDEZZA FONT) */
+    .word-span {
+      display: inline;
+      background-color: transparent;
+      border-radius: 3px;
+      transition: background-color 0.1s ease, color 0.1s ease;
+    }
+    .word-span.highlight-word {
       background-color: #fce8e6;
       color: #d93025;
-      font-weight: bold;
-      border-radius: 4px;
-      padding: 2px 4px;
-      border: 1px solid #ea4335;
     }
-    body.dark-mode mark.highlight-word {
+    body.dark-mode .word-span.highlight-word {
       background-color: #f9ab00;
       color: #121212;
-      border-color: #fbbc04;
     }
 
     /* VISTA BILINGUE STUDENTE */
@@ -392,7 +393,6 @@
       word-break: break-word;
       color: var(--text-color);
     }
-    /* CLASSE DEDICATA AL BOX ITALIANO PER DARK MODE CORRETTA */
     .student-display-ita-box {
       background: var(--box-ita-bg) !important;
       color: var(--text-color) !important;
@@ -578,7 +578,7 @@
         <select id="myLangSelect" class="student-select" style="font-size: 15px;" onchange="cambiaLinguaStudente()"></select>
       </div>
       
-      <!-- BOX ITALIANO (DOCENTE) CORRETTO PER DARK MODE -->
+      <!-- BOX ITALIANO (DOCENTE) -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; flex-wrap: wrap; gap: 4px;">
         <div style="font-weight: bold; font-size: 14px; color: var(--primary-color);">🇮🇹 Italiano (Docente):</div>
         <div style="display: flex; gap: 4px;">
@@ -825,7 +825,7 @@
         window.speechSynthesis.cancel();
       }
       if (intervalFallbackHighlight) {
-        clearInterval(intervalFallbackHighlight);
+        clearTimeout(intervalFallbackHighlight);
         intervalFallbackHighlight = null;
       }
       letturaInCorso = false;
@@ -868,6 +868,27 @@
       avviaLetturaStudente('trans', voiceLang, velocita);
     }
 
+    function preparaTestoPerHighlight(display, testoPuro) {
+      // Divide il testo mantenendo gli spazi e racchiude ogni parola in uno span stabile
+      const tokenArray = testoPuro.split(/(\s+)/);
+      display.innerHTML = '';
+      let spanElements = [];
+
+      tokenArray.forEach(token => {
+        if (/^\s+$/.test(token)) {
+          display.appendChild(document.createTextNode(token));
+        } else if (token.length > 0) {
+          const span = document.createElement('span');
+          span.className = 'word-span';
+          span.innerText = token;
+          display.appendChild(span);
+          spanElements.push(span);
+        }
+      });
+
+      return spanElements;
+    }
+
     function avviaLetturaStudente(target, voiceLang, velocita) {
       fermaLetturaStudente();
 
@@ -881,6 +902,8 @@
 
       if (!('speechSynthesis' in window)) return;
 
+      const spanElements = preparaTestoPerHighlight(display, testoPuro);
+
       const utterance = new SpeechSynthesisUtterance(testoPuro);
       const langCode = voiceLang.split('-')[0];
       const voceMigliore = selezionaVoceMigliore(langCode);
@@ -890,23 +913,27 @@
 
       let boundaryTriggered = false;
 
-      // EVIDENZIAZIONE SINCRO NATIVA BROWSER COMPATIBILI
+      // EVIDENZIAZIONE NATIVA BROWSER COMPATIBILI (DESKTOP E CHROME ANDROID)
       utterance.onboundary = (e) => {
         if (e.name !== 'word') return;
         boundaryTriggered = true;
         if (intervalFallbackHighlight) {
-          clearInterval(intervalFallbackHighlight);
+          clearTimeout(intervalFallbackHighlight);
           intervalFallbackHighlight = null;
         }
 
         const charIndex = e.charIndex;
-        const charLength = e.charLength || 5;
-
-        const prima = testoPuro.substring(0, charIndex);
-        const parola = testoPuro.substring(charIndex, charIndex + charLength);
-        const dopo = testoPuro.substring(charIndex + charLength);
-
-        display.innerHTML = `${escapeHTML(prima)}<mark class="highlight-word">${escapeHTML(parola)}</mark>${escapeHTML(dopo)}`;
+        let charAcc = 0;
+        
+        spanElements.forEach(span => {
+          const textLen = span.innerText.length;
+          if (charAcc <= charIndex && charIndex < charAcc + textLen + 1) {
+            span.classList.add('highlight-word');
+          } else {
+            span.classList.remove('highlight-word');
+          }
+          charAcc += textLen + 1; // stima spazio
+        });
       };
 
       utterance.onstart = () => {
@@ -923,31 +950,25 @@
           btn.classList.add('active-speaking');
         }
 
-        // FALLBACK SINCRO ADATTIVA PER DISPOSITIVI CHE NON RILASCIANO ONBOUNDARY
+        // FALLBACK SINCRO ADATTIVA AD ALTA PRECISIONE PER iOS / SAFARI
         setTimeout(() => {
           if (!boundaryTriggered && letturaInCorso) {
-            const parole = testoPuro.split(/(\s+)/);
             let indexParola = 0;
 
             const avanzaEvidenziazione = () => {
-              if (!letturaInCorso || indexParola >= parole.length) {
-                if (intervalFallbackHighlight) clearInterval(intervalFallbackHighlight);
+              if (!letturaInCorso || indexParola >= spanElements.length) {
+                if (intervalFallbackHighlight) clearTimeout(intervalFallbackHighlight);
                 return;
               }
 
-              let htmlCostruito = '';
-              for (let i = 0; i < parole.length; i++) {
-                if (i === indexParola) {
-                  htmlCostruito += `<mark class="highlight-word">${escapeHTML(parole[i])}</mark>`;
-                } else {
-                  htmlCostruito += escapeHTML(parole[i]);
-                }
-              }
-              display.innerHTML = htmlCostruito;
+              spanElements.forEach((span, i) => {
+                if (i === indexParola) span.classList.add('highlight-word');
+                else span.classList.remove('highlight-word');
+              });
 
-              // Calcolo tempo dinamico basato su lunghezza della parola corrente
-              const parolaCorrente = parole[indexParola] || '';
-              const durataMs = Math.max(160, Math.round((parolaCorrente.length * 55) / velocita));
+              const parolaCorrente = spanElements[indexParola].innerText || '';
+              // Tempo dinamico tarato perfettamente sulla velocità audio reale (min 130ms)
+              const durataMs = Math.max(130, Math.round((parolaCorrente.length * 42) / velocita));
               
               indexParola++;
               if (letturaInCorso && !boundaryTriggered) {
@@ -957,7 +978,7 @@
 
             avanzaEvidenziazione();
           }
-        }, 150);
+        }, 100);
       };
 
       utterance.onend = () => fermaLetturaStudente();
