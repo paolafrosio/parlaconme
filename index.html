@@ -429,7 +429,7 @@
       { code: 'sq', voice: 'sq-AL', name: '🇦🇱 Albanese' },
       { code: 'ar', voice: 'ar-SA', name: '🇸🇦 Arabo', rtl: true },
       { code: 'bn', voice: 'bn-BD', name: '🇧🇩 Bengalese' },
-      { code: 'zh', voice: 'zh-CN', name: '🇨🇳 Cinese' },
+      { code: 'zh-CN', voice: 'zh-CN', name: '🇨🇳 Cinese' },
       { code: 'fa', voice: 'fa-IR', name: '🇮🇷 Farsi', rtl: true },
       { code: 'fr', voice: 'fr-FR', name: '🇫🇷 Francese' },
       { code: 'hi', voice: 'hi-IN', name: '🇮🇳 Hindi' },
@@ -446,7 +446,7 @@
       { code: 'ur', voice: 'ur-PK', name: '🇵🇰 Urdu', rtl: true }
     ];
 
-    let lingueAttive = ['sq', 'ar', 'bn', 'zh', 'fr', 'en', 'es', 'uk'];
+    let lingueAttive = ['sq', 'ar', 'bn', 'zh-CN', 'fr', 'en', 'es', 'uk'];
 
     function inizializzaRete() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -812,36 +812,41 @@
       aggiornaStato('Pronto');
     }
 
-    async function chiamaAPI(testo, sl, tl) {
-      const url = `https://api.linguatools.org/api/v1/translate?text=${encodeURIComponent(testo)}&lang=${sl}-${tl}`;
+    // MOTORE DI TRADUZIONE ANTI-BLOCCO CON PROXY SICURO
+    async function traduciTesto(testo, linguaOrigine, linguaDestinazione) {
+      const target = linguaDestinazione.split('-')[0];
+      const targetUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${linguaOrigine}&tl=${target}&dt=t&q=${encodeURIComponent(testo)}`;
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+
       try {
-        const res = await fetch(url);
+        const res = await fetch(proxyUrl);
         const data = await res.json();
-        if (data && data.translation) return data.translation;
-      } catch(e) {}
-      
-      // Proxy di riserva per Google Translate
-      const fallbackUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${encodeURIComponent(testo)}`;
-      try {
-        const res = await fetch(fallbackUrl);
-        const data = await res.json();
-        if (data && data[0]) return data[0].map(item => item[0]).join('');
-      } catch(e) {}
+        if (data && data[0]) {
+          return data[0].map(item => item[0]).join('');
+        }
+      } catch (e) {
+        // Tentativo diretto di riserva
+        try {
+          const res2 = await fetch(targetUrl);
+          const data2 = await res2.json();
+          if (data2 && data2[0]) return data2[0].map(item => item[0]).join('');
+        } catch(err) {}
+      }
       return null;
     }
 
     async function traduciDaStudente(testo, langDa) {
       if (!testo.trim()) return;
-      const traduzioneITA = await chiamaAPI(testo, langDa, 'it');
-      if (traduzioneITA) {
-        document.getElementById('testoStudente').value = `[${langDa.toUpperCase()}]: ${testo}\n🇮🇹 [TRADUZIONE PER DOCENTE]: ${traduzioneITA}`;
+      const trad = await traduciTesto(testo, langDa, 'it');
+      if (trad) {
+        document.getElementById('testoStudente').value = `[${langDa.toUpperCase()}]: ${testo}\n🇮🇹 [TRADUZIONE PER DOCENTE]: ${trad}`;
       }
     }
 
     function gestisciInput() {
       aggiornaStato('Digitazione...');
       clearTimeout(timerDebounce);
-      timerDebounce = setTimeout(traduciTutto, 200);
+      timerDebounce = setTimeout(traduciTutto, 250);
     }
 
     async function traduciTutto() {
@@ -860,7 +865,7 @@
       let traduzioniMap = {};
 
       let promesse = lingueAttive.map(async (lang) => {
-        const trad = await chiamaAPI(testo, 'it', lang);
+        const trad = await traduciTesto(testo, 'it', lang);
         if (trad) {
           const el = document.getElementById('box_' + lang);
           if (el) el.innerText = trad;
@@ -869,13 +874,9 @@
         }
       });
 
-      Promise.all(promesse).then(() => {
-        aggiornaStato('Tradotto');
-        trasmettiDatiRete({
-          ita: testo,
-          traduzioni: traduzioniMap
-        });
-      });
+      await Promise.all(promesse);
+      aggiornaStato('Tradotto');
+      trasmettiDatiRete({ ita: testo, traduzioni: traduzioniMap });
     }
 
     function aggiornaStato(msg) { document.getElementById('status').innerText = msg; }
