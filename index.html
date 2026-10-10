@@ -338,12 +338,11 @@
     }
     .rtl { direction: rtl; text-align: right; }
 
-    /* EVIDENZIAZIONE SENZA SPOSTAMENTO DI LAYOUT (NO PADDING, NO BORDER, STESSA GRANDEZZA FONT) */
     .word-span {
       display: inline;
       background-color: transparent;
       border-radius: 3px;
-      transition: background-color 0.1s ease, color 0.1s ease;
+      transition: background-color 0.12s ease, color 0.12s ease;
     }
     .word-span.highlight-word {
       background-color: #fce8e6;
@@ -354,7 +353,6 @@
       color: #121212;
     }
 
-    /* VISTA BILINGUE STUDENTE */
     .student-view-container {
       display: none;
       flex-direction: column;
@@ -460,7 +458,6 @@
       cursor: pointer;
     }
 
-    /* REGOLE MOBILE */
     @media (max-width: 600px) {
       body { padding: 6px; }
       h1 { font-size: 18px; }
@@ -869,7 +866,6 @@
     }
 
     function preparaTestoPerHighlight(display, testoPuro) {
-      // Divide il testo mantenendo gli spazi e racchiude ogni parola in uno span stabile
       const tokenArray = testoPuro.split(/(\s+)/);
       display.innerHTML = '';
       let spanElements = [];
@@ -913,7 +909,6 @@
 
       let boundaryTriggered = false;
 
-      // EVIDENZIAZIONE NATIVA BROWSER COMPATIBILI (DESKTOP E CHROME ANDROID)
       utterance.onboundary = (e) => {
         if (e.name !== 'word') return;
         boundaryTriggered = true;
@@ -932,7 +927,7 @@
           } else {
             span.classList.remove('highlight-word');
           }
-          charAcc += textLen + 1; // stima spazio
+          charAcc += textLen + 1;
         });
       };
 
@@ -950,7 +945,7 @@
           btn.classList.add('active-speaking');
         }
 
-        // FALLBACK SINCRO ADATTIVA AD ALTA PRECISIONE PER iOS / SAFARI
+        // FALLBACK PACING RILASSATO E NATURALE PER SMARTPHONE
         setTimeout(() => {
           if (!boundaryTriggered && letturaInCorso) {
             let indexParola = 0;
@@ -967,8 +962,8 @@
               });
 
               const parolaCorrente = spanElements[indexParola].innerText || '';
-              // Tempo dinamico tarato perfettamente sulla velocità audio reale (min 130ms)
-              const durataMs = Math.max(130, Math.round((parolaCorrente.length * 42) / velocita));
+              // Pacing rilassato: base 260ms + 35ms per lettera
+              const durataMs = Math.round((260 + parolaCorrente.length * 35) / velocita);
               
               indexParola++;
               if (letturaInCorso && !boundaryTriggered) {
@@ -978,7 +973,7 @@
 
             avanzaEvidenziazione();
           }
-        }, 100);
+        }, 250);
       };
 
       utterance.onend = () => fermaLetturaStudente();
