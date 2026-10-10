@@ -338,21 +338,6 @@
     }
     .rtl { direction: rtl; text-align: right; }
 
-    .word-span {
-      display: inline;
-      background-color: transparent;
-      border-radius: 3px;
-      transition: background-color 0.12s ease, color 0.12s ease;
-    }
-    .word-span.highlight-word {
-      background-color: #fce8e6;
-      color: #d93025;
-    }
-    body.dark-mode .word-span.highlight-word {
-      background-color: #f9ab00;
-      color: #121212;
-    }
-
     .student-view-container {
       display: none;
       flex-direction: column;
@@ -654,9 +639,6 @@
     // STATI LETTURA VOCALE STUDENTE
     let letturaInCorso = false;
     let targetLetturaCorrente = null;
-    let testoOriginaleITA = '';
-    let testoOriginaleTrans = '';
-    let intervalFallbackHighlight = null;
 
     let peer = null;
     let connessioniStudenti = [];
@@ -813,25 +795,14 @@
       if (langObj && langObj.rtl) display.classList.add('rtl');
       else display.classList.remove('rtl');
 
-      testoOriginaleTrans = traduzioniRicevuteRete[lang] || 'In attesa della traduzione...';
-      display.innerText = testoOriginaleTrans;
+      display.innerText = traduzioniRicevuteRete[lang] || 'In attesa della traduzione...';
     }
 
     function fermaLetturaStudente() {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
-      if (intervalFallbackHighlight) {
-        clearTimeout(intervalFallbackHighlight);
-        intervalFallbackHighlight = null;
-      }
       letturaInCorso = false;
-      
-      const displayITA = document.getElementById('studentDisplayITA');
-      if (testoOriginaleITA) displayITA.innerText = testoOriginaleITA;
-
-      const displayTrans = document.getElementById('studentDisplayText');
-      if (testoOriginaleTrans) displayTrans.innerText = testoOriginaleTrans;
 
       document.getElementById('btnItaSlow').innerText = '🐢 Lento';
       document.getElementById('btnItaSlow').classList.remove('active-speaking');
@@ -865,26 +836,6 @@
       avviaLetturaStudente('trans', voiceLang, velocita);
     }
 
-    function preparaTestoPerHighlight(display, testoPuro) {
-      const tokenArray = testoPuro.split(/(\s+)/);
-      display.innerHTML = '';
-      let spanElements = [];
-
-      tokenArray.forEach(token => {
-        if (/^\s+$/.test(token)) {
-          display.appendChild(document.createTextNode(token));
-        } else if (token.length > 0) {
-          const span = document.createElement('span');
-          span.className = 'word-span';
-          span.innerText = token;
-          display.appendChild(span);
-          spanElements.push(span);
-        }
-      });
-
-      return spanElements;
-    }
-
     function avviaLetturaStudente(target, voiceLang, velocita) {
       fermaLetturaStudente();
 
@@ -893,12 +844,7 @@
 
       if (!testoPuro || testoPuro.startsWith('In attesa')) return;
 
-      if (target === 'ita') testoOriginaleITA = testoPuro;
-      else testoOriginaleTrans = testoPuro;
-
       if (!('speechSynthesis' in window)) return;
-
-      const spanElements = preparaTestoPerHighlight(display, testoPuro);
 
       const utterance = new SpeechSynthesisUtterance(testoPuro);
       const langCode = voiceLang.split('-')[0];
@@ -906,30 +852,6 @@
       if (voceMigliore) utterance.voice = voceMigliore;
       utterance.lang = voiceLang;
       utterance.rate = velocita;
-
-      let boundaryTriggered = false;
-
-      utterance.onboundary = (e) => {
-        if (e.name !== 'word') return;
-        boundaryTriggered = true;
-        if (intervalFallbackHighlight) {
-          clearTimeout(intervalFallbackHighlight);
-          intervalFallbackHighlight = null;
-        }
-
-        const charIndex = e.charIndex;
-        let charAcc = 0;
-        
-        spanElements.forEach(span => {
-          const textLen = span.innerText.length;
-          if (charAcc <= charIndex && charIndex < charAcc + textLen + 1) {
-            span.classList.add('highlight-word');
-          } else {
-            span.classList.remove('highlight-word');
-          }
-          charAcc += textLen + 1;
-        });
-      };
 
       utterance.onstart = () => {
         letturaInCorso = true;
@@ -944,46 +866,12 @@
           btn.innerText = '⏹️ Ferma';
           btn.classList.add('active-speaking');
         }
-
-        // FALLBACK PACING RILASSATO E NATURALE PER SMARTPHONE
-        setTimeout(() => {
-          if (!boundaryTriggered && letturaInCorso) {
-            let indexParola = 0;
-
-            const avanzaEvidenziazione = () => {
-              if (!letturaInCorso || indexParola >= spanElements.length) {
-                if (intervalFallbackHighlight) clearTimeout(intervalFallbackHighlight);
-                return;
-              }
-
-              spanElements.forEach((span, i) => {
-                if (i === indexParola) span.classList.add('highlight-word');
-                else span.classList.remove('highlight-word');
-              });
-
-              const parolaCorrente = spanElements[indexParola].innerText || '';
-              // Pacing rilassato: base 260ms + 35ms per lettera
-              const durataMs = Math.round((260 + parolaCorrente.length * 35) / velocita);
-              
-              indexParola++;
-              if (letturaInCorso && !boundaryTriggered) {
-                intervalFallbackHighlight = setTimeout(avanzaEvidenziazione, durataMs);
-              }
-            };
-
-            avanzaEvidenziazione();
-          }
-        }, 250);
       };
 
       utterance.onend = () => fermaLetturaStudente();
       utterance.onerror = () => fermaLetturaStudente();
 
       window.speechSynthesis.speak(utterance);
-    }
-
-    function escapeHTML(str) {
-      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
     function copiaTestoStudente() {
@@ -1009,8 +897,7 @@
 
       if (eStudente) {
         if (letturaInCorso) fermaLetturaStudente();
-        testoOriginaleITA = testoITARicevutoRete || 'In attesa dell\'insegnante...';
-        document.getElementById('studentDisplayITA').innerText = testoOriginaleITA;
+        document.getElementById('studentDisplayITA').innerText = testoITARicevutoRete || 'In attesa dell\'insegnante...';
         cambiaLinguaStudente();
       } else {
         document.getElementById('testoITA').value = dati.ita;
