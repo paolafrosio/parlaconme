@@ -7,6 +7,11 @@
   
   <link rel="icon" type="image/png" href="logo.png?v=3">
 
+  <!-- FONT INTER PER UNA MIGLIORE LEGGIBILITÀ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
@@ -48,7 +53,7 @@
       overflow-x: hidden;
     }
     body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
       background: var(--bg-gradient);
       background-attachment: fixed;
       margin: 0;
@@ -86,6 +91,7 @@
       gap: 10px;
       white-space: nowrap;
       flex-shrink: 0;
+      letter-spacing: 0.2px;
     }
     .top-controls {
       display: flex;
@@ -188,7 +194,8 @@
     label {
       font-weight: 700;
       color: var(--text-color);
-      font-size: 15px;
+      font-size: 16px;
+      letter-spacing: 0.2px;
       white-space: nowrap;
     }
     .action-btns {
@@ -282,6 +289,7 @@
       height: 95px;
       padding: 14px;
       font-size: 16px;
+      font-family: inherit;
       border: 1px solid var(--card-border);
       border-radius: 16px;
       resize: vertical;
@@ -317,6 +325,7 @@
       padding: 8px 12px;
       border-radius: 12px;
       font-weight: 600;
+      font-family: inherit;
       border: 1px solid var(--card-border);
       background: var(--card-body-bg);
       color: var(--text-color);
@@ -997,18 +1006,10 @@
       if (!testoPuro || testoPuro === '...' || testoPuro.startsWith('In attesa')) return;
       if (!('speechSynthesis' in window)) return;
 
+      const utterance = new SpeechSynthesisUtterance(testoPuro);
       const langCode = voiceLang.split('-')[0];
       const voceMigliore = selezionaVoceMigliore(langCode);
-
-      // SE IL BROWSER NON HA PROPRIO ALCUNA VOCE PER QUESTA LINGUA
-      if (!voceMigliore) {
-        aggiornaStato('⚠️ Voce non supportata');
-        alert("Attenzione: Il tuo browser o sistema operativo non ha una voce installata per questa lingua.\n\nSuggerimento: Prova ad aprire il sito con Microsoft Edge oppure installa il pacchetto lingua TTS nelle impostazioni di Windows.");
-        return;
-      }
-
-      const utterance = new SpeechSynthesisUtterance(testoPuro);
-      utterance.voice = voceMigliore;
+      if (voceMigliore) utterance.voice = voceMigliore;
       utterance.lang = voiceLang;
       utterance.rate = velocita;
 
