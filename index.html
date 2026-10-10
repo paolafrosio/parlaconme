@@ -570,4 +570,312 @@
 
     function cambiaZoom(delta) {
       fontSizeCorrente = Math.max(12, Math.min(32, fontSizeCorrente + delta));
-      document.querySelectorAll('.card-body').forEach(el => el.style.fontSize =
+      document.querySelectorAll('.card-body').forEach(el => el.style.fontSize = fontSizeCorrente + 'px');
+      aggiornaStato(`Testo: ${fontSizeCorrente}px`);
+    }
+
+    function resetZoom() {
+      fontSizeCorrente = 16;
+      document.querySelectorAll('.card-body').forEach(el => el.style.fontSize = '16px');
+      aggiornaStato('Zoom ripristinato');
+    }
+
+    function copiaTesto(lang) {
+      const el = document.getElementById('box_' + lang);
+      if (!el) return;
+      const testo = el.innerText.trim();
+      if (!testo || testo === '...') return;
+      navigator.clipboard.writeText(testo).then(() => {
+        aggiornaStato(`✓ Copiato in ${lang.toUpperCase()}!`);
+        setTimeout(() => aggiornaStato('Pronto'), 2000);
+      });
+    }
+
+    function cancellaTutto() {
+      testoConfermatoDocente = '';
+      document.getElementById('testoITA').value = '';
+      document.getElementById('testoStudente').value = '';
+      lingueAttive.forEach(l => {
+        const el = document.getElementById('box_' + l);
+        if (el) el.innerText = '...';
+      });
+      aggiornaStato('Schermata pulita');
+    }
+
+    function registraModificaManuale() {
+      testoConfermatoDocente = document.getElementById('testoITA').value;
+      gestisciInput();
+    }
+
+    function apriModalitaStudente() { document.getElementById('studentPanel').style.display = 'block'; }
+    function chiudiModalitaStudente() {
+      document.getElementById('studentPanel').style.display = 'none';
+      if (inAscoltoStudente) fermaAscoltoStudente();
+    }
+
+    function apriFocus(lang, titoloLingua) {
+      linguaFocusCorrente = lang;
+      const el = document.getElementById('box_' + lang);
+      const testo = el ? el.innerText : '...';
+      document.getElementById('modalTitle').innerText = titoloLingua;
+      const modalBody = document.getElementById('modalBody');
+      modalBody.innerText = testo;
+      const langObj = ELENCO_LINGUE.find(l => l.code === lang);
+      if (langObj && langObj.rtl) modalBody.classList.add('rtl');
+      else modalBody.classList.remove('rtl');
+      document.getElementById('modalFocus').style.display = 'flex';
+    }
+
+    function chiudiFocus() {
+      document.getElementById('modalFocus').style.display = 'none';
+      linguaFocusCorrente = null;
+    }
+
+    function leggiTestoFocus(velocita) {
+      if (linguaFocusCorrente) leggiTesto(linguaFocusCorrente, velocita);
+    }
+
+    function salvaInCronologia() {
+      const testoITA = document.getElementById('testoITA').value.trim();
+      if (!testoITA) return;
+      let riga = { ita: testoITA };
+      lingueAttive.forEach(l => {
+        const el = document.getElementById('box_' + l);
+        riga[l] = el ? el.innerText : '...';
+      });
+      cronologiaLezione.push(riga);
+      aggiornaStato(`📌 Frase salvata (${cronologiaLezione.length} totali)`);
+    }
+
+    function scaricaLezione() {
+      if (cronologiaLezione.length === 0) {
+        alert("Nessuna frase salvata.");
+        return;
+      }
+      let contenuto = "VOCABOLARIO LEZIONE CPIA\n=========================\n\n";
+      cronologiaLezione.forEach((item, index) => {
+        contenuto += `FRASE ${index + 1}:\n🇮🇹 ITA: ${item.ita}\n`;
+        lingueAttive.forEach(l => {
+          const obj = ELENCO_LINGUE.find(x => x.code === l);
+          contenuto += `${obj ? obj.name : l}: ${item[l]}\n`;
+        });
+        contenuto += "-------------------------\n\n";
+      });
+      const blob = new Blob([contenuto], { type: 'text/plain;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `Lezione_CPIA_${new Date().toISOString().slice(0,10)}.txt`;
+      link.click();
+    }
+
+    let vociDisponibili = [];
+    function caricaVoci() {
+      if ('speechSynthesis' in window) vociDisponibili = window.speechSynthesis.getVoices();
+    }
+    caricaVoci();
+    if ('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = caricaVoci;
+
+    function selezionaVoceMigliore(langCode) {
+      if (!vociDisponibili.length) caricaVoci();
+      const prefix = langCode.toLowerCase();
+      const compatibili = vociDisponibili.filter(v => v.lang.toLowerCase().startsWith(prefix));
+      if (!compatibili.length) return null;
+      let scelta = compatibili.find(v => v.name.includes('Online') || v.name.includes('Natural') || v.name.includes('Neural') || v.name.includes('Premium'));
+      if (!scelta) scelta = compatibili.find(v => v.name.includes('Google'));
+      return scelta || compatibili[0];
+    }
+
+    function leggiTesto(lang, velocita = 0.9) {
+      const el = document.getElementById('box_' + lang);
+      if (!el) return;
+      const testo = el.innerText.trim();
+      if (!testo || testo === '...') return;
+
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(testo);
+        const obj = ELENCO_LINGUE.find(l => l.code === lang);
+        const langCode = obj ? obj.voice.split('-')[0] : lang;
+        const voceMigliore = selezionaVoceMigliore(langCode);
+        if (voceMigliore) utterance.voice = voceMigliore;
+        utterance.lang = obj ? obj.voice : lang;
+        utterance.rate = velocita;
+        utterance.onstart = () => aggiornaStato(`Lettura (${lang.toUpperCase()})...`);
+        utterance.onend = () => aggiornaStato('Pronto');
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function applicaPunteggiatura(testo) {
+      return testo
+        .replace(/\bvirgola\b/gi, ',')
+        .replace(/\bpunto e virgola\b/gi, ';')
+        .replace(/\bdue punti\b/gi, ':')
+        .replace(/\bpunto di domanda\b|\bpunto interrogativo\b/gi, '?')
+        .replace(/\bpunto esclamativo\b/gi, '!')
+        .replace(/\bpunto\b/gi, '.')
+        .replace(/\bnuova linea\b|\ba capo\b/gi, '\n')
+        .replace(/\s+([,.?!:;])/g, '$1');
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recDocente = null, inAscoltoDocente = false;
+
+    if (SpeechRecognition) {
+      recDocente = new SpeechRecognition();
+      recDocente.continuous = true;
+      recDocente.interimResults = true;
+      recDocente.lang = 'it-IT';
+
+      recDocente.onresult = (e) => {
+        let testoProvvisorio = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const transcript = e.results[i][0].transcript;
+          if (e.results[i].isFinal) testoConfermatoDocente += (testoConfermatoDocente ? ' ' : '') + transcript;
+          else testoProvvisorio += transcript;
+        }
+        let testoTotale = testoConfermatoDocente + (testoProvvisorio ? ' ' + testoProvvisorio : '');
+        document.getElementById('testoITA').value = applicaPunteggiatura(testoTotale);
+        gestisciInput();
+      };
+
+      recDocente.onerror = () => fermaAscoltoDocente();
+      recDocente.onend = () => { if (inAscoltoDocente) recDocente.start(); };
+    }
+
+    function toggleMicrofonoDocente() {
+      if (!recDocente) return alert("Browser non supportato. Usa Chrome o Edge.");
+      if (inAscoltoDocente) fermaAscoltoDocente();
+      else avviaAscoltoDocente();
+    }
+
+    function avviaAscoltoDocente() {
+      if (inAscoltoStudente) fermaAscoltoStudente();
+      testoConfermatoDocente = document.getElementById('testoITA').value;
+      try {
+        recDocente.start();
+        inAscoltoDocente = true;
+        const btn = document.getElementById('btnMic');
+        btn.classList.add('recording');
+        document.getElementById('micText').innerText = 'In ascolto...';
+        aggiornaStato('Mic Docente attivo');
+      } catch (e) { console.error(e); }
+    }
+
+    function fermaAscoltoDocente() {
+      inAscoltoDocente = false;
+      if (recDocente) recDocente.stop();
+      const btn = document.getElementById('btnMic');
+      btn.classList.remove('recording');
+      document.getElementById('micText').innerText = 'Attiva Mic';
+      aggiornaStato('Pronto');
+    }
+
+    let recStudente = null, inAscoltoStudente = false;
+    function toggleMicrofonoStudente() {
+      if (!SpeechRecognition) return alert("Browser non supportato.");
+      if (inAscoltoStudente) fermaAscoltoStudente();
+      else avviaAscoltoStudente();
+    }
+
+    function avviaAscoltoStudente() {
+      if (inAscoltoDocente) fermaAscoltoDocente();
+      const langSel = document.getElementById('studentLangSelect').value;
+      recStudente = new SpeechRecognition();
+      recStudente.continuous = true;
+      recStudente.interimResults = true;
+      recStudente.lang = langSel;
+
+      recStudente.onresult = (e) => {
+        let t = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript;
+        traduciDaStudente(t, langSel.split('-')[0]);
+      };
+      recStudente.onerror = () => fermaAscoltoStudente();
+      recStudente.onend = () => { if (inAscoltoStudente) recStudente.start(); };
+
+      try {
+        recStudente.start();
+        inAscoltoStudente = true;
+        const btn = document.getElementById('btnMicStudent');
+        btn.classList.add('recording');
+        btn.innerText = '🔴 In ascolto (Studente)...';
+        aggiornaStato('Mic Studente attivo');
+      } catch (e) { console.error(e); }
+    }
+
+    function fermaAscoltoStudente() {
+      inAscoltoStudente = false;
+      if (recStudente) recStudente.stop();
+      const btn = document.getElementById('btnMicStudent');
+      btn.classList.remove('recording');
+      btn.innerText = '🎙️ Parla (Studente)';
+      aggiornaStato('Pronto');
+    }
+
+    async function traduciDaStudente(testo, langDa) {
+      if (!testo.trim()) return;
+      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${langDa}&tl=it&dt=t&q=${encodeURIComponent(testo)}`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        const traduzioneITA = data[0].map(item => item[0]).join('');
+        document.getElementById('testoStudente').value = `[${langDa.toUpperCase()}]: ${testo}\n🇮🇹 [TRADUZIONE PER DOCENTE]: ${traduzioneITA}`;
+      } catch (e) { console.error(e); }
+    }
+
+    function gestisciInput() {
+      aggiornaStato('Digitazione...');
+      clearTimeout(timerDebounce);
+      timerDebounce = setTimeout(traduciTutto, 150);
+    }
+
+    async function traduciTutto() {
+      const testo = document.getElementById('testoITA').value.trim();
+
+      if (!testo) {
+        lingueAttive.forEach(l => {
+          const el = document.getElementById('box_' + l);
+          if (el) el.innerText = '...';
+        });
+        aggiornaStato('Pronto');
+        return;
+      }
+
+      if (abortController) abortController.abort();
+      abortController = new AbortController();
+
+      aggiornaStato('Traduzione...');
+
+      let traduzioniMap = {};
+
+      let promesse = lingueAttive.map(lang => {
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=it&tl=${lang}&dt=t&q=${encodeURIComponent(testo)}`;
+        return fetch(url, { signal: abortController.signal })
+          .then(res => res.json())
+          .then(data => {
+            const traduzione = data[0].map(item => item[0]).join('');
+            const el = document.getElementById('box_' + lang);
+            if (el) el.innerText = traduzione;
+            if (linguaFocusCorrente === lang) document.getElementById('modalBody').innerText = traduzione;
+            traduzioniMap[lang] = traduzione;
+          })
+          .catch(() => {});
+      });
+
+      Promise.all(promesse).then(() => {
+        aggiornaStato('Tradotto');
+        trasmettiDatiRete({
+          ita: testo,
+          traduzioni: traduzioniMap
+        });
+      });
+    }
+
+    function aggiornaStato(msg) { document.getElementById('status').innerText = msg; }
+
+    inizializzaGriglia();
+    inizializzaRete();
+  </script>
+</body>
+</html>
