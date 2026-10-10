@@ -426,28 +426,43 @@
     let connessioniStudenti = [];
     let ID_STANZA_DOCENTE = 'cpia-aula-' + Math.floor(1000 + Math.random() * 9000);
 
+    // ELENCO LINGUE IN ORDINE ALFABETICO
     const ELENCO_LINGUE = [
-      { code: 'en', voice: 'en-US', name: '🇬🇧 Inglese' },
-      { code: 'fr', voice: 'fr-FR', name: '🇫🇷 Francese' },
-      { code: 'es', voice: 'es-ES', name: '🇪🇸 Spagnolo' },
-      { code: 'bn', voice: 'bn-BD', name: '🇧🇩 Bengalese' },
-      { code: 'ar', voice: 'ar-SA', name: '🇸🇦 Arabo', rtl: true },
-      { code: 'zh', voice: 'zh-CN', name: '🇨🇳 Cinese' },
       { code: 'sq', voice: 'sq-AL', name: '🇦🇱 Albanese' },
-      { code: 'uk', voice: 'uk-UA', name: '🇺🇦 Ucraino' },
-      { code: 'ro', voice: 'ro-RO', name: '🇷🇴 Rumeno' },
-      { code: 'ur', voice: 'ur-PK', name: '🇵🇰 Urdu', rtl: true },
+      { code: 'am', voice: 'am-ET', name: '🇪🇹 Amarico' },
+      { code: 'ar', voice: 'ar-SA', name: '🇸🇦 Arabo', rtl: true },
+      { code: 'bn', voice: 'bn-BD', name: '🇧🇩 Bengalese' },
+      { code: 'bg', voice: 'bg-BG', name: '🇧🇬 Bulgaro' },
+      { code: 'zh', voice: 'zh-CN', name: '🇨🇳 Cinese' },
+      { code: 'fa', voice: 'fa-IR', name: '🇮🇷 Farsi (Persiano)', rtl: true },
+      { code: 'fr', voice: 'fr-FR', name: '🇫🇷 Francese' },
+      { code: 'ja', voice: 'ja-JP', name: '🇯🇵 Giapponese' },
+      { code: 'hi', voice: 'hi-IN', name: '🇮🇳 Hindi' },
+      { code: 'en', voice: 'en-US', name: '🇬🇧 Inglese' },
+      { code: 'mk', voice: 'mk-MK', name: '🇲🇰 Macedone' },
       { code: 'ps', voice: 'ps-AF', name: '🇦🇫 Pashto', rtl: true },
-      { code: 'fa', voice: 'fa-IR', name: '🇮🇷 Farsi', rtl: true },
+      { code: 'pl', voice: 'pl-PL', name: '🇵🇱 Polacco' },
       { code: 'pt', voice: 'pt-PT', name: '🇵🇹 Portoghese' },
+      { code: 'pa', voice: 'pa-IN', name: '🇵🇰 Punjabi' },
+      { code: 'ro', voice: 'ro-RO', name: '🇷🇴 Rumeno' },
       { code: 'ru', voice: 'ru-RU', name: '🇷🇺 Russo' },
+      { code: 'sr', voice: 'sr-RS', name: '🇷🇸 Serbo' },
+      { code: 'si', voice: 'si-LK', name: '🇱🇰 Singalese' },
+      { code: 'so', voice: 'so-SO', name: '🇸🇴 Somalo' },
+      { code: 'es', voice: 'es-ES', name: '🇪🇸 Spagnolo' },
+      { code: 'tl', voice: 'tl-PH', name: '🇵🇭 Tagalog (Filippino)' },
+      { code: 'ta', voice: 'ta-IN', name: '🇱🇰 Tamil' },
       { code: 'de', voice: 'de-DE', name: '🇩🇪 Tedesco' },
-      { code: 'tl', voice: 'tl-PH', name: '🇵🇭 Tagalog' },
       { code: 'ti', voice: 'ti-ET', name: '🇪🇷 Tigrino' },
-      { code: 'hi', voice: 'hi-IN', name: '🇮🇳 Hindi' }
+      { code: 'tr', voice: 'tr-TR', name: '🇹🇷 Turco' },
+      { code: 'uk', voice: 'uk-UA', name: '🇺🇦 Ucraino' },
+      { code: 'hu', voice: 'hu-HU', name: '🇭🇺 Ungherese' },
+      { code: 'ur', voice: 'ur-PK', name: '🇵🇰 Urdu', rtl: true },
+      { code: 'uz', voice: 'uz-UZ', name: '🇺🇿 Uzbeco' },
+      { code: 'vi', voice: 'vi-VN', name: '🇻🇳 Vietnamita' }
     ];
 
-    let lingueAttive = JSON.parse(localStorage.getItem('cpia_lingue_attive')) || ['en', 'fr', 'es', 'bn', 'ar', 'zh', 'sq', 'uk'];
+    let lingueAttive = JSON.parse(localStorage.getItem('cpia_lingue_attive')) || ['sq', 'ar', 'bn', 'zh', 'fr', 'en', 'es', 'uk'];
 
     function inizializzaRete() {
       const urlParams = new URLSearchParams(window.location.search);
