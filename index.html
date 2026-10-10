@@ -336,14 +336,16 @@
     }
     .rtl { direction: rtl; text-align: right; }
 
-    /* EVIDENZIAZIONE PAROLA IN LETTURA (KARAOKE) */
-    .highlight-word {
-      background-color: #fff2a8;
-      color: #000;
-      border-radius: 3px;
-      padding: 0 2px;
+    /* EVIDENZIAZIONE PAROLA (KARAOKE) CON SUPPORTO COMPLETO MOBILE */
+    mark.highlight-word {
+      background-color: #fce8e6;
+      color: #d93025;
+      font-weight: bold;
+      border-radius: 4px;
+      padding: 2px 4px;
+      border: 1px solid #f9ab00;
     }
-    body.dark-mode .highlight-word {
+    body.dark-mode mark.highlight-word {
       background-color: #f9ab00;
       color: #000;
     }
@@ -460,8 +462,9 @@
       .card-footer { justify-content: flex-start; }
     }
 
+    /* FIX DEFINITIVO PER LA STAMPA/PDF DELLO STUDENTE (NESSUNA SOVRAPPOSIZIONE) */
     @media print {
-      @page { margin: 10mm; size: auto; }
+      @page { margin: 12mm; size: auto; }
       html, body {
         height: auto !important;
         min-height: 0 !important;
@@ -474,18 +477,26 @@
       .header, .top-controls, .source-box, .student-panel, .action-btns, .card-footer, .student-lang-bar, button {
         display: none !important;
       }
-      .student-card-main, .card, .block {
-        border: 1px solid #ccc !important;
+      .student-view-container, .student-card-main {
+        display: block !important;
+        height: auto !important;
         box-shadow: none !important;
-        page-break-inside: avoid !important;
-        page-break-after: avoid !important;
-        margin-bottom: 10px !important;
-      }
-      .student-display-text, .card-body {
         border: none !important;
+        padding: 0 !important;
+      }
+      .student-display-text {
+        max-height: none !important;
+        min-height: 0 !important;
+        height: auto !important;
+        overflow: visible !important;
+        display: block !important;
+        position: relative !important;
+        border: 1px solid #ccc !important;
         background: #fff !important;
         font-size: 14pt !important;
-        padding: 5px !important;
+        padding: 10px !important;
+        margin-bottom: 20px !important;
+        page-break-inside: avoid !important;
       }
     }
   </style>
@@ -639,6 +650,7 @@
     let targetLetturaCorrente = null; // 'ita' oppure 'trans'
     let testoOriginaleITA = '';
     let testoOriginaleTrans = '';
+    let intervalFallbackHighlight = null;
 
     let peer = null;
     let connessioniStudenti = [];
@@ -803,16 +815,15 @@
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
+      clearInterval(intervalFallbackHighlight);
       letturaInCorso = false;
       
-      // Ripristina testo puro
       const displayITA = document.getElementById('studentDisplayITA');
       if (testoOriginaleITA) displayITA.innerText = testoOriginaleITA;
 
       const displayTrans = document.getElementById('studentDisplayText');
       if (testoOriginaleTrans) displayTrans.innerText = testoOriginaleTrans;
 
-      // Ripristina pulsanti
       document.getElementById('btnItaSlow').innerText = '🐢 Lento';
       document.getElementById('btnItaSlow').classList.remove('active-speaking');
       document.getElementById('btnItaNormal').innerText = '🔊 Ascolta ITA';
@@ -865,11 +876,14 @@
       utterance.lang = voiceLang;
       utterance.rate = velocita;
 
-      // EVIDENZIAZIONE SINCRO PAROLA PER PAROLA (KARAOKE)
+      let boundaryTriggered = false;
+
+      // EVIDENZIAZIONE NATIVA PER BROWSER COMPATIBILI (CHROME / ANDROID / DESKTOP)
       utterance.onboundary = (e) => {
         if (e.name !== 'word') return;
+        boundaryTriggered = true;
         const charIndex = e.charIndex;
-        const charLength = e.charLength || 6;
+        const charLength = e.charLength || 5;
 
         const prima = testoPuro.substring(0, charIndex);
         const parola = testoPuro.substring(charIndex, charIndex + charLength);
@@ -891,6 +905,34 @@
           btn.innerText = '⏹️ Ferma';
           btn.classList.add('active-speaking');
         }
+
+        // FALLBACK TIMER PER iOS/SAFARI CHE NON SUPPORTANO ONBOUNDARY
+        setTimeout(() => {
+          if (!boundaryTriggered && letturaInCorso) {
+            const parole = testoPuro.split(/(\s+)/);
+            let indexParola = 0;
+            // Calcolo ms per parola in base alla velocità
+            const msPerParola = Math.max(250, Math.round(400 / velocita));
+
+            intervalFallbackHighlight = setInterval(() => {
+              if (!letturaInCorso || indexParola >= parole.length) {
+                clearInterval(intervalFallbackHighlight);
+                return;
+              }
+
+              let htmlCostruito = '';
+              for (let i = 0; i < parole.length; i++) {
+                if (i === indexParola) {
+                  htmlCostruito += `<mark class="highlight-word">${escapeHTML(parole[i])}</mark>`;
+                } else {
+                  htmlCostruito += escapeHTML(parole[i]);
+                }
+              }
+              display.innerHTML = htmlCostruito;
+              indexParola++;
+            }, msPerParola);
+          }
+        }, 300);
       };
 
       utterance.onend = () => fermaLetturaStudente();
