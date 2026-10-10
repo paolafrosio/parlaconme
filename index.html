@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Traduttore Live CPIA Pro</title>
+  <title>ParlaConMe - Traduttore Live CPIA</title>
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
@@ -332,7 +332,7 @@
 <body>
 
   <div class="header">
-    <h1>🎙️ Traduttore Live CPIA Pro</h1>
+    <h1>🎙️ ParlaConMe</h1>
     <div class="top-controls">
       <button class="btn-main" onclick="mostraQRCode()">📱 Trasmetti agli Studenti</button>
       <button class="btn-tool" onclick="apriGestioneLingue()">⚙️ Gestisci Lingue</button>
@@ -426,15 +426,14 @@
     let connessioniStudenti = [];
     let ID_STANZA_DOCENTE = 'cpia-aula-' + Math.floor(1000 + Math.random() * 9000);
 
-    // ELENCO LINGUE IN ORDINE ALFABETICO
     const ELENCO_LINGUE = [
       { code: 'sq', voice: 'sq-AL', name: '🇦🇱 Albanese' },
       { code: 'am', voice: 'am-ET', name: '🇪🇹 Amarico' },
       { code: 'ar', voice: 'ar-SA', name: '🇸🇦 Arabo', rtl: true },
       { code: 'bn', voice: 'bn-BD', name: '🇧🇩 Bengalese' },
       { code: 'bg', voice: 'bg-BG', name: '🇧🇬 Bulgaro' },
-      { code: 'zh', voice: 'zh-CN', name: '🇨🇳 Cinese' },
-      { code: 'fa', voice: 'fa-IR', name: '🇮🇷 Farsi (Persiano)', rtl: true },
+      { code: 'zh-CN', voice: 'zh-CN', name: '🇨🇳 Cinese' },
+      { code: 'fa', voice: 'fa-IR', name: '🇮🇷 Farsi', rtl: true },
       { code: 'fr', voice: 'fr-FR', name: '🇫🇷 Francese' },
       { code: 'ja', voice: 'ja-JP', name: '🇯🇵 Giapponese' },
       { code: 'hi', voice: 'hi-IN', name: '🇮🇳 Hindi' },
@@ -450,7 +449,7 @@
       { code: 'si', voice: 'si-LK', name: '🇱🇰 Singalese' },
       { code: 'so', voice: 'so-SO', name: '🇸🇴 Somalo' },
       { code: 'es', voice: 'es-ES', name: '🇪🇸 Spagnolo' },
-      { code: 'tl', voice: 'tl-PH', name: '🇵🇭 Tagalog (Filippino)' },
+      { code: 'tl', voice: 'tl-PH', name: '🇵🇭 Tagalog' },
       { code: 'ta', voice: 'ta-IN', name: '🇱🇰 Tamil' },
       { code: 'de', voice: 'de-DE', name: '🇩🇪 Tedesco' },
       { code: 'ti', voice: 'ti-ET', name: '🇪🇷 Tigrino' },
@@ -462,7 +461,18 @@
       { code: 'vi', voice: 'vi-VN', name: '🇻🇳 Vietnamita' }
     ];
 
-    let lingueAttive = JSON.parse(localStorage.getItem('cpia_lingue_attive')) || ['sq', 'ar', 'bn', 'zh', 'fr', 'en', 'es', 'uk'];
+    // CARICAMENTO SICURO DELLE LINGUE ATTIVE
+    let lingueAttive = [];
+    try {
+      let salvate = JSON.parse(localStorage.getItem('cpia_lingue_v2'));
+      if (Array.isArray(salvate) && salvate.length > 0) {
+        lingueAttive = salvate.filter(c => ELENCO_LINGUE.some(l => l.code === c));
+      }
+    } catch(e) {}
+    
+    if (!lingueAttive || lingueAttive.length === 0) {
+      lingueAttive = ['sq', 'ar', 'bn', 'zh-CN', 'fr', 'en', 'es', 'uk'];
+    }
 
     function inizializzaRete() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -574,7 +584,7 @@
       } else {
         lingueAttive.push(code);
       }
-      localStorage.setItem('cpia_lingue_attive', JSON.stringify(lingueAttive));
+      localStorage.setItem('cpia_lingue_v2', JSON.stringify(lingueAttive));
     }
 
     function chiudiGestioneLingue() {
@@ -843,7 +853,7 @@
     function gestisciInput() {
       aggiornaStato('Digitazione...');
       clearTimeout(timerDebounce);
-      timerDebounce = setTimeout(traduciTutto, 150);
+      timerDebounce = setTimeout(traduciTutto, 200);
     }
 
     async function traduciTutto() {
@@ -866,15 +876,18 @@
       let traduzioniMap = {};
 
       let promesse = lingueAttive.map(lang => {
-        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=it&tl=${lang}&dt=t&q=${encodeURIComponent(testo)}`;
+        const targetLang = lang.split('-')[0];
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=it&tl=${targetLang}&dt=t&q=${encodeURIComponent(testo)}`;
         return fetch(url, { signal: abortController.signal })
           .then(res => res.json())
           .then(data => {
-            const traduzione = data[0].map(item => item[0]).join('');
-            const el = document.getElementById('box_' + lang);
-            if (el) el.innerText = traduzione;
-            if (linguaFocusCorrente === lang) document.getElementById('modalBody').innerText = traduzione;
-            traduzioniMap[lang] = traduzione;
+            if (data && data[0]) {
+              const traduzione = data[0].map(item => item[0]).join('');
+              const el = document.getElementById('box_' + lang);
+              if (el) el.innerText = traduzione;
+              if (linguaFocusCorrente === lang) document.getElementById('modalBody').innerText = traduzione;
+              traduzioniMap[lang] = traduzione;
+            }
           })
           .catch(() => {});
       });
