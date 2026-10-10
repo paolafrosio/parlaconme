@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Traduttore Live CPIA Pro</title>
-  <!-- LIBRERIE ONLINE PER RETE E QR CODE (SENZA INSTALLAZIONE) -->
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
@@ -74,17 +73,18 @@
       transition: background 0.2s;
     }
     .btn-tool:hover { background: var(--border-color); }
-.status {
-  font-size: 13px;
-  color: #5f6368;
-  font-weight: bold;
-  padding: 4px 10px;
-  background: #e8eaed;
-  border-radius: 16px;
-  min-width: 140px;
-  text-align: center;
-  display: inline-block;
-}
+    .status {
+      font-size: 13px;
+      color: #5f6368;
+      font-weight: bold;
+      padding: 4px 10px;
+      background: #e8eaed;
+      border-radius: 16px;
+      width: 160px;
+      text-align: center;
+      display: inline-block;
+      flex-shrink: 0;
+    }
     
     .source-box {
       background: var(--card-bg);
@@ -108,6 +108,7 @@
     .action-btns {
       display: flex;
       gap: 8px;
+      align-items: center;
     }
     .btn-main {
       background-color: var(--primary-color);
@@ -120,13 +121,11 @@
       cursor: pointer;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 5px;
-      transition: all 0.2s;
+      transition: background-color 0.2s;
+      white-space: nowrap;
     }
-#btnMic {
-  min-width: 130px;
-  justify-content: center;
-}
     body.dark-mode .btn-main { color: #121212; }
     .btn-main:hover { opacity: 0.9; }
     .btn-main.recording {
@@ -138,16 +137,22 @@
       background-color: #f1f3f4;
       color: #5f6368;
       border: 1px solid var(--border-color);
+      width: 100px;
     }
     .btn-save {
       background-color: #e6f4ea;
       color: #137333;
       border: 1px solid #ceead6;
+      width: 120px;
     }
     .btn-student {
       background-color: #fef7e0;
       color: #b06000;
       border: 1px solid #feefc3;
+      width: 170px;
+    }
+    #btnMic {
+      width: 140px;
     }
 
     @keyframes pulse {
@@ -170,7 +175,6 @@
     }
     textarea:focus { border-color: var(--primary-color); }
 
-    /* TRADUZIONE INVERSA */
     .student-panel {
       display: none;
       background: #fef7e0;
@@ -265,7 +269,6 @@
     }
     .rtl { direction: rtl; text-align: right; }
 
-    /* MODALE FOCUS, GESTIONE LINGUE E QR CODE */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -340,18 +343,17 @@
         <button class="btn-tool" onclick="resetZoom()">A</button>
         <button class="btn-tool" onclick="cambiaZoom(2)">A+</button>
       </div>
-      <button class="btn-main btn-save" onclick="scaricaLezione()">📥 Scarica Lezione</button>
+      <button class="btn-main btn-save" style="width: auto;" onclick="scaricaLezione()">📥 Scarica Lezione</button>
       <span id="status" class="status">Pronto</span>
     </div>
   </div>
 
-  <!-- TRADUZIONE INVERSA -->
   <div id="studentPanel" class="student-panel">
     <div class="student-header">
       <label>🗣️ <strong>Modalità Studente:</strong> Parla nella tua lingua ➔ Il docente leggerà la traduzione in italiano</label>
       <div>
         <select id="studentLangSelect" class="student-select"></select>
-        <button id="btnMicStudent" class="btn-main" onclick="toggleMicrofonoStudente()">🎙️ Parla (Studente)</button>
+        <button id="btnMicStudent" class="btn-main" style="width: auto;" onclick="toggleMicrofonoStudente()">🎙️ Parla (Studente)</button>
         <button class="btn-tool" onclick="chiudiModalitaStudente()">✖️ Chiudi</button>
       </div>
     </div>
@@ -375,44 +377,40 @@
     <textarea id="testoITA" placeholder="Scrivi o premi il pulsante per parlare..." oninput="registraModificaManuale()"></textarea>
   </div>
 
-  <!-- GRIGLIA LINGUE -->
   <div id="gridContainer" class="grid-container"></div>
 
-  <!-- MODALE FOCUS -->
   <div id="modalFocus" class="modal-overlay">
     <div class="modal-card">
       <div class="modal-header">
         <span id="modalTitle" class="modal-title">Lingua</span>
         <div style="display: flex; gap: 8px;">
-          <button class="btn-main" onclick="leggiTestoFocus(0.5)">🐢 Lento</button>
-          <button class="btn-main" onclick="leggiTestoFocus(0.9)">🔊 Ascolta</button>
-          <button class="btn-main btn-clear" onclick="chiudiFocus()">✖️ Chiudi</button>
+          <button class="btn-main" style="width: auto;" onclick="leggiTestoFocus(0.5)">🐢 Lento</button>
+          <button class="btn-main" style="width: auto;" onclick="leggiTestoFocus(0.9)">🔊 Ascolta</button>
+          <button class="btn-main btn-clear" style="width: auto;" onclick="chiudiFocus()">✖️ Chiudi</button>
         </div>
       </div>
       <div id="modalBody" class="modal-body">...</div>
     </div>
   </div>
 
-  <!-- MODALE GESTIONE LINGUE -->
   <div id="modalLangConfig" class="modal-overlay">
     <div class="modal-card">
       <div class="modal-header">
         <span class="modal-title">⚙️ Seleziona le Lingue della Classe</span>
-        <button class="btn-main btn-clear" onclick="chiudiGestioneLingue()">✖️ Chiudi e Salva</button>
+        <button class="btn-main btn-clear" style="width: auto;" onclick="chiudiGestioneLingue()">✖️ Chiudi e Salva</button>
       </div>
       <p style="margin: 0 0 10px 0; color: #5f6368; font-size: 14px;">Spunta le lingue che desideri visualizzare sulla LIM:</p>
       <div id="langSelectorList" class="lang-grid-selector"></div>
     </div>
   </div>
 
-  <!-- MODALE QR CODE STUDENTI -->
   <div id="modalQR" class="modal-overlay">
     <div class="modal-card" style="align-items: center; text-align: center; max-width: 450px;">
       <h2 style="margin-top:0; color: var(--primary-color);">📱 Connetti gli Studenti</h2>
       <p style="font-size: 14px; color: #5f6368;">Gli studenti possono inquadrare questo QR Code per vedere le traduzioni in tempo reale sui loro dispositivi:</p>
       <div id="qrcode" style="margin: 15px auto; padding: 10px; background: white; border-radius: 8px;"></div>
       <p style="font-weight: bold; font-size: 14px;">Codice Stanza: <span id="roomCodeDisplay" style="color: #d93025;">...</span></p>
-      <button class="btn-main" onclick="chiudiQRCode()">Chiudi</button>
+      <button class="btn-main" style="width: auto;" onclick="chiudiQRCode()">Chiudi</button>
     </div>
   </div>
 
@@ -424,7 +422,6 @@
     let cronologiaLezione = [];
     let testoConfermatoDocente = '';
 
-    // GESTIONE RETE PEERJS (STREAMING LIVE SENZA SERVER)
     let peer = null;
     let connessioniStudenti = [];
     let ID_STANZA_DOCENTE = 'cpia-aula-' + Math.floor(1000 + Math.random() * 9000);
@@ -452,25 +449,22 @@
 
     let lingueAttive = JSON.parse(localStorage.getItem('cpia_lingue_attive')) || ['en', 'fr', 'es', 'bn', 'ar', 'zh', 'sq', 'uk'];
 
-    // INIZIALIZZAZIONE RETE
     function inizializzaRete() {
       const urlParams = new URLSearchParams(window.location.search);
       const stanzaTarget = urlParams.get('stanza');
 
       if (stanzaTarget) {
-        // MODALITÀ RICEVENTE (STUDENTE)
         peer = new Peer();
         peer.on('open', () => {
           const conn = peer.connect(stanzaTarget);
           conn.on('data', (dati) => applicaDatiRicevuti(dati));
-          aggiornaStato('Connesso alla lezione');
+          aggiornaStato('Connesso');
         });
       } else {
-        // MODALITÀ TRASMETTITORE (DOCENTE)
         peer = new Peer(ID_STANZA_DOCENTE);
         peer.on('connection', (conn) => {
           connessioniStudenti.push(conn);
-          aggiornaStato(`Studenti connessi: ${connessioniStudenti.length}`);
+          aggiornaStato(`Studenti: ${connessioniStudenti.length}`);
         });
       }
     }
@@ -584,7 +578,7 @@
     function resetZoom() {
       fontSizeCorrente = 16;
       document.querySelectorAll('.card-body').forEach(el => el.style.fontSize = '16px');
-      aggiornaStato('Zoom ripristinato');
+      aggiornaStato('Zoom reset');
     }
 
     function copiaTesto(lang) {
@@ -593,7 +587,7 @@
       const testo = el.innerText.trim();
       if (!testo || testo === '...') return;
       navigator.clipboard.writeText(testo).then(() => {
-        aggiornaStato(`✓ Copiato in ${lang.toUpperCase()}!`);
+        aggiornaStato(`✓ Copiato (${lang.toUpperCase()})`);
         setTimeout(() => aggiornaStato('Pronto'), 2000);
       });
     }
@@ -606,7 +600,7 @@
         const el = document.getElementById('box_' + l);
         if (el) el.innerText = '...';
       });
-      aggiornaStato('Schermata pulita');
+      aggiornaStato('Pulito');
     }
 
     function registraModificaManuale() {
@@ -651,7 +645,7 @@
         riga[l] = el ? el.innerText : '...';
       });
       cronologiaLezione.push(riga);
-      aggiornaStato(`📌 Frase salvata (${cronologiaLezione.length} totali)`);
+      aggiornaStato(`Salvato (${cronologiaLezione.length})`);
     }
 
     function scaricaLezione() {
@@ -707,7 +701,7 @@
         if (voceMigliore) utterance.voice = voceMigliore;
         utterance.lang = obj ? obj.voice : lang;
         utterance.rate = velocita;
-        utterance.onstart = () => aggiornaStato(`Lettura (${lang.toUpperCase()})...`);
+        utterance.onstart = () => aggiornaStato(`Lettura (${lang.toUpperCase()})`);
         utterance.onend = () => aggiornaStato('Pronto');
         window.speechSynthesis.speak(utterance);
       }
@@ -765,7 +759,7 @@
         const btn = document.getElementById('btnMic');
         btn.classList.add('recording');
         document.getElementById('micText').innerText = 'In ascolto...';
-        aggiornaStato('Mic Docente attivo');
+        aggiornaStato('Mic Docente');
       } catch (e) { console.error(e); }
     }
 
@@ -806,8 +800,8 @@
         inAscoltoStudente = true;
         const btn = document.getElementById('btnMicStudent');
         btn.classList.add('recording');
-        btn.innerText = '🔴 In ascolto (Studente)...';
-        aggiornaStato('Mic Studente attivo');
+        btn.innerText = '🔴 In ascolto...';
+        aggiornaStato('Mic Studente');
       } catch (e) { console.error(e); }
     }
 
