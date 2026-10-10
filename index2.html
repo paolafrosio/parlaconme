@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ParlaConMe - Traduttore Live CPIA</title>
+  <title>ParlaConMe - Traduttore Live CPIA (Glass Edition)</title>
   
   <link rel="icon" type="image/png" href="logo.png?v=3">
 
@@ -11,23 +11,19 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     :root {
-      --bg-gradient: radial-gradient(circle at 20% 20%, #06b6d4 0%, transparent 40%),
-                     radial-gradient(circle at 80% 30%, #a855f7 0%, transparent 45%),
-                     radial-gradient(circle at 50% 80%, #2563eb 0%, transparent 50%),
-                     #090d16;
-      --card-bg: rgba(18, 26, 43, 0.65);
-      --card-border: rgba(56, 189, 248, 0.25);
-      --card-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.1);
-      --text-color: #f1f5f9;
+      --bg-gradient: radial-gradient(circle at 15% 15%, #06b6d4 0%, transparent 35%),
+                     radial-gradient(circle at 85% 25%, #a855f7 0%, transparent 40%),
+                     radial-gradient(circle at 50% 85%, #2563eb 0%, transparent 45%),
+                     #070b14;
+      --card-bg: rgba(15, 23, 42, 0.55);
+      --card-border: rgba(56, 189, 248, 0.3);
+      --card-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+      --text-color: #f8fafc;
       --text-muted: #94a3b8;
-      --primary-color: #38bdf8;
-      --neon-cyan: #06b6d4;
-      --card-body-bg: rgba(10, 16, 28, 0.55);
+      --primary-cyan: #38bdf8;
+      --neon-glow: rgba(56, 189, 248, 0.4);
+      --card-body-bg: rgba(10, 15, 29, 0.6);
       --box-ita-bg: rgba(15, 23, 42, 0.7);
-    }
-
-    body.dark-mode {
-      /* In questa versione glassmorphism lo stile nativo è già scuro/neon */
     }
 
     * { box-sizing: border-box; }
@@ -45,7 +41,6 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      transition: background 0.3s, color 0.3s;
     }
 
     /* HEADER GLASS */
@@ -57,8 +52,8 @@
       gap: 10px;
       flex-wrap: wrap;
       background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       padding: 10px 18px;
       border-radius: 20px;
       box-shadow: var(--card-shadow);
@@ -74,7 +69,7 @@
       gap: 10px;
       white-space: nowrap;
       flex-shrink: 0;
-      text-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+      text-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
     }
     .top-controls {
       display: flex;
@@ -88,7 +83,7 @@
       font-weight: 600;
       color: #38bdf8;
       background: rgba(14, 165, 233, 0.15);
-      border: 1px solid rgba(56, 189, 248, 0.3);
+      border: 1px solid rgba(56, 189, 248, 0.35);
       padding: 6px 14px;
       border-radius: 20px;
       display: inline-flex;
@@ -134,7 +129,7 @@
       border-radius: 12px;
       transition: all 0.2s;
     }
-    .btn-tool:hover { background: rgba(255, 255, 255, 0.1); color: #38bdf8; }
+    .btn-tool:hover { background: rgba(255, 255, 255, 0.12); color: #38bdf8; }
     
     .status {
       font-size: 12px;
@@ -157,14 +152,13 @@
     /* SOURCE BOX DOCENTE */
     .source-box {
       background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       padding: 18px;
       border-radius: 24px;
       box-shadow: var(--card-shadow);
       margin-bottom: 16px;
       border: 1px solid var(--card-border);
-      position: relative;
     }
     
     .label-row {
@@ -183,17 +177,17 @@
     }
     .action-btns {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       align-items: center;
       flex-wrap: wrap;
     }
 
-    /* PULSANTI STILE GLASS & NEON */
+    /* PULSANTI STILE GLASS & NEON AZZURRO UNIFORME */
     .btn-main {
-      background: linear-gradient(135deg, rgba(6, 182, 212, 0.8), rgba(59, 130, 246, 0.8));
-      color: #ffffff;
-      border: 1px solid rgba(56, 189, 248, 0.5);
-      padding: 8px 18px;
+      background: rgba(14, 165, 233, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 8px 16px;
       border-radius: 20px;
       font-weight: 600;
       font-size: 13px;
@@ -203,53 +197,38 @@
       justify-content: center;
       gap: 6px;
       transition: all 0.25s ease;
-      box-shadow: 0 4px 14px rgba(6, 182, 212, 0.3);
       white-space: nowrap;
       flex-shrink: 0;
+      backdrop-filter: blur(8px);
     }
     .btn-main:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5);
-      background: linear-gradient(135deg, rgba(6, 182, 212, 1), rgba(59, 130, 246, 1));
+      background: rgba(14, 165, 233, 0.3);
+      color: #ffffff;
+      border-color: #38bdf8;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
     }
+
+    /* PULSANTE MIC CIRCOLARE NEON PRINCIPALE */
+    #btnMic {
+      border-radius: 30px;
+      padding: 9px 22px;
+      background: linear-gradient(135deg, #06b6d4, #2563eb);
+      color: #ffffff;
+      border: 1px solid #38bdf8;
+      box-shadow: 0 0 18px rgba(6, 182, 212, 0.6);
+      font-size: 14px;
+    }
+    #btnMic:hover {
+      box-shadow: 0 0 26px rgba(6, 182, 212, 0.8);
+      transform: translateY(-2px);
+    }
+
     .btn-main.recording {
       background: linear-gradient(135deg, #ef4444, #dc2626) !important;
       color: white !important;
       border-color: #f87171 !important;
       animation: pulseNeon 1.5s infinite;
-    }
-    .btn-clear {
-      background: rgba(255, 255, 255, 0.08);
-      color: #cbd5e1;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: none;
-    }
-    .btn-clear:hover { background: rgba(255, 255, 255, 0.15); color: #fff; }
-
-    .btn-save {
-      background: rgba(34, 197, 94, 0.15);
-      color: #4ade80;
-      border: 1px solid rgba(74, 222, 128, 0.3);
-      box-shadow: none;
-    }
-    .btn-save:hover { background: rgba(34, 197, 94, 0.25); color: #86efac; }
-
-    .btn-student {
-      background: rgba(245, 158, 11, 0.15);
-      color: #fbbf24;
-      border: 1px solid rgba(251, 191, 36, 0.3);
-      box-shadow: none;
-    }
-    .btn-student:hover { background: rgba(245, 158, 11, 0.25); color: #fde68a; }
-
-    /* PULSANTE MIC CIRCOLARE SCENOGRAFICO */
-    #btnMic {
-      border-radius: 30px;
-      padding: 10px 22px;
-      background: linear-gradient(135deg, #06b6d4, #2563eb);
-      border: 1px solid #38bdf8;
-      box-shadow: 0 0 18px rgba(6, 182, 212, 0.6);
-      font-size: 14px;
     }
 
     @keyframes pulseNeon {
@@ -273,14 +252,14 @@
       transition: border-color 0.2s, box-shadow 0.2s;
     }
     textarea:focus {
-      border-color: var(--neon-cyan);
-      box-shadow: 0 0 10px rgba(6, 182, 212, 0.3), inset 0 2px 6px rgba(0, 0, 0, 0.4);
+      border-color: #38bdf8;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.35), inset 0 2px 6px rgba(0, 0, 0, 0.4);
     }
 
     .student-panel {
       display: none;
-      background: rgba(120, 53, 15, 0.3);
-      border: 1px solid rgba(251, 191, 36, 0.4);
+      background: rgba(14, 165, 233, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.4);
       border-radius: 18px;
       padding: 14px;
       margin-bottom: 14px;
@@ -314,8 +293,8 @@
     }
     .card {
       background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-radius: 20px;
       padding: 14px 16px;
       box-shadow: var(--card-shadow);
@@ -328,7 +307,7 @@
     .card:hover {
       transform: translateY(-3px);
       border-color: rgba(56, 189, 248, 0.6);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 15px rgba(56, 189, 248, 0.2);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 15px rgba(56, 189, 248, 0.25);
     }
     .card-header {
       display: flex;
@@ -340,7 +319,7 @@
       font-weight: 700;
       font-size: 16px;
       color: #38bdf8;
-      text-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
+      text-shadow: 0 0 8px rgba(56, 189, 248, 0.35);
     }
     .card-body {
       background-color: var(--card-body-bg);
@@ -354,42 +333,39 @@
       flex-grow: 1;
       overflow-y: auto;
       color: #f1f5f9;
-      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35);
     }
+    
+    /* PULSANTI SCHEDE ➔ ICONE COMPATTE SU UNA SOLA RIGA */
     .card-footer {
       display: flex;
       justify-content: flex-end;
+      align-items: center;
       gap: 6px;
       margin-top: 10px;
-      flex-wrap: wrap;
+      flex-wrap: nowrap; /* GARANTISCE CHE RIMANGANO SU 1 SOLA RIGA */
     }
-    .btn-card {
+    .btn-icon-only {
       background: rgba(255, 255, 255, 0.06);
       color: #38bdf8;
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      border-radius: 16px;
-      padding: 6px 12px;
-      font-size: 12px;
-      font-weight: 600;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 12px;
+      padding: 6px 10px;
+      font-size: 14px;
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 4px;
-      white-space: nowrap;
+      justify-content: center;
       transition: all 0.2s;
+      flex-shrink: 0;
     }
-    .btn-card:hover {
-      background: #0284c7;
-      color: white;
+    .btn-icon-only:hover {
+      background: rgba(14, 165, 233, 0.3);
+      color: #ffffff;
       border-color: #38bdf8;
-      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+      transform: scale(1.08);
     }
-    .btn-card.active-speaking {
-      background-color: #ef4444 !important;
-      color: white !important;
-      border-color: #dc2626 !important;
-    }
-    .rtl { direction: rtl; text-align: right; }
 
     /* VISTA STUDENTE GLASS */
     .student-view-container {
@@ -401,8 +377,8 @@
     }
     .student-card-main {
       background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-radius: 24px;
       padding: 20px;
       box-shadow: var(--card-shadow);
@@ -516,7 +492,6 @@
       .top-controls { width: 100%; justify-content: flex-start; }
       .student-lang-bar { flex-direction: column; align-items: flex-start; }
       .student-select { width: 100%; }
-      .card-footer { justify-content: flex-start; }
     }
 
     /* REGOLE DI STAMPA DIRETTA DAL BROWSER PER LO STUDENTE */
@@ -584,8 +559,8 @@
         <button class="btn-tool" onclick="resetZoom()">A</button>
         <button class="btn-tool" onclick="cambiaZoom(2)">A+</button>
       </div>
-      <button class="btn-main btn-save" style="width: auto;" onclick="stampaOEsportaPDF()">🖨️ PDF / Stampa</button>
-      <button class="btn-main btn-clear" style="width: auto;" onclick="scaricaLezione()">📥 TXT</button>
+      <button class="btn-main" style="width: auto;" onclick="stampaOEsportaPDF()">🖨️ PDF</button>
+      <button class="btn-main" style="width: auto;" onclick="scaricaLezione()">📥 TXT</button>
       <span id="status" class="status">Pronto</span>
     </div>
   </div>
@@ -610,9 +585,9 @@
       <div class="label-row">
         <label for="testoITA">🇮🇹 Parla o Scrivi in Italiano (Docente):</label>
         <div class="action-btns">
-          <button class="btn-main btn-student" style="width: auto;" onclick="apriModalitaStudente()">🔄 Studente ➔ Docente</button>
-          <button class="btn-main btn-clear" style="width: auto;" onclick="cancellaTutto()">🗑️ Cancella</button>
-          <button class="btn-main btn-save" style="width: auto;" onclick="salvaInCronologia()">📌 Salva Frase</button>
+          <button class="btn-main" style="width: auto;" onclick="apriModalitaStudente()">🔄 Studente ➔ Docente</button>
+          <button class="btn-main" style="width: auto;" onclick="cancellaTutto()">🗑️ Cancella</button>
+          <button class="btn-main" style="width: auto;" onclick="salvaInCronologia()">📌 Salva Frase</button>
           <button id="btnMic" class="btn-main" onclick="toggleMicrofonoDocente()">
             <span id="micIcon">🎙️</span> <span id="micText">Attiva Mic</span>
           </button>
@@ -636,8 +611,8 @@
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 4px;">
         <div style="font-weight: 700; font-size: 14px; color: #38bdf8;">🇮🇹 Italiano (Docente):</div>
         <div style="display: flex; gap: 4px;">
-          <button id="btnItaSlow" class="btn-card" onclick="toggleLetturaItalianoStudente(0.5)">🐢 Lento</button>
-          <button id="btnItaNormal" class="btn-card" onclick="toggleLetturaItalianoStudente(0.9)">🔊 Ascolta ITA</button>
+          <button id="btnItaSlow" class="btn-icon-only" title="Ascolta Lento" onclick="toggleLetturaItalianoStudente(0.5)">🐢</button>
+          <button id="btnItaNormal" class="btn-icon-only" title="Ascolta Italiano" onclick="toggleLetturaItalianoStudente(0.9)">🔊</button>
         </div>
       </div>
       <div id="studentDisplayITA" class="student-display-text student-display-ita-box" style="flex-grow: 0; min-height: 60px; max-height: 140px; margin-bottom: 12px;">In attesa dell'insegnante...</div>
@@ -647,11 +622,11 @@
       <div id="studentDisplayText" class="student-display-text">In attesa della traduzione...</div>
 
       <div class="card-footer" style="justify-content: space-between; margin-top: 10px; gap: 6px;">
-        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-          <button id="btnTransSlow" class="btn-card" onclick="toggleLetturaStudente(0.5)">🐢 Lento</button>
-          <button id="btnTransNormal" class="btn-card" onclick="toggleLetturaStudente(0.9)">🔊 Ascolta Traduzione</button>
+        <div style="display: flex; gap: 6px; flex-wrap: nowrap;">
+          <button id="btnTransSlow" class="btn-icon-only" title="Ascolta Lento" onclick="toggleLetturaStudente(0.5)">🐢</button>
+          <button id="btnTransNormal" class="btn-icon-only" title="Ascolta Traduzione" onclick="toggleLetturaStudente(0.9)">🔊</button>
         </div>
-        <button class="btn-card" onclick="copiaTestoStudente()">📋 Copia</button>
+        <button class="btn-icon-only" title="Copia Testo" onclick="copiaTestoStudente()">📋</button>
       </div>
     </div>
   </div>
@@ -662,9 +637,9 @@
       <div class="modal-header">
         <span id="modalTitle" class="modal-title">Lingua</span>
         <div style="display: flex; gap: 6px;">
-          <button class="btn-main" style="width: auto;" onclick="leggiTestoFocus(0.5)">🐢 Lento</button>
-          <button class="btn-main" style="width: auto;" onclick="leggiTestoFocus(0.9)">🔊 Ascolta</button>
-          <button class="btn-main btn-clear" style="width: auto;" onclick="chiudiFocus()">✖️</button>
+          <button class="btn-icon-only" title="Ascolta Lento" onclick="leggiTestoFocus(0.5)">🐢</button>
+          <button class="btn-icon-only" title="Ascolta" onclick="leggiTestoFocus(0.9)">🔊</button>
+          <button class="btn-tool" onclick="chiudiFocus()">✖️</button>
         </div>
       </div>
       <div id="modalBody" class="modal-body">...</div>
@@ -675,7 +650,7 @@
     <div class="modal-card">
       <div class="modal-header">
         <span class="modal-title">⚙️ Lingue della Classe</span>
-        <button class="btn-main btn-clear" style="width: auto;" onclick="chiudiGestioneLingue()">✖️ Salva</button>
+        <button class="btn-main" style="width: auto;" onclick="chiudiGestioneLingue()">✖️ Salva</button>
       </div>
       <p style="margin: 0 0 10px 0; color: #94a3b8; font-size: 13px;">Spunta le lingue che desideri visualizzare sulla LIM:</p>
       <div id="langSelectorList" class="lang-grid-selector"></div>
@@ -876,14 +851,14 @@
       }
       letturaInCorso = false;
 
-      document.getElementById('btnItaSlow').innerText = '🐢 Lento';
+      document.getElementById('btnItaSlow').innerText = '🐢';
       document.getElementById('btnItaSlow').classList.remove('active-speaking');
-      document.getElementById('btnItaNormal').innerText = '🔊 Ascolta ITA';
+      document.getElementById('btnItaNormal').innerText = '🔊';
       document.getElementById('btnItaNormal').classList.remove('active-speaking');
 
-      document.getElementById('btnTransSlow').innerText = '🐢 Lento';
+      document.getElementById('btnTransSlow').innerText = '🐢';
       document.getElementById('btnTransSlow').classList.remove('active-speaking');
-      document.getElementById('btnTransNormal').innerText = '🔊 Ascolta Traduzione';
+      document.getElementById('btnTransNormal').innerText = '🔊';
       document.getElementById('btnTransNormal').classList.remove('active-speaking');
 
       targetLetturaCorrente = null;
@@ -931,11 +906,11 @@
 
         if (target === 'ita') {
           const btn = velocita < 0.8 ? document.getElementById('btnItaSlow') : document.getElementById('btnItaNormal');
-          btn.innerText = '⏹️ Ferma';
+          btn.innerText = '⏹️';
           btn.classList.add('active-speaking');
         } else {
           const btn = velocita < 0.8 ? document.getElementById('btnTransSlow') : document.getElementById('btnTransNormal');
-          btn.innerText = '⏹️ Ferma';
+          btn.innerText = '⏹️';
           btn.classList.add('active-speaking');
         }
       };
@@ -1018,9 +993,9 @@
           </div>
           <div id="box_${l.code}" class="card-body ${l.rtl ? 'rtl' : ''}">...</div>
           <div class="card-footer">
-            <button class="btn-card" onclick="copiaTesto('${l.code}')">📋 Copia</button>
-            <button class="btn-card" onclick="leggiTesto('${l.code}', 0.5)">🐢 Lento</button>
-            <button class="btn-card" onclick="leggiTesto('${l.code}', 0.9)">🔊 Ascolta</button>
+            <button class="btn-icon-only" title="Copia" onclick="copiaTesto('${l.code}')">📋</button>
+            <button class="btn-icon-only" title="Ascolta Lento" onclick="leggiTesto('${l.code}', 0.5)">🐢</button>
+            <button class="btn-icon-only" title="Ascolta" onclick="leggiTesto('${l.code}', 0.9)">🔊</button>
           </div>
         `;
         container.appendChild(card);
