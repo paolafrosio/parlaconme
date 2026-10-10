@@ -416,7 +416,6 @@
 
   <script>
     let timerDebounce = null;
-    let abortController = null;
     let fontSizeCorrente = 16;
     let linguaFocusCorrente = null;
     let cronologiaLezione = [];
@@ -813,21 +812,36 @@
       aggiornaStato('Pronto');
     }
 
-    async function traduciDaStudente(testo, langDa) {
-      if (!testo.trim()) return;
-      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${langDa}&tl=it&dt=t&q=${encodeURIComponent(testo)}`;
+    // NUOVO API ENDPOINT STABILE GOOGLE DIZIONARI CHROME (Senza limiti CORS/IP)
+    async function chiamaGoogleTranslate(testo, linguaDa, linguaA) {
+      const targetLang = linguaA.split('-')[0];
+      const url = `https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=${linguaDa}&tl=${targetLang}&q=${encodeURIComponent(testo)}`;
       try {
         const res = await fetch(url);
         const data = await res.json();
-        const traduzioneITA = data[0].map(item => item[0]).join('');
-        document.getElementById('testoStudente').value = `[${langDa.toUpperCase()}]: ${testo}\n🇮🇹 [TRADUZIONE PER DOCENTE]: ${traduzioneITA}`;
-      } catch (e) { console.error(e); }
+        if (data && Array.isArray(data) && data[0]) {
+          return Array.isArray(data[0]) ? data[0].join(' ') : data[0];
+        } else if (typeof data === 'string') {
+          return data;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+      return null;
+    }
+
+    async function traduciDaStudente(testo, langDa) {
+      if (!testo.trim()) return;
+      const trad = await chiamaGoogleTranslate(testo, langDa, 'it');
+      if (trad) {
+        document.getElementById('testoStudente').value = `[${langDa.toUpperCase()}]: ${testo}\n🇮🇹 [TRADUZIONE PER DOCENTE]: ${trad}`;
+      }
     }
 
     function gestisciInput() {
       aggiornaStato('Digitazione...');
       clearTimeout(timerDebounce);
-      timerDebounce = setTimeout(traduciTutto, 100);
+      timerDebounce = setTimeout(traduciTutto, 300);
     }
 
     function traduciTutto() {
@@ -842,28 +856,18 @@
         return;
       }
 
-      if (abortController) abortController.abort();
-      abortController = new AbortController();
-
       aggiornaStato('Traduzione...');
-
       let traduzioniMap = {};
 
       let promesse = lingueAttive.map(lang => {
-        const targetLang = lang.split('-')[0];
-        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=it&tl=${targetLang}&dt=t&q=${encodeURIComponent(testo)}`;
-        return fetch(url, { signal: abortController.signal })
-          .then(res => res.json())
-          .then(data => {
-            if (data && data[0]) {
-              const traduzione = data[0].map(item => item[0]).join('');
-              const el = document.getElementById('box_' + lang);
-              if (el) el.innerText = traduzione;
-              if (linguaFocusCorrente === lang) document.getElementById('modalBody').innerText = traduzione;
-              traduzioniMap[lang] = traduzione;
-            }
-          })
-          .catch(() => {});
+        return chiamaGoogleTranslate(testo, 'it', lang).then(trad => {
+          if (trad) {
+            const el = document.getElementById('box_' + lang);
+            if (el) el.innerText = trad;
+            if (linguaFocusCorrente === lang) document.getElementById('modalBody').innerText = trad;
+            traduzioniMap[lang] = trad;
+          }
+        });
       });
 
       Promise.all(promesse).then(() => {
