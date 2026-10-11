@@ -868,6 +868,7 @@
     let fontSizeITACorrente = 16;
     let linguaFocusCorrente = null;
     let cronologiaLezione = [];
+    let ID_PROGRESSIVO_CRONOLOGIA = 0; // Identificatore univoco e progressivo
     let testoConfermatoDocente = '';
     let eStudente = false;
     let traduzioniRicevuteRete = {};
@@ -1341,13 +1342,14 @@
       linguaFocusCorrente = null;
     }
 
-    /* SISTEMA GESTIONE CRONOLOGIA */
+    /* GESTIONE CRONOLOGIA CORRETTA CON ID UNIVOCO PROGRESSIVO */
     function salvaInCronologia() {
       const testoITA = document.getElementById('testoITA').value.trim();
       if (!testoITA) return;
 
+      ID_PROGRESSIVO_CRONOLOGIA++;
       let riga = { 
-        id: Date.now(), 
+        id_univoco: ID_PROGRESSIVO_CRONOLOGIA, 
         ita: testoITA 
       };
 
@@ -1394,7 +1396,7 @@
           <div style="flex-grow: 1; word-break: break-word;">
             <strong style="color: var(--primary-cyan);">${index + 1}. 🇮🇹 ITA:</strong> ${item.ita}
           </div>
-          <button class="btn-svg-icon" style="color: #f87171; flex-shrink: 0;" data-tooltip="Elimina questa frase" onclick="eliminaSingolaFrase(${item.id})">
+          <button class="btn-svg-icon" style="color: #f87171; flex-shrink: 0;" data-tooltip="Elimina questa frase" onclick="eliminaSingolaFrase(${item.id_univoco})">
             <svg viewBox="0 0 24 24" style="width:20px; height:20px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
           </button>
         `;
@@ -1402,8 +1404,8 @@
       });
     }
 
-    function eliminaSingolaFrase(id) {
-      cronologiaLezione = cronologiaLezione.filter(item => item.id !== id);
+    function eliminaSingolaFrase(idTarget) {
+      cronologiaLezione = cronologiaLezione.filter(item => item.id_univoco !== idTarget);
       aggiornaContatoreCronologia();
       renderizzaListaCronologia();
       aggiornaStato(`Frase rimossa (${cronologiaLezione.length})`);
