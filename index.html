@@ -1656,7 +1656,7 @@
       };
 
 recDocente.onerror = (e) => {
-        alert("Errore microfono segnalato dal telefono: " + e.error);
+        // Se c'è un blocco temporaneo hardware su Android, forza il riavvio dopo una breve pausa
         if (inAscoltoDocente && e.error !== 'aborted') {
           setTimeout(() => {
             if (inAscoltoDocente) {
