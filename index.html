@@ -672,15 +672,9 @@
   <div class="header">
  <h1><img src="logo_bianco.png?v=5" alt="Logo" style="height: 38px; vertical-align: middle; margin-right: 6px;">ParlaConMe</h1>
     <div class="top-controls">
-<!-- BADGE CODICE AULA + CONTATORE STUDENTI -->
-<div style="display: flex; align-items: center; gap: 8px;">
-  <span style="background: rgba(255, 255, 255, 0.1); padding: 4px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; color: var(--primary-cyan, #00f2fe);">
-    🏫 Aula: <span id="codiceAulaDocente">---</span>
-  </span>
-  
-  <div>👥 <span id="studentCount">0</span></div>
-</div>
-      
+      <div id="studentCounterContainer" class="student-counter-badge">
+        👥 Studenti: <span id="studentCount">0</span>
+      </div>
       <div id="studentStatusBadge" class="status-badge-student status-connecting" style="display: none;">
         🟡 Connessione...
       </div>
@@ -960,12 +954,11 @@
       }, 4000);
     }
 
-function inizializzaRete() {
+    function inizializzaRete() {
       const urlParams = new URLSearchParams(window.location.search);
       const stanzaTarget = urlParams.get('stanza');
 
       if (stanzaTarget) {
-        // --- LATO STUDENTE ---
         eStudente = true;
         impostaVistaStudente();
         peer = new Peer(CONFIGURAZIONE_PEER);
@@ -973,31 +966,18 @@ function inizializzaRete() {
           connettiAStanzaDocente(stanzaTarget);
         });
       } else {
-        // --- LATO DOCENTE ---
         peer = new Peer(ID_STANZA_DOCENTE, CONFIGURAZIONE_PEER);
-        
-        peer.on('open', (id) => {
-          // Mostra l'ID reale dell'aula sul badge dell'header docente
-          const elCodice = document.getElementById('codiceAulaDocente');
-          if (elCodice) {
-            elCodice.innerText = id || ID_STANZA_DOCENTE;
-          }
-        });
-
         peer.on('connection', (conn) => {
           connessioniStudenti.push(conn);
           aggiornaContatoreStudenti();
-
+          
           conn.on('data', (dati) => {
-            applicaDatiRicevuti(dati);
+            if (dati && dati.tipo === 'RICHIESTA_SINCRONIZZAZIONE') {
+              traduciTutto();
+            }
           });
 
           conn.on('close', () => {
-            connessioniStudenti = connessioniStudenti.filter(c => c !== conn);
-            aggiornaContatoreStudenti();
-          });
-
-          conn.on('error', () => {
             connessioniStudenti = connessioniStudenti.filter(c => c !== conn);
             aggiornaContatoreStudenti();
           });
