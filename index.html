@@ -1589,18 +1589,25 @@
       recDocente.lang = 'it-IT';
 
       recDocente.onresult = (e) => {
-        let testoProvvisorio = '';
+        let testoInterim = '';
         clearTimeout(timerPausaSilenzio);
 
         for (let i = e.resultIndex; i < e.results.length; i++) {
           const transcript = e.results[i][0].transcript;
-          if (e.results[i].isFinal) testoConfermatoDocente += (testoConfermatoDocente ? ' ' : '') + transcript;
-          else testoProvvisorio += transcript;
+          if (e.results[i].isFinal) {
+            // Aggiunge solo i pezzi definitivi (evita le duplicazioni su mobile)
+            testoConfermatoDocente += (testoConfermatoDocente && !testoConfermatoDocente.endsWith(' ') ? ' ' : '') + transcript.trim();
+          } else {
+            // Testo provvisorio mentre stai parlando
+            testoInterim += transcript;
+          }
         }
 
-        let testoTotale = testoConfermatoDocente + (testoProvvisorio ? ' ' + testoProvvisorio : '');
+        // Unisce il testo confermato con l'eventuale parola provvisoria
+        let testoVisualizzato = testoConfermatoDocente + (testoInterim ? (testoConfermatoDocente ? ' ' : '') + testoInterim : '');
+        
         const textareaITA = document.getElementById('testoITA');
-        textareaITA.value = applicaPunteggiaturaAvanzata(testoTotale);
+        textareaITA.value = applicaPunteggiaturaAvanzata(testoVisualizzato);
         textareaITA.scrollTop = textareaITA.scrollHeight;
         gestisciInput();
 
