@@ -86,14 +86,12 @@
       backdrop-filter: blur(8px);
     }
 
-    /* Posizionamento predefinito: SOPRA */
     [data-tooltip]:hover::after {
       bottom: 125%;
       left: 50%;
       transform: translateX(-50%);
     }
 
-    /* Posizionamento SOTTO */
     [data-tooltip-pos="bottom"]:hover::after {
       bottom: auto;
       top: 125%;
@@ -101,7 +99,6 @@
       transform: translateX(-50%);
     }
 
-    /* Posizionamento SOTTO RAVVICINATO (per il microfono) */
     [data-tooltip-pos="bottom-tight"]:hover::after {
       bottom: auto;
       top: 105%;
@@ -109,7 +106,6 @@
       transform: translateX(-50%);
     }
 
-    /* Posizionamento A SINISTRA (per la lente di ingrandimento) */
     [data-tooltip-pos="left"]:hover::after {
       bottom: auto;
       top: 50%;
@@ -670,19 +666,19 @@
 
   <!-- INTESTAZIONE -->
   <div class="header">
- <h1><img src="logo_bianco.png?v=5" alt="Logo" style="height: 38px; vertical-align: middle; margin-right: 6px;">ParlaConMe</h1>
+    <h1><img src="logo_bianco.png?v=5" alt="Logo" style="height: 38px; vertical-align: middle; margin-right: 6px;">ParlaConMe</h1>
     <div class="top-controls">
-<div style="display: flex; align-items: center; gap: 8px;">
-  <!-- BADGE CODICE AULA -->
-  <span style="background: rgba(255, 255, 255, 0.1); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--primary-cyan, #00f2fe);">
-    🏫 Aula: <span id="codiceAulaDocente">---</span>
-  </span>
-  
-  <!-- CONTATORE STUDENTI ORIGINALE -->
-  <div id="studentCounterContainer" class="student-counter-badge">
-    👥 Studenti: <span id="studentCount">0</span>
-  </div>
-</div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <!-- BADGE CODICE AULA -->
+        <span style="background: rgba(255, 255, 255, 0.1); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--primary-cyan, #00f2fe);">
+          🏫 Aula: <span id="codiceAulaDocente">---</span>
+        </span>
+        
+        <!-- CONTATORE STUDENTI ORIGINALE -->
+        <div id="studentCounterContainer" class="student-counter-badge">
+          👥 Studenti: <span id="studentCount">0</span>
+        </div>
+      </div>
       
       <div id="studentStatusBadge" class="status-badge-student status-connecting" style="display: none;">
         🟡 Connessione...
@@ -709,7 +705,7 @@
         <div style="display: flex; gap: 6px; flex-wrap: wrap; width: 100%; margin-top: 4px;">
           <select id="studentLangSelect" class="student-select" style="flex-grow: 1;" aria-label="Seleziona lingua dello studente"></select>
           <button id="btnMicStudent" class="btn-main" style="width: auto;" onclick="toggleMicrofonoStudente()" data-tooltip="Attiva microfono per lo studente" aria-label="Parla microfono studente">🎙️ Parla</button>
-<button class="btn-tool" style="color: #f87171; font-size: 18px; font-weight: bold;" onclick="chiudiModalitaStudente()" data-tooltip="Chiudi" aria-label="Chiudi modalità studente">✕</button>
+          <button class="btn-tool" style="color: #f87171; font-size: 18px; font-weight: bold;" onclick="chiudiModalitaStudente()" data-tooltip="Chiudi" aria-label="Chiudi modalità studente">✕</button>
         </div>
       </div>
       <div style="display: flex; gap: 10px;">
@@ -721,7 +717,6 @@
       <div class="label-row">
         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
           <label for="testoITA">🇮🇹 Parla o Scrivi in Italiano (Docente):</label>
-          <!-- CONTROLLO INGRANDIMENTO TESTO ITALIANO -->
           <div class="zoom-bar">
             <button class="btn-tool" onclick="cambiaZoomITA(-2)" data-tooltip="Riduci testo italiano" aria-label="Riduci testo italiano">A-</button>
             <button class="btn-tool" onclick="resetZoomITA()" data-tooltip="Reset testo italiano" aria-label="Reset testo italiano">A</button>
@@ -732,9 +727,7 @@
           <button class="btn-main" style="width: auto;" onclick="apriModalitaStudente()" data-tooltip="Attiva ascolto voce studente" aria-label="Modalità Studente a Docente">🔄 Studente ➔ Docente</button>
           <button class="btn-main" style="width: auto;" onclick="cancellaTutto()" data-tooltip="Cancella tutto il testo" aria-label="Cancella tutto">🗑️ Cancella</button>
           <button class="btn-main" style="width: auto;" onclick="salvaInCronologia()" data-tooltip="Salva frase nella lezione" aria-label="Salva frase in cronologia">📌 Salva Frase</button>
-         <!-- CODICE MODIFICATO -->
-<button class="btn-main" style="width: auto;" onclick="salvaInCronologia()" data-tooltip="Salva frase nella lezione" aria-label="Salva frase in cronologia">📌 Salva Frase</button>
-<button class="btn-main" style="width: auto;" onclick="apriModalCronologia()" data-tooltip="Vedi e gestisci le frasi salvate" aria-label="Gestisci cronologia">📜 Lista (<span id="countCronologia">0</span>)</button> 
+          
           <!-- PULSANTE MIC CIRCOLARE SVG FISSO -->
           <button id="btnMic" class="btn-mic-container" onclick="toggleMicrofonoDocente()" data-tooltip="Attiva/disattiva microfono" data-tooltip-pos="bottom-tight" aria-label="Attiva o disattiva microfono docente">
             <div class="btn-mic-circle">
@@ -761,13 +754,11 @@
   <div id="studentViewContainer" class="student-view-container">
     <div id="mainStudentCard" class="student-card-main">
       
-      <!-- BARRA CONTROLLI LINGUA STUDENTE -->
       <div class="student-lang-bar">
         <label for="myLangSelect"><strong>🌐 Scegli la tua lingua / Choose language:</strong></label>
         <select id="myLangSelect" class="student-select" style="font-size: 15px; width: 100%;" onchange="cambiaLinguaStudente()" aria-label="Seleziona la tua lingua madre"></select>
       </div>
       
-      <!-- BOX ITALIANO (DOCENTE) -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 4px;">
         <div style="font-weight: 700; font-size: 14px; color: var(--primary-cyan);">🇮🇹 Italiano (Docente):</div>
         <div style="display: flex; gap: 8px;">
@@ -781,7 +772,6 @@
       </div>
       <div id="studentDisplayITA" class="student-display-text student-display-ita-box" style="flex-grow: 0; min-height: 60px; max-height: 140px; margin-bottom: 14px;">In attesa dell'insegnante...</div>
 
-      <!-- BOX TRADUZIONE (STUDENTE) -->
       <div style="font-weight: 700; font-size: 14px; margin-bottom: 6px; color: var(--primary-cyan);">🌐 Traduzione nella tua lingua:</div>
       <div id="studentDisplayText" class="student-display-text">In attesa della traduzione...</div>
 
@@ -806,7 +796,7 @@
     </div>
   </div>
 
-  <!-- MODALI E FINESTRE DI DIALOGO -->
+  <!-- MODALI -->
   <div id="modalFocus" class="modal-overlay">
     <div class="modal-card">
       <div class="modal-header">
@@ -851,25 +841,8 @@
       <button class="btn-main" style="width: auto; margin-top: 14px;" onclick="chiudiQRCode()" data-tooltip="Chiudi finestra" aria-label="Chiudi QR Code">Chiudi</button>
     </div>
   </div>
-<!-- MODALE CRONOLOGIA FRASI -->
-  <div id="modalCronologia" class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header">
-        <span class="modal-title">📜 Frasi Salvate per la Lezione</span>
-        <div style="display: flex; gap: 8px;">
-          <button class="btn-main" style="width: auto; background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: rgba(248, 113, 113, 0.3);" onclick="svuotaInteraCronologia()">🗑️ Svuota Tutto</button>
-          <button class="btn-tool" onclick="chiudiModalCronologia()" aria-label="Chiudi finestra">✖️</button>
-        </div>
-      </div>
-      <div id="listaCronologiaBody" class="modal-body" style="display: flex; flex-direction: column; gap: 10px; font-size: 15px;">
-        <!-- Le frasi salvate compariranno qui -->
-      </div>
-    </div>
-  </div>
 
   <script>
-  <script>
-    // Rileva se l'utente è su mobile/tablet (Android/iOS)
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
     let timerDebounce = null;
@@ -883,7 +856,6 @@
     let traduzioniRicevuteRete = {};
     let testoITARicevutoRete = '';
 
-    // ELEMENTO IN RIPRODUZIONE AUDIO CORRENTE
     let elementoAudioAttivo = null;
 
     let peer = null;
@@ -989,11 +961,9 @@
       const stanzaTarget = urlParams.get('stanza');
 
       if (stanzaTarget) {
-        // --- LATO STUDENTE ---
         eStudente = true;
         impostaVistaStudente();
 
-        // MOSTRA IL CODICE AULA ANCHE SULLA VISTA STUDENTE
         if (document.getElementById('codiceAulaDocente')) {
           document.getElementById('codiceAulaDocente').innerText = stanzaTarget.replace('cpia-aula-', '');
         }
@@ -1003,10 +973,8 @@
           connettiAStanzaDocente(stanzaTarget);
         });
       } else {
-        // --- LATO DOCENTE ---
         peer = new Peer(ID_STANZA_DOCENTE, CONFIGURAZIONE_PEER);
         
-        // MOSTRA IL CODICE AULA SUL BADGE DOCENTE
         if (document.getElementById('codiceAulaDocente')) {
           document.getElementById('codiceAulaDocente').innerText = ID_STANZA_DOCENTE.replace('cpia-aula-', '');
         }
@@ -1030,22 +998,18 @@
     }
 
     function impostaVistaStudente() {
-      // Nasconde i pannelli esclusivi del docente
       document.getElementById('docenteContainer').style.display = 'none';
       document.getElementById('btnQR').style.display = 'none';
       document.getElementById('btnLangConfig').style.display = 'none';
       document.getElementById('studentCounterContainer').style.display = 'none';
       
-      // MANTIENI VISIBILI I PULSANTI PDF E TXT IN ALTO
       const btnPDF = document.getElementById('btnTopPDF');
       const btnTXT = document.getElementById('btnTopTXT');
       if (btnPDF) btnPDF.style.display = 'inline-flex';
       if (btnTXT) btnTXT.style.display = 'inline-flex';
 
-      // Mostra il contenitore della vista studente
       document.getElementById('studentViewContainer').style.display = 'flex';
 
-      // Popola la selezione lingua
       const select = document.getElementById('myLangSelect');
       if (select) {
         select.innerHTML = '';
@@ -1071,7 +1035,6 @@
       display.scrollTop = display.scrollHeight;
     }
 
-    /* SISTEMA UNIFICATO STOP & ROSSO ATTIVO PER AUDIO */
     function fermaTuttaLettura() {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -1361,90 +1324,18 @@
       linguaFocusCorrente = null;
     }
 
-    function leggiTestoFocus(velocita, btnIcon) {
-      if (linguaFocusCorrente) {
-        const obj = ELENCO_LINGUE.find(l => l.code === linguaFocusCorrente);
-        avviaLetturaGenerica('modalBody', obj ? obj.voice : linguaFocusCorrente, velocita, btnIcon, null);
-      }
+    function salvaInCronologia() {
+      const testoITA = document.getElementById('testoITA').value.trim();
+      if (!testoITA) return;
+      let riga = { ita: testoITA };
+      ELENCO_LINGUE.forEach(l => {
+        const el = document.getElementById('box_' + l.code);
+        if (el && el.innerText !== '...') riga[l.code] = el.innerText;
+        else if (traduzioniRicevuteRete[l.code]) riga[l.code] = traduzioniRicevuteRete[l.code];
+      });
+      cronologiaLezione.push(riga);
+      aggiornaStato(`Salvato (${cronologiaLezione.length})`);
     }
-
-// NUOVO SISTEMA GESTIONE CRONOLOGIA
-function salvaInCronologia() {
-  const testoITA = document.getElementById('testoITA').value.trim();
-  if (!testoITA) return;
-
-  let riga = { 
-    id: Date.now(), 
-    ita: testoITA 
-  };
-
-  ELENCO_LINGUE.forEach(l => {
-    const el = document.getElementById('box_' + l.code);
-    if (el && el.innerText !== '...') riga[l.code] = el.innerText;
-    else if (traduzioniRicevuteRete[l.code]) riga[l.code] = traduzioniRicevuteRete[l.code];
-  });
-
-  cronologiaLezione.push(riga);
-  aggiornaContatoreCronologia();
-  aggiornaStato(`Salvato (${cronologiaLezione.length})`);
-}
-
-function aggiornaContatoreCronologia() {
-  const countEl = document.getElementById('countCronologia');
-  if (countEl) countEl.innerText = cronologiaLezione.length;
-}
-
-function apriModalCronologia() {
-  renderizzaListaCronologia();
-  document.getElementById('modalCronologia').style.display = 'flex';
-}
-
-function chiudiModalCronologia() {
-  document.getElementById('modalCronologia').style.display = 'none';
-}
-
-function renderizzaListaCronologia() {
-  const container = document.getElementById('listaCronologiaBody');
-  if (!container) return;
-
-  if (cronologiaLezione.length === 0) {
-    container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 20px;">Nessuna frase salvata finora.</div>';
-    return;
-  }
-
-  container.innerHTML = '';
-  cronologiaLezione.forEach((item, index) => {
-    const box = document.createElement('div');
-    box.style.cssText = 'background: rgba(15, 23, 42, 0.5); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;';
-    
-    box.innerHTML = `
-      <div style="flex-grow: 1; word-break: break-word;">
-        <strong style="color: var(--primary-cyan);">${index + 1}. 🇮🇹 ITA:</strong> ${item.ita}
-      </div>
-      <button class="btn-svg-icon" style="color: #f87171; flex-shrink: 0;" data-tooltip="Elimina questa frase" onclick="eliminaSingolaFrase(${item.id})">
-        <svg viewBox="0 0 24 24" style="width:20px; height:20px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-      </button>
-    `;
-    container.appendChild(box);
-  });
-}
-
-function eliminaSingolaFrase(id) {
-  cronologiaLezione = cronologiaLezione.filter(item => item.id !== id);
-  aggiornaContatoreCronologia();
-  renderizzaListaCronologia();
-  aggiornaStato(`Frase rimossa (${cronologiaLezione.length})`);
-}
-
-function svuotaInteraCronologia() {
-  if (cronologiaLezione.length === 0) return;
-  if (confirm("Sei sicuro di voler cancellare tutte le frasi salvate nella cronologia?")) {
-    cronologiaLezione = [];
-    aggiornaContatoreCronologia();
-    renderizzaListaCronologia();
-    aggiornaStato('Cronologia svuotata');
-  }
-}
 
     function scaricaLezione() {
       let contenuto = "VOCABOLARIO LEZIONE CPIA\n=========================\n\n";
@@ -1650,11 +1541,9 @@ function svuotaInteraCronologia() {
       if (!vociDisponibili.length) caricaVoci();
       const prefix = langCode.toLowerCase().split('-')[0];
       
-      // 1. Cerca una voce esatta per la lingua
       let compatibili = vociDisponibili.filter(v => v.lang.toLowerCase().startsWith(prefix));
       
       if (!compatibili.length) {
-        // 2. FALLBACK: Cerca voci contenenti il codice lingua o il nome lingua
         compatibili = vociDisponibili.filter(v => 
           v.name.toLowerCase().includes(prefix) || 
           v.lang.toLowerCase().includes(prefix)
@@ -1663,12 +1552,10 @@ function svuotaInteraCronologia() {
 
       if (!compatibili.length) return null;
 
-      // Preferisci voci di alta qualità (Natural / Google / Neural / Online)
       let scelta = compatibili.find(v => v.name.includes('Online') || v.name.includes('Natural') || v.name.includes('Neural') || v.name.includes('Google'));
       return scelta || compatibili[0];
     }
 
-    /* PUNTEGGIATURA E FORMATTAZIONE VOCALE AVANZATA */
     function applicaPunteggiaturaAvanzata(testo) {
       let t = testo
         .replace(/\bvirgola\b/gi, ',')
@@ -1694,12 +1581,11 @@ function svuotaInteraCronologia() {
     if (SpeechRecognition) {
       recDocente = new SpeechRecognition();
       
-      // Su mobile disattiviamo 'continuous' per evitare il bug della duplicazione del browser
       recDocente.continuous = !isMobile;
       recDocente.interimResults = true;
       recDocente.lang = 'it-IT';
 
-recDocente.onresult = (e) => {
+      recDocente.onresult = (e) => {
         clearTimeout(timerPausaSilenzio);
         let testoInterim = '';
 
@@ -1708,9 +1594,7 @@ recDocente.onresult = (e) => {
           if (e.results[i].isFinal) {
             const fraseIncollata = transcript.trim();
             if (fraseIncollata) {
-              // Controllo anti-duplicato visivo
               if (!testoConfermatoDocente.trim().endsWith(fraseIncollata)) {
-                // Se siamo all'inizio di una nuova riga (dopo a capo), non mettiamo lo spazio iniziale
                 let serveSpazio = testoConfermatoDocente.length > 0 && !testoConfermatoDocente.endsWith('\n') && !testoConfermatoDocente.endsWith(' ');
                 testoConfermatoDocente += (serveSpazio ? ' ' : '') + fraseIncollata;
               }
@@ -1727,17 +1611,14 @@ recDocente.onresult = (e) => {
         textareaITA.scrollTop = textareaITA.scrollHeight;
         gestisciInput();
 
-        // RILEVAMENTO SILENZIO AUTOMATICO
         if (inAscoltoDocente) {
           timerPausaSilenzio = setTimeout(() => {
             if (testoConfermatoDocente.trim() && !/[.?!]\s*$/.test(testoConfermatoDocente.trim())) {
-              // Mantiene tutto il testo e va a capo SENZA lasciare uno spazio vuoto dopo \n
               testoConfermatoDocente = testoConfermatoDocente.trimEnd() + '.\n';
               textareaITA.value = applicaPunteggiaturaAvanzata(testoConfermatoDocente);
               textareaITA.scrollTop = textareaITA.scrollHeight;
               gestisciInput();
             }
-            // SU MOBILE: Spegne il microfono in automatico dopo 1.8s di silenzio
             if (isMobile) {
               fermaAscoltoDocente();
             }
@@ -1746,7 +1627,6 @@ recDocente.onresult = (e) => {
       };
 
       recDocente.onerror = (e) => {
-        // Se c'è un blocco temporaneo hardware su Android, forza il riavvio se non si è su mobile
         if (inAscoltoDocente && e.error !== 'aborted') {
           setTimeout(() => {
             if (inAscoltoDocente && !isMobile) {
@@ -1759,7 +1639,6 @@ recDocente.onresult = (e) => {
       };
 
       recDocente.onend = () => { 
-        // Su PC riavvia l'ascolto continuo; su Mobile arresta pulito per evitare i bip a ripetizione
         if (inAscoltoDocente && !isMobile) {
           setTimeout(() => {
             if (inAscoltoDocente) {
