@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ParlaConMe - Traduttore Live CPIA (Glass Edition)</title>
+  <title>ParlaConMe - Traduttore Live CPIA</title>
   
   <link rel="icon" type="image/png" href="logo_bianco.png?v=5">
 
@@ -963,7 +963,7 @@
       }, 4000);
     }
 
-   function inizializzaRete() {
+    function inizializzaRete() {
       const urlParams = new URLSearchParams(window.location.search);
       const stanzaTarget = urlParams.get('stanza');
 
@@ -1605,7 +1605,7 @@
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recDocente = null, inAscoltoDocente = false;
 
-   if (SpeechRecognition) {
+    if (SpeechRecognition) {
       recDocente = new SpeechRecognition();
       
       // Rileva se l'utente è su mobile/tablet (Android/iOS)
@@ -1623,10 +1623,12 @@
         for (let i = e.resultIndex; i < e.results.length; i++) {
           const transcript = e.results[i][0].transcript;
           if (e.results[i].isFinal) {
-            // Aggiunge solo la frase o parola definitiva
             const fraseIncollata = transcript.trim();
             if (fraseIncollata) {
-              testoConfermatoDocente += (testoConfermatoDocente && !testoConfermatoDocente.endsWith(' ') ? ' ' : '') + fraseIncollata;
+              // Controllo anti-duplicato visivo
+              if (!testoConfermatoDocente.trim().endsWith(fraseIncollata)) {
+                testoConfermatoDocente += (testoConfermatoDocente && !testoConfermatoDocente.endsWith(' ') ? ' ' : '') + fraseIncollata;
+              }
             }
           } else {
             testoInterim += transcript;
@@ -1654,16 +1656,24 @@
       };
 
       recDocente.onerror = (e) => {
-        // Se si ferma per un errore temporaneo su mobile, lo riavviamo se il docente è ancora in modalità ascolto
+        // Se c'è un blocco temporaneo hardware su Android, forza il riavvio dopo una breve pausa
         if (inAscoltoDocente && e.error !== 'aborted') {
-          try { recDocente.start(); } catch(err) {}
+          setTimeout(() => {
+            if (inAscoltoDocente) {
+              try { recDocente.start(); } catch(err) {}
+            }
+          }, 300);
         }
       };
 
       recDocente.onend = () => { 
-        // Su mobile, quando finisce la frase 'non-continua', si riavvia istantaneamente da solo in background
+        // Pausa di 200ms per permettere ad Android di liberare la scheda audio prima di riaprire il mic
         if (inAscoltoDocente) {
-          try { recDocente.start(); } catch(err) {}
+          setTimeout(() => {
+            if (inAscoltoDocente) {
+              try { recDocente.start(); } catch(err) {}
+            }
+          }, 200);
         }
       };
     }
