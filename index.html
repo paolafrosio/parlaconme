@@ -1617,61 +1617,50 @@
       recDocente.lang = 'it-IT';
 
 recDocente.onresult = (e) => {
-  clearTimeout(timerPausaSilenzio);
-  let testoInterim = '';
+        clearTimeout(timerPausaSilenzio);
+        let testoInterim = '';
 
-  for (let i = e.resultIndex; i < e.results.length; i++) {
-    // Applichiamo il .trim() immediato alla trascrizione catturata
-    const transcript = e.results[i][0].transcript.trim();
-    
-    if (e.results[i].isFinal) {
-      if (transcript.length > 0) {
-        // Se c'è già del testo confermato, controlliamo se aggiungere a capo o spazio pulito
-        if (testoConfermatoDocente.trim().length > 0) {
-          if (testoConfermatoDocente.endsWith('\n')) {
-            testoConfermatoDocente += transcript;
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const transcript = e.results[i][0].transcript;
+          if (e.results[i].isFinal) {
+            const fraseIncollata = transcript.trim();
+            if (fraseIncollata) {
+              // Controllo anti-duplicato visivo
+              if (!testoConfermatoDocente.trim().endsWith(fraseIncollata)) {
+                // Se siamo all'inizio di una nuova riga (dopo a capo), non mettiamo lo spazio iniziale
+                let serveSpazio = testoConfermatoDocente.length > 0 && !testoConfermatoDocente.endsWith('\n') && !testoConfermatoDocente.endsWith(' ');
+                testoConfermatoDocente += (serveSpazio ? ' ' : '') + fraseIncollata;
+              }
+            }
           } else {
-            testoConfermatoDocente += ' ' + transcript;
+            testoInterim += transcript;
           }
-        } else {
-          testoConfermatoDocente = transcript;
         }
-      }
-    } else {
-      testoInterim += transcript;
-    }
-  }
 
-  // Costruiamo il testo mantenendo gli a capo senza aggiungere spazi parassiti a inizio riga
-  let testoVisualizzato = testoConfermatoDocente;
-  if (testoInterim.length > 0) {
-    testoVisualizzato += (testoConfermatoDocente && !testoConfermatoDocente.endsWith('\n') ? ' ' : '') + testoInterim;
-  }
-  
-  const textareaITA = document.getElementById('testoITA');
-  textareaITA.value = applicaPunteggiaturaAvanzata(testoVisualizzato);
-  textareaITA.scrollTop = textareaITA.scrollHeight;
-  gestisciInput();
-
-  // RILEVAMENTO SILENZIO AUTOMATICO CON A CAPO PULITO
-  if (inAscoltoDocente) {
-    timerPausaSilenzio = setTimeout(() => {
-      let testoPulito = testoConfermatoDocente.trim();
-      if (testoPulito.length > 0 && !/[.?!]\s*$/.test(testoPulito)) {
-        // Aggiunge il punto e la nuova linea senza spazi vuoti iniziali
-        testoConfermatoDocente = testoPulito + '.\n';
-        textareaITA.value = applicaPunteggiaturaAvanzata(testoConfermatoDocente);
+        let testoVisualizzato = testoConfermatoDocente + (testoInterim ? (testoConfermatoDocente && !testoConfermatoDocente.endsWith('\n') ? ' ' : '') + testoInterim : '');
+        
+        const textareaITA = document.getElementById('testoITA');
+        textareaITA.value = applicaPunteggiaturaAvanzata(testoVisualizzato);
         textareaITA.scrollTop = textareaITA.scrollHeight;
         gestisciInput();
-      }
-      
-      // SU MOBILE: Spegne il microfono in automatico dopo 1.8s di silenzio
-      if (isMobile) {
-        fermaAscoltoDocente();
-      }
-    }, 1800);
-  }
-};
+
+        // RILEVAMENTO SILENZIO AUTOMATICO
+        if (inAscoltoDocente) {
+          timerPausaSilenzio = setTimeout(() => {
+            if (testoConfermatoDocente.trim() && !/[.?!]\s*$/.test(testoConfermatoDocente.trim())) {
+              // Mantiene tutto il testo e va a capo SENZA lasciare uno spazio vuoto dopo \n
+              testoConfermatoDocente = testoConfermatoDocente.trimEnd() + '.\n';
+              textareaITA.value = applicaPunteggiaturaAvanzata(testoConfermatoDocente);
+              textareaITA.scrollTop = textareaITA.scrollHeight;
+              gestisciInput();
+            }
+            // SU MOBILE: Spegne il microfono in automatico dopo 1.8s di silenzio
+            if (isMobile) {
+              fermaAscoltoDocente();
+            }
+          }, 1800);
+        }
+      };
 
       recDocente.onerror = (e) => {
         // Se c'è un blocco temporaneo hardware su Android, forza il riavvio se non si è su mobile
