@@ -963,24 +963,33 @@
       }, 4000);
     }
 
-    function inizializzaRete() {
+   function inizializzaRete() {
       const urlParams = new URLSearchParams(window.location.search);
       const stanzaTarget = urlParams.get('stanza');
 
       if (stanzaTarget) {
+        // --- LATO STUDENTE ---
         eStudente = true;
         impostaVistaStudente();
+
+        // MOSTRA IL CODICE AULA ANCHE SULLA VISTA STUDENTE
+        if (document.getElementById('codiceAulaDocente')) {
+          document.getElementById('codiceAulaDocente').innerText = stanzaTarget.replace('cpia-aula-', '');
+        }
+
         peer = new Peer(CONFIGURAZIONE_PEER);
         peer.on('open', () => {
           connettiAStanzaDocente(stanzaTarget);
         });
       } else {
+        // --- LATO DOCENTE ---
         peer = new Peer(ID_STANZA_DOCENTE, CONFIGURAZIONE_PEER);
-        // MOSTRA IL CODICE AULA SUL BADGE
+        
+        // MOSTRA IL CODICE AULA SUL BADGE DOCENTE
         if (document.getElementById('codiceAulaDocente')) {
           document.getElementById('codiceAulaDocente').innerText = ID_STANZA_DOCENTE.replace('cpia-aula-', '');
         }
-        
+
         peer.on('connection', (conn) => {
           connessioniStudenti.push(conn);
           aggiornaContatoreStudenti();
