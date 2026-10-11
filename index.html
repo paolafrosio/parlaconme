@@ -72,7 +72,6 @@
     [data-tooltip]:hover::after {
       content: attr(data-tooltip);
       position: absolute;
-      bottom: 125%;
       left: 50%;
       transform: translateX(-50%);
       background: rgba(15, 23, 42, 0.95);
@@ -87,6 +86,17 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
       z-index: 1000;
       backdrop-filter: blur(8px);
+    }
+
+    /* Posizionamento predefinito: SOPRA */
+    [data-tooltip]:hover::after {
+      bottom: 125%;
+    }
+
+    /* Posizionamento specifico per i pulsanti in alto: SOTTO */
+    [data-tooltip-pos="bottom"]:hover::after {
+      bottom: auto;
+      top: 125%;
     }
 
     /* HEADER GLASS */
@@ -444,7 +454,7 @@
       stroke-width: 1.8;
       stroke-linecap: round;
       stroke-linejoin: round;
-      pointer-events: none; /* Impedisce all'SVG di interrompere il mouseover */
+      pointer-events: none;
     }
     .btn-svg-icon:hover {
       color: #ffffff;
@@ -649,16 +659,16 @@
       <div id="studentStatusBadge" class="status-badge-student status-connecting" style="display: none;">
         🟡 Connessione...
       </div>
-      <button id="btnQR" class="btn-main" onclick="mostraQRCode()" data-tooltip="Genera QR Code per gli studenti" aria-label="Trasmetti con QR Code">📱 Trasmetti</button>
-      <button id="btnLangConfig" class="btn-tool" onclick="apriGestioneLingue()" data-tooltip="Gestisci lingue visibili sulla LIM" aria-label="Gestione Lingue">⚙️ Lingue</button>
-      <button class="btn-tool" onclick="toggleDarkMode()" data-tooltip="Cambia tema chiaro/scuro" aria-label="Cambia Tema">🌙</button>
+      <button id="btnQR" class="btn-main" onclick="mostraQRCode()" data-tooltip="Genera QR Code per gli studenti" data-tooltip-pos="bottom" aria-label="Trasmetti con QR Code">📱 Trasmetti</button>
+      <button id="btnLangConfig" class="btn-tool" onclick="apriGestioneLingue()" data-tooltip="Gestisci lingue visibili sulla LIM" data-tooltip-pos="bottom" aria-label="Gestione Lingue">⚙️ Lingue</button>
+      <button class="btn-tool" onclick="toggleDarkMode()" data-tooltip="Cambia tema chiaro/scuro" data-tooltip-pos="bottom" aria-label="Cambia Tema">🌙</button>
       <div class="zoom-bar">
-        <button class="btn-tool" onclick="cambiaZoom(-2)" data-tooltip="Riduci testo" aria-label="Riduci testo">A-</button>
-        <button class="btn-tool" onclick="resetZoom()" data-tooltip="Reset dimensione testo" aria-label="Reset dimensione testo">A</button>
-        <button class="btn-tool" onclick="cambiaZoom(2)" data-tooltip="Aumenta testo" aria-label="Aumenta testo">A+</button>
+        <button class="btn-tool" onclick="cambiaZoom(-2)" data-tooltip="Riduci testo" data-tooltip-pos="bottom" aria-label="Riduci testo">A-</button>
+        <button class="btn-tool" onclick="resetZoom()" data-tooltip="Reset dimensione testo" data-tooltip-pos="bottom" aria-label="Reset dimensione testo">A</button>
+        <button class="btn-tool" onclick="cambiaZoom(2)" data-tooltip="Aumenta testo" data-tooltip-pos="bottom" aria-label="Aumenta testo">A+</button>
       </div>
-      <button id="btnTopPDF" class="btn-main" style="width: auto;" onclick="stampaOEsportaPDF()" data-tooltip="Stampa o salva l'intera lezione in PDF" aria-label="Stampa PDF Lezione Completa">🖨️ PDF</button>
-      <button id="btnTopTXT" class="btn-main" style="width: auto;" onclick="scaricaLezione()" data-tooltip="Scarica la lezione in formato TXT" aria-label="Scarica TXT Lezione">📥 TXT</button>
+      <button id="btnTopPDF" class="btn-main" style="width: auto;" onclick="stampaOEsportaPDF()" data-tooltip="Stampa o salva l'intera lezione in PDF" data-tooltip-pos="bottom" aria-label="Stampa PDF Lezione Completa">🖨️ PDF</button>
+      <button id="btnTopTXT" class="btn-main" style="width: auto;" onclick="scaricaLezione()" data-tooltip="Scarica la lezione in formato TXT" data-tooltip-pos="bottom" aria-label="Scarica TXT Lezione">📥 TXT</button>
       <span id="status" class="status">Pronto</span>
     </div>
   </div>
@@ -726,7 +736,7 @@
           <button id="btnItaSlow" class="btn-svg-icon" data-tooltip="Ascolta lento" aria-label="Ascolta italiano lento" onclick="toggleLetturaItalianoStudente(0.5, this)">
             <svg viewBox="0 0 24 24"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>
           </button>
-          <button id="btnItaNormal" class="btn-svg-icon" data-tooltip="Ascolta normale" aria-label="Ascolta italiano normale" onclick="toggleLetturaItalianoStudente(0.9, this)">
+          <button id="btnItaNormal" class="btn-svg-icon" data-tooltip="Ascolta" aria-label="Ascolta italiano" onclick="toggleLetturaItalianoStudente(0.9, this)">
             <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
           </button>
         </div>
@@ -747,7 +757,7 @@
           </button>
         </div>
         <div style="display: flex; gap: 8px;">
-          <button class="btn-svg-icon" data-tooltip="Scarica PDF singolo" aria-label="Scarica PDF nella tua lingua" onclick="scaricaPDFSingoloDallaVistaStudente()">
+          <button class="btn-svg-icon" data-tooltip="Scarica PDF singolo" aria-label="Scarica PDF della tua lingua" onclick="scaricaPDFSingoloDallaVistaStudente()">
             <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           </button>
           <button class="btn-svg-icon" data-tooltip="Copia testo" aria-label="Copia testo tradotto" onclick="copiaTestoStudente()">
@@ -767,7 +777,7 @@
           <button class="btn-svg-icon" data-tooltip="Ascolta lento" aria-label="Ascolta testo ingrandito lento" onclick="leggiTestoFocus(0.5, this)">
             <svg viewBox="0 0 24 24"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>
           </button>
-          <button class="btn-svg-icon" data-tooltip="Ascolta normale" aria-label="Ascolta testo ingrandito normale" onclick="leggiTestoFocus(0.9, this)">
+          <button class="btn-svg-icon" data-tooltip="Ascolta" aria-label="Ascolta testo ingrandito" onclick="leggiTestoFocus(0.9, this)">
             <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
           </button>
           <button class="btn-tool" onclick="chiudiFocus()" data-tooltip="Chiudi finestra" aria-label="Chiudi finestra ingrandita">✖️</button>
@@ -1151,7 +1161,7 @@
             <button class="btn-svg-icon" data-tooltip="Ascolta lento" aria-label="Ascolta lento lingua ${l.name}" onclick="leggiTestoScheda('${l.code}', 0.5, this, document.getElementById('card_${l.code}'))">
               <svg viewBox="0 0 24 24"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>
             </button>
-            <button class="btn-svg-icon" data-tooltip="Ascolta normale" aria-label="Ascolta normale lingua ${l.name}" onclick="leggiTestoScheda('${l.code}', 0.9, this, document.getElementById('card_${l.code}'))">
+            <button class="btn-svg-icon" data-tooltip="Ascolta" aria-label="Ascolta lingua ${l.name}" onclick="leggiTestoScheda('${l.code}', 0.9, this, document.getElementById('card_${l.code}'))">
               <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
             </button>
           </div>
