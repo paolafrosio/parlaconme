@@ -1655,8 +1655,8 @@
         }
       };
 
-      recDocente.onerror = (e) => {
-        // Se c'è un blocco temporaneo hardware su Android, forza il riavvio dopo una breve pausa
+recDocente.onerror = (e) => {
+        alert("Errore microfono segnalato dal telefono: " + e.error);
         if (inAscoltoDocente && e.error !== 'aborted') {
           setTimeout(() => {
             if (inAscoltoDocente) {
@@ -1665,6 +1665,8 @@
           }, 300);
         }
       };
+
+      
 
       recDocente.onend = () => { 
         // Pausa di 200ms per permettere ad Android di liberare la scheda audio prima di riaprire il mic
