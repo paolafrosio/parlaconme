@@ -72,8 +72,6 @@
     [data-tooltip]:hover::after {
       content: attr(data-tooltip);
       position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
       background: rgba(15, 23, 42, 0.95);
       color: #38bdf8;
       border: 1px solid var(--card-border);
@@ -91,12 +89,33 @@
     /* Posizionamento predefinito: SOPRA */
     [data-tooltip]:hover::after {
       bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
     }
 
-    /* Posizionamento specifico per i pulsanti in alto: SOTTO */
+    /* Posizionamento SOTTO */
     [data-tooltip-pos="bottom"]:hover::after {
       bottom: auto;
       top: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    /* Posizionamento SOTTO RAVVICINATO (per il microfono) */
+    [data-tooltip-pos="bottom-tight"]:hover::after {
+      bottom: auto;
+      top: 105%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    /* Posizionamento A SINISTRA (per la lente di ingrandimento) */
+    [data-tooltip-pos="left"]:hover::after {
+      bottom: auto;
+      top: 50%;
+      right: 125%;
+      left: auto;
+      transform: translateY(-50%);
     }
 
     /* HEADER GLASS */
@@ -691,14 +710,22 @@
 
     <div class="source-box">
       <div class="label-row">
-        <label for="testoITA">🇮🇹 Parla o Scrivi in Italiano (Docente):</label>
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <label for="testoITA">🇮🇹 Parla o Scrivi in Italiano (Docente):</label>
+          <!-- CONTROLLO INGRANDIMENTO TESTO ITALIANO -->
+          <div class="zoom-bar">
+            <button class="btn-tool" onclick="cambiaZoomITA(-2)" data-tooltip="Riduci testo italiano" aria-label="Riduci testo italiano">A-</button>
+            <button class="btn-tool" onclick="resetZoomITA()" data-tooltip="Reset testo italiano" aria-label="Reset testo italiano">A</button>
+            <button class="btn-tool" onclick="cambiaZoomITA(2)" data-tooltip="Aumenta testo italiano" aria-label="Aumenta testo italiano">A+</button>
+          </div>
+        </div>
         <div class="action-btns">
           <button class="btn-main" style="width: auto;" onclick="apriModalitaStudente()" data-tooltip="Attiva ascolto voce studente" aria-label="Modalità Studente a Docente">🔄 Studente ➔ Docente</button>
           <button class="btn-main" style="width: auto;" onclick="cancellaTutto()" data-tooltip="Cancella tutto il testo" aria-label="Cancella tutto">🗑️ Cancella</button>
           <button class="btn-main" style="width: auto;" onclick="salvaInCronologia()" data-tooltip="Salva frase nella lezione" aria-label="Salva frase in cronologia">📌 Salva Frase</button>
           
           <!-- PULSANTE MIC CIRCOLARE SVG FISSO -->
-          <button id="btnMic" class="btn-mic-container" onclick="toggleMicrofonoDocente()" data-tooltip="Attiva/Disattiva microfono docente" aria-label="Attiva o disattiva microfono docente">
+          <button id="btnMic" class="btn-mic-container" onclick="toggleMicrofonoDocente()" data-tooltip="Attiva/disattiva microfono" data-tooltip-pos="bottom-tight" aria-label="Attiva o disattiva microfono docente">
             <div class="btn-mic-circle">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
@@ -818,6 +845,7 @@
     let timerDebounce = null;
     let timerPausaSilenzio = null;
     let fontSizeCorrente = 16;
+    let fontSizeITACorrente = 16;
     let linguaFocusCorrente = null;
     let cronologiaLezione = [];
     let testoConfermatoDocente = '';
@@ -1146,7 +1174,7 @@
         card.innerHTML = `
           <div class="card-header">
             <span class="card-title">${l.name}</span>
-            <button class="btn-svg-icon" style="padding: 2px;" data-tooltip="Ingrandisci testo" aria-label="Ingrandisci lingua ${l.name}" onclick="apriFocus('${l.code}', '${l.name}')">
+            <button class="btn-svg-icon" style="padding: 2px;" data-tooltip="Ingrandisci" data-tooltip-pos="left" aria-label="Ingrandisci lingua ${l.name}" onclick="apriFocus('${l.code}', '${l.name}')">
               <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             </button>
           </div>
@@ -1221,6 +1249,18 @@
       fontSizeCorrente = 16;
       document.querySelectorAll('.card-body, .student-display-text').forEach(el => el.style.fontSize = '16px');
       aggiornaStato('Zoom reset');
+    }
+
+    function cambiaZoomITA(delta) {
+      fontSizeITACorrente = Math.max(12, Math.min(36, fontSizeITACorrente + delta));
+      document.getElementById('testoITA').style.fontSize = fontSizeITACorrente + 'px';
+      aggiornaStato(`ITA: ${fontSizeITACorrente}px`);
+    }
+
+    function resetZoomITA() {
+      fontSizeITACorrente = 16;
+      document.getElementById('testoITA').style.fontSize = '16px';
+      aggiornaStato('Zoom ITA reset');
     }
 
     function copiaTesto(lang) {
