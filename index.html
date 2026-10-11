@@ -1589,22 +1589,32 @@
       recDocente.lang = 'it-IT';
 
       recDocente.onresult = (e) => {
-        let testoInterim = '';
         clearTimeout(timerPausaSilenzio);
 
-        for (let i = e.resultIndex; i < e.results.length; i++) {
+        let testoFinaleRiconosciuto = '';
+        let testoInterim = '';
+
+        for (let i = 0; i < e.results.length; i++) {
           const transcript = e.results[i][0].transcript;
           if (e.results[i].isFinal) {
-            // Aggiunge solo i pezzi definitivi (evita le duplicazioni su mobile)
-            testoConfermatoDocente += (testoConfermatoDocente && !testoConfermatoDocente.endsWith(' ') ? ' ' : '') + transcript.trim();
+            testoFinaleRiconosciuto += transcript + ' ';
           } else {
-            // Testo provvisorio mentre stai parlando
             testoInterim += transcript;
           }
         }
 
-        // Unisce il testo confermato con l'eventuale parola provvisoria
-        let testoVisualizzato = testoConfermatoDocente + (testoInterim ? (testoConfermatoDocente ? ' ' : '') + testoInterim : '');
+        // Su mobile / Chrome Android: se e.results accumula la sessione dall'inizio,
+        // aggiorniamo la base del testo confermato evitando di sommarla alla variabile precedente
+        if (testoFinaleRiconosciuto.trim()) {
+          // Se la sessione restituisce tutto dal principio, usiamo il testo riconosciuto
+          if (testoFinaleRiconosciuto.trim().length >= testoConfermatoDocente.trim().length) {
+            testoConfermatoDocente = testoFinaleRiconosciuto;
+          } else {
+            testoConfermatoDocente += ' ' + testoFinaleRiconosciuto;
+          }
+        }
+
+        let testoVisualizzato = (testoConfermatoDocente + ' ' + testoInterim).replace(/\s+/g, ' ').trim();
         
         const textareaITA = document.getElementById('testoITA');
         textareaITA.value = applicaPunteggiaturaAvanzata(testoVisualizzato);
