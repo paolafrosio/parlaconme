@@ -1608,8 +1608,10 @@
    if (SpeechRecognition) {
       recDocente = new SpeechRecognition();
       
+      // Rileva se l'utente è su mobile/tablet (Android/iOS)
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       
+      // Su mobile disattiviamo 'continuous' per evitare il bug della duplicazione del browser
       recDocente.continuous = !isMobile;
       recDocente.interimResults = true;
       recDocente.lang = 'it-IT';
@@ -1621,12 +1623,10 @@
         for (let i = e.resultIndex; i < e.results.length; i++) {
           const transcript = e.results[i][0].transcript;
           if (e.results[i].isFinal) {
+            // Aggiunge solo la frase o parola definitiva
             const fraseIncollata = transcript.trim();
             if (fraseIncollata) {
-              // Controllo anti-duplicato visivo
-              if (!testoConfermatoDocente.trim().endsWith(fraseIncollata)) {
-                testoConfermatoDocente += (testoConfermatoDocente && !testoConfermatoDocente.endsWith(' ') ? ' ' : '') + fraseIncollata;
-              }
+              testoConfermatoDocente += (testoConfermatoDocente && !testoConfermatoDocente.endsWith(' ') ? ' ' : '') + fraseIncollata;
             }
           } else {
             testoInterim += transcript;
@@ -1640,6 +1640,7 @@
         textareaITA.scrollTop = textareaITA.scrollHeight;
         gestisciInput();
 
+        // RILEVAMENTO SILENZIO AUTOMATICO (PUNTO E A CAPO DOPO 1.8 SECONDI DI PAUSA)
         if (inAscoltoDocente) {
           timerPausaSilenzio = setTimeout(() => {
             if (testoConfermatoDocente.trim() && !/[.?!]\s*$/.test(testoConfermatoDocente.trim())) {
@@ -1651,29 +1652,6 @@
           }, 1800);
         }
       };
-
-      recDocente.onerror = (e) => {
-        // Se c'è un blocco hardware su Android, forza il riavvio dopo una breve pausa
-        if (inAscoltoDocente && e.error !== 'aborted') {
-          setTimeout(() => {
-            if (inAscoltoDocente) {
-              try { recDocente.start(); } catch(err) {}
-            }
-          }, 300);
-        }
-      };
-
-      recDocente.onend = () => { 
-        // Pausa di 200ms per permettere ad Android di liberare la scheda audio prima di riaprire il mic
-        if (inAscoltoDocente) {
-          setTimeout(() => {
-            if (inAscoltoDocente) {
-              try { recDocente.start(); } catch(err) {}
-            }
-          }, 200);
-        }
-      };
-    }
 
       recDocente.onerror = (e) => {
         // Se si ferma per un errore temporaneo su mobile, lo riavviamo se il docente è ancora in modalità ascolto
