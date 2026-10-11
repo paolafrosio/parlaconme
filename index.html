@@ -624,16 +624,16 @@
       <div id="studentStatusBadge" class="status-badge-student status-connecting" style="display: none;">
         🟡 Connessione...
       </div>
-      <button id="btnQR" class="btn-main" onclick="mostraQRCode()">📱 Trasmetti</button>
-      <button id="btnLangConfig" class="btn-tool" onclick="apriGestioneLingue()">⚙️ Lingue</button>
-      <button class="btn-tool" onclick="toggleDarkMode()">🌙</button>
+      <button id="btnQR" class="btn-main" onclick="mostraQRCode()" title="Genera QR Code per gli studenti" aria-label="Trasmetti con QR Code">📱 Trasmetti</button>
+      <button id="btnLangConfig" class="btn-tool" onclick="apriGestioneLingue()" title="Gestisci lingue visibili sulla LIM" aria-label="Gestione Lingue">⚙️ Lingue</button>
+      <button class="btn-tool" onclick="toggleDarkMode()" title="Cambia tema chiaro/scuro" aria-label="Cambia Tema">🌙</button>
       <div class="zoom-bar">
-        <button class="btn-tool" onclick="cambiaZoom(-2)">A-</button>
-        <button class="btn-tool" onclick="resetZoom()">A</button>
-        <button class="btn-tool" onclick="cambiaZoom(2)">A+</button>
+        <button class="btn-tool" onclick="cambiaZoom(-2)" title="Riduci dimensione testo" aria-label="Riduci testo">A-</button>
+        <button class="btn-tool" onclick="resetZoom()" title="Ripristina dimensione testo" aria-label="Reset dimensione testo">A</button>
+        <button class="btn-tool" onclick="cambiaZoom(2)" title="Aumenta dimensione testo" aria-label="Aumenta testo">A+</button>
       </div>
-      <button id="btnTopPDF" class="btn-main" style="width: auto;" onclick="stampaOEsportaPDF()">🖨️ PDF</button>
-      <button id="btnTopTXT" class="btn-main" style="width: auto;" onclick="scaricaLezione()">📥 TXT</button>
+      <button id="btnTopPDF" class="btn-main" style="width: auto;" onclick="stampaOEsportaPDF()" title="Stampa o esporta l'intera lezione in PDF" aria-label="Stampa PDF Lezione Completa">🖨️ PDF</button>
+      <button id="btnTopTXT" class="btn-main" style="width: auto;" onclick="scaricaLezione()" title="Scarica l'intera lezione in formato testo TXT" aria-label="Scarica TXT Lezione">📥 TXT</button>
       <span id="status" class="status">Pronto</span>
     </div>
   </div>
@@ -644,13 +644,13 @@
       <div class="student-header">
         <label>🗣️ <strong>Modalità Studente:</strong> Parla nella tua lingua ➔ Il docente leggerà la traduzione in italiano</label>
         <div style="display: flex; gap: 6px; flex-wrap: wrap; width: 100%; margin-top: 4px;">
-          <select id="studentLangSelect" class="student-select" style="flex-grow: 1;"></select>
-          <button id="btnMicStudent" class="btn-main" style="width: auto;" onclick="toggleMicrofonoStudente()">🎙️ Parla</button>
-          <button class="btn-tool" onclick="chiudiModalitaStudente()">✖️</button>
+          <select id="studentLangSelect" class="student-select" style="flex-grow: 1;" aria-label="Seleziona lingua dello studente"></select>
+          <button id="btnMicStudent" class="btn-main" style="width: auto;" onclick="toggleMicrofonoStudente()" title="Attiva microfono per lo studente" aria-label="Parla microfono studente">🎙️ Parla</button>
+          <button class="btn-tool" onclick="chiudiModalitaStudente()" title="Chiudi modalità studente" aria-label="Chiudi modalità studente">✖️</button>
         </div>
       </div>
       <div style="display: flex; gap: 10px;">
-        <textarea id="testoStudente" placeholder="Trascrizione e traduzione per il docente..." style="height: 60px;"></textarea>
+        <textarea id="testoStudente" placeholder="Trascrizione e traduzione per il docente..." style="height: 60px;" aria-label="Trascrizione e traduzione per il docente"></textarea>
       </div>
     </div>
 
@@ -658,12 +658,12 @@
       <div class="label-row">
         <label for="testoITA">🇮🇹 Parla o Scrivi in Italiano (Docente):</label>
         <div class="action-btns">
-          <button class="btn-main" style="width: auto;" onclick="apriModalitaStudente()">🔄 Studente ➔ Docente</button>
-          <button class="btn-main" style="width: auto;" onclick="cancellaTutto()">🗑️ Cancella</button>
-          <button class="btn-main" style="width: auto;" onclick="salvaInCronologia()">📌 Salva Frase</button>
+          <button class="btn-main" style="width: auto;" onclick="apriModalitaStudente()" title="Attiva ascolto voce studente" aria-label="Modalità Studente a Docente">🔄 Studente ➔ Docente</button>
+          <button class="btn-main" style="width: auto;" onclick="cancellaTutto()" title="Cancella tutto il testo" aria-label="Cancella tutto">🗑️ Cancella</button>
+          <button class="btn-main" style="width: auto;" onclick="salvaInCronologia()" title="Salva questa frase nella cronologia della lezione" aria-label="Salva frase in cronologia">📌 Salva Frase</button>
           
           <!-- PULSANTE MIC CIRCOLARE SVG FISSO -->
-          <button id="btnMic" class="btn-mic-container" onclick="toggleMicrofonoDocente()">
+          <button id="btnMic" class="btn-mic-container" onclick="toggleMicrofonoDocente()" title="Attiva/Disattiva microfono docente" aria-label="Attiva o disattiva microfono docente">
             <div class="btn-mic-circle">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
@@ -678,7 +678,7 @@
           </button>
         </div>
       </div>
-      <textarea id="testoITA" placeholder="Scrivi o premi il pulsante per parlare..." oninput="registraModificaManuale()"></textarea>
+      <textarea id="testoITA" placeholder="Scrivi o premi il pulsante per parlare..." oninput="registraModificaManuale()" aria-label="Testo in italiano del docente"></textarea>
     </div>
 
     <div id="gridContainer" class="grid-container"></div>
@@ -691,17 +691,17 @@
       <!-- BARRA CONTROLLI LINGUA STUDENTE -->
       <div class="student-lang-bar">
         <label for="myLangSelect"><strong>🌐 Scegli la tua lingua / Choose language:</strong></label>
-        <select id="myLangSelect" class="student-select" style="font-size: 15px; width: 100%;" onchange="cambiaLinguaStudente()"></select>
+        <select id="myLangSelect" class="student-select" style="font-size: 15px; width: 100%;" onchange="cambiaLinguaStudente()" aria-label="Seleziona la tua lingua madre"></select>
       </div>
       
       <!-- BOX ITALIANO (DOCENTE) -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 4px;">
         <div style="font-weight: 700; font-size: 14px; color: var(--primary-cyan);">🇮🇹 Italiano (Docente):</div>
         <div style="display: flex; gap: 8px;">
-          <button id="btnItaSlow" class="btn-svg-icon" title="Ascolta Lento" onclick="toggleLetturaItalianoStudente(0.5, this)">
+          <button id="btnItaSlow" class="btn-svg-icon" title="Ascolta frase in italiano a velocità ridotta" aria-label="Ascolta italiano lento" onclick="toggleLetturaItalianoStudente(0.5, this)">
             <svg viewBox="0 0 24 24"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>
           </button>
-          <button id="btnItaNormal" class="btn-svg-icon" title="Ascolta Italiano" onclick="toggleLetturaItalianoStudente(0.9, this)">
+          <button id="btnItaNormal" class="btn-svg-icon" title="Ascolta frase in italiano a velocità normale" aria-label="Ascolta italiano normale" onclick="toggleLetturaItalianoStudente(0.9, this)">
             <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
           </button>
         </div>
@@ -714,16 +714,21 @@
 
       <div class="card-footer" style="justify-content: space-between; margin-top: 14px; gap: 6px;">
         <div style="display: flex; gap: 12px; flex-wrap: nowrap;">
-          <button id="btnTransSlow" class="btn-svg-icon" title="Ascolta Lento" onclick="toggleLetturaStudente(0.5, this)">
+          <button id="btnTransSlow" class="btn-svg-icon" title="Ascolta traduzione a velocità ridotta" aria-label="Ascolta traduzione lenta" onclick="toggleLetturaStudente(0.5, this)">
             <svg viewBox="0 0 24 24"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>
           </button>
-          <button id="btnTransNormal" class="btn-svg-icon" title="Ascolta Traduzione" onclick="toggleLetturaStudente(0.9, this)">
+          <button id="btnTransNormal" class="btn-svg-icon" title="Ascolta traduzione a velocità normale" aria-label="Ascolta traduzione normale" onclick="toggleLetturaStudente(0.9, this)">
             <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
           </button>
         </div>
-        <button class="btn-svg-icon" title="Copia Testo" onclick="copiaTestoStudente()">
-          <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-        </button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-svg-icon" title="Scarica il PDF della tua lingua" aria-label="Scarica PDF della tua lingua" onclick="scaricaPDFSingoloDallaVistaStudente()">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          </button>
+          <button class="btn-svg-icon" title="Copia testo tradotto negli appunti" aria-label="Copia testo tradotto" onclick="copiaTestoStudente()">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -734,13 +739,13 @@
       <div class="modal-header">
         <span id="modalTitle" class="modal-title">Lingua</span>
         <div style="display: flex; gap: 8px;">
-          <button class="btn-svg-icon" title="Ascolta Lento" onclick="leggiTestoFocus(0.5, this)">
+          <button class="btn-svg-icon" title="Ascolta a velocità ridotta" aria-label="Ascolta testo ingrandito lento" onclick="leggiTestoFocus(0.5, this)">
             <svg viewBox="0 0 24 24"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>
           </button>
-          <button class="btn-svg-icon" title="Ascolta" onclick="leggiTestoFocus(0.9, this)">
+          <button class="btn-svg-icon" title="Ascolta a velocità normale" aria-label="Ascolta testo ingrandito normale" onclick="leggiTestoFocus(0.9, this)">
             <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
           </button>
-          <button class="btn-tool" onclick="chiudiFocus()">✖️</button>
+          <button class="btn-tool" onclick="chiudiFocus()" title="Chiudi finestra ingrandita" aria-label="Chiudi finestra ingrandita">✖️</button>
         </div>
       </div>
       <div id="modalBody" class="modal-body">...</div>
@@ -751,7 +756,7 @@
     <div class="modal-card">
       <div class="modal-header">
         <span class="modal-title">⚙️ Lingue della Classe</span>
-        <button class="btn-main" style="width: auto;" onclick="chiudiGestioneLingue()">✖️ Salva</button>
+        <button class="btn-main" style="width: auto;" onclick="chiudiGestioneLingue()" title="Salva e chiudi la configurazione lingue" aria-label="Salva lingue">✖️ Salva</button>
       </div>
       <p style="margin: 0 0 10px 0; color: var(--text-muted); font-size: 13px;">Spunta le lingue che desideri visualizzare sulla LIM:</p>
       <div id="langSelectorList" class="lang-grid-selector"></div>
@@ -770,7 +775,7 @@
         <p style="margin: 0; font-weight: bold; font-size: 18px; color: #f87171;">PIN Stanza: <span id="roomCodeDisplay">...</span></p>
       </div>
 
-      <button class="btn-main" style="width: auto; margin-top: 14px;" onclick="chiudiQRCode()">Chiudi</button>
+      <button class="btn-main" style="width: auto; margin-top: 14px;" onclick="chiudiQRCode()" title="Chiudi finestra QR code" aria-label="Chiudi QR Code">Chiudi</button>
     </div>
   </div>
 
@@ -924,7 +929,7 @@
       document.getElementById('btnLangConfig').style.display = 'none';
       document.getElementById('studentCounterContainer').style.display = 'none';
       
-      // MANTIENI FORZATAMENTE VISIBILI I PULSANTI PDF E TXT IN ALTO
+      // MANTIENI VISIBILI I PULSANTI PDF E TXT IN ALTO
       const btnPDF = document.getElementById('btnTopPDF');
       const btnTXT = document.getElementById('btnTopTXT');
       if (btnPDF) btnPDF.style.display = 'inline-flex';
@@ -1106,20 +1111,23 @@
         card.innerHTML = `
           <div class="card-header">
             <span class="card-title">${l.name}</span>
-            <button class="btn-svg-icon" style="padding: 2px;" title="Focus" onclick="apriFocus('${l.code}', '${l.name}')">
+            <button class="btn-svg-icon" style="padding: 2px;" title="Ingrandisci a schermo intero" aria-label="Ingrandisci lingua ${l.name}" onclick="apriFocus('${l.code}', '${l.name}')">
               <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             </button>
           </div>
           <div id="box_${l.code}" class="card-body ${l.rtl ? 'rtl' : ''}">...</div>
           <div class="card-footer">
-            <button class="btn-svg-icon" title="Copia" onclick="copiaTesto('${l.code}')">
+            <button class="btn-svg-icon" title="Scarica PDF di questa lingua" aria-label="Scarica PDF lingua ${l.name}" onclick="scaricaPDFSingolo('${l.code}')">
+              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            </button>
+            <button class="btn-svg-icon" title="Copia testo tradotto" aria-label="Copia testo lingua ${l.name}" onclick="copiaTesto('${l.code}')">
               <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
             </button>
-            <button class="btn-svg-icon" title="Ascolta Lento" onclick="leggiTestoScheda('${l.code}', 0.5, this, document.getElementById('card_${l.code}'))">
+            <button class="btn-svg-icon" title="Ascolta Lento" aria-label="Ascolta lento lingua ${l.name}" onclick="leggiTestoScheda('${l.code}', 0.5, this, document.getElementById('card_${l.code}'))">
               <svg viewBox="0 0 24 24"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>
             </button>
-            <button class="btn-svg-icon" title="Ascolta" onclick="leggiTestoScheda('${l.code}', 0.9, this, document.getElementById('card_${l.code}'))">
-              <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+            <button class="btn-svg-icon" title="Ascolta" aria-label="Ascolta normale lingua ${l.name}" onclick="leggiTestoScheda('${l.code}', 0.9, this, document.getElementById('card_${l.code}'))">
+              <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
             </button>
           </div>
         `;
@@ -1300,6 +1308,83 @@
       link.href = URL.createObjectURL(blob);
       link.download = `Lezione_CPIA_${new Date().toISOString().slice(0,10)}.txt`;
       link.click();
+    }
+
+    function scaricaPDFSingoloDallaVistaStudente() {
+      const lang = document.getElementById('myLangSelect').value;
+      scaricaPDFSingolo(lang);
+    }
+
+    function scaricaPDFSingolo(langCode) {
+      let frasiDaStampare = [];
+
+      if (eStudente) {
+        const testoITA = document.getElementById('studentDisplayITA').innerText;
+        const testoTradotto = document.getElementById('studentDisplayText').innerText;
+        if (testoITA && !testoITA.startsWith('In attesa')) {
+          let riga = { ita: testoITA };
+          riga[langCode] = testoTradotto;
+          frasiDaStampare.push(riga);
+        }
+      } else {
+        frasiDaStampare = [...cronologiaLezione];
+
+        if (frasiDaStampare.length === 0) {
+          const testoCorrenteITA = document.getElementById('testoITA').value.trim();
+          if (testoCorrenteITA) {
+            let rigaCorrente = { ita: testoCorrenteITA };
+            const el = document.getElementById('box_' + langCode);
+            if (el && el.innerText !== '...') rigaCorrente[langCode] = el.innerText;
+            frasiDaStampare.push(rigaCorrente);
+          }
+        }
+      }
+
+      if (frasiDaStampare.length === 0) {
+        alert("Nessun testo presente per questa lingua da esportare.");
+        return;
+      }
+
+      const objLang = ELENCO_LINGUE.find(x => x.code === langCode);
+      const nomeLingua = objLang ? objLang.name : langCode.toUpperCase();
+
+      let win = window.open('', '_blank');
+      let dataOggi = new Date().toLocaleDateString('it-IT');
+      let html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Scheda Bilingue (${nomeLingua}) - ${dataOggi}</title>
+          <style>
+            @page { margin: 8mm; size: A4; }
+            html, body { margin: 0; padding: 0; background: #fff; color: #1e293b; font-family: 'Segoe UI', system-ui, sans-serif; }
+            .container { padding: 4px; display: block !important; }
+            h1 { color: #0284c7; font-size: 16pt; margin: 0 0 2px 0; }
+            .date { color: #64748b; font-size: 9pt; margin-bottom: 10px; border-bottom: 2px solid #0284c7; padding-bottom: 4px; }
+            .block { margin-bottom: 10px; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; page-break-inside: auto; break-inside: auto; }
+            .ita { font-weight: bold; font-size: 11pt; color: #0284c7; margin-bottom: 6px; white-space: pre-wrap; word-break: break-word; }
+            .trans { font-size: 11pt; color: #0f172a; margin-top: 4px; white-space: pre-wrap; word-break: break-word; }
+            ${objLang && objLang.rtl ? '.trans { direction: rtl; text-align: right; }' : ''}
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>ParlaConMe - Scheda Bilingue (${nomeLingua})</h1>
+            <div class="date">Data: ${dataOggi} | CPIA Centro Provinciale Istruzione Adulti</div>
+      `;
+
+      frasiDaStampare.forEach((item, index) => {
+        html += `<div class="block">
+          <div class="ita">${index + 1}. 🇮🇹 ITA: ${item.ita}</div>`;
+        if (item[langCode]) {
+          html += `<div class="trans"><strong>${nomeLingua}:</strong> ${item[langCode]}</div>`;
+        }
+        html += `</div>`;
+      });
+
+      html += `</div><script>window.onload = function() { window.print(); }<\/script></body></html>`;
+      win.document.write(html);
+      win.document.close();
     }
 
     function stampaOEsportaPDF() {
