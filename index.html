@@ -965,6 +965,7 @@ function inizializzaRete() {
       const stanzaTarget = urlParams.get('stanza');
 
       if (stanzaTarget) {
+        // --- LATO STUDENTE ---
         eStudente = true;
         impostaVistaStudente();
         peer = new Peer(CONFIGURAZIONE_PEER);
@@ -972,28 +973,36 @@ function inizializzaRete() {
           connettiAStanzaDocente(stanzaTarget);
         });
       } else {
-        // --- VISTA DOCENTE ---
+        // --- LATO DOCENTE ---
         peer = new Peer(ID_STANZA_DOCENTE, CONFIGURAZIONE_PEER);
         
         peer.on('open', (id) => {
-          // Mostra il codice dell'aula nell'header del docente
           const elCodice = document.getElementById('codiceAulaDocente');
           if (elCodice) {
             elCodice.innerText = id || ID_STANZA_DOCENTE;
           }
         });
-        
+
         peer.on('connection', (conn) => {
           connessioniStudenti.push(conn);
           aggiornaContatoreStudenti();
-          
-          conn.on('data', (dati) => {
-            if (dati && dati.tipo === 'RICHIESTA_SINCRONIZZAZIONE') {
-              traduciTutto();
+
+          conn.on('data', (data) => {
+            if (data.tipo === 'lingua_selezionata') {
+              conn.linguaStudente = data.lingua;
+              const testoAttuale = document.getElementById('testoITA').value;
+              if (testoAttuale.trim()) {
+                inviaTraduzioneAStudente(conn, testoAttuale);
+              }
             }
           });
 
           conn.on('close', () => {
+            connessioniStudenti = connessioniStudenti.filter(c => c !== conn);
+            aggiornaContatoreStudenti();
+          });
+
+          conn.on('error', () => {
             connessioniStudenti = connessioniStudenti.filter(c => c !== conn);
             aggiornaContatoreStudenti();
           });
