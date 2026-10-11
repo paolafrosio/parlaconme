@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ParlaConMe - Traduttore Live CPIA</title>
+  <title>ParlaConMe - Traduttore Live CPIA (Glass Edition)</title>
   
   <link rel="icon" type="image/png" href="logo_bianco.png?v=5">
 
@@ -851,6 +851,9 @@
   </div>
 
   <script>
+    // Rileva se l'utente è su mobile/tablet (Android/iOS)
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
     let timerDebounce = null;
     let timerPausaSilenzio = null;
     let fontSizeCorrente = 16;
@@ -1608,9 +1611,6 @@
     if (SpeechRecognition) {
       recDocente = new SpeechRecognition();
       
-      // Rileva se l'utente è su mobile/tablet (Android/iOS)
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      
       // Su mobile disattiviamo 'continuous' per evitare il bug della duplicazione del browser
       recDocente.continuous = !isMobile;
       recDocente.interimResults = true;
@@ -1659,20 +1659,20 @@
         }
       };
 
-recDocente.onerror = (e) => {
-        // Se c'è un blocco temporaneo hardware su Android, forza il riavvio dopo una breve pausa
+      recDocente.onerror = (e) => {
+        // Se c'è un blocco temporaneo hardware su Android, forza il riavvio se non si è su mobile
         if (inAscoltoDocente && e.error !== 'aborted') {
           setTimeout(() => {
-            if (inAscoltoDocente) {
+            if (inAscoltoDocente && !isMobile) {
               try { recDocente.start(); } catch(err) {}
+            } else if (isMobile) {
+              fermaAscoltoDocente();
             }
           }, 300);
         }
       };
 
-      
-
-recDocente.onend = () => { 
+      recDocente.onend = () => { 
         // Su PC riavvia l'ascolto continuo; su Mobile arresta pulito per evitare i bip a ripetizione
         if (inAscoltoDocente && !isMobile) {
           setTimeout(() => {
@@ -1684,6 +1684,7 @@ recDocente.onend = () => {
           fermaAscoltoDocente();
         }
       };
+    }
 
     function toggleMicrofonoDocente() {
       if (!recDocente) return alert("Browser non supportato. Usa Chrome o Edge.");
