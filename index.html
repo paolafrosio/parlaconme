@@ -1642,7 +1642,7 @@
         textareaITA.scrollTop = textareaITA.scrollHeight;
         gestisciInput();
 
-        // RILEVAMENTO SILENZIO AUTOMATICO (PUNTO E A CAPO DOPO 1.8 SECONDI DI PAUSA)
+        // RILEVAMENTO SILENZIO AUTOMATICO
         if (inAscoltoDocente) {
           timerPausaSilenzio = setTimeout(() => {
             if (testoConfermatoDocente.trim() && !/[.?!]\s*$/.test(testoConfermatoDocente.trim())) {
@@ -1650,6 +1650,10 @@
               textareaITA.value = applicaPunteggiaturaAvanzata(testoConfermatoDocente);
               textareaITA.scrollTop = textareaITA.scrollHeight;
               gestisciInput();
+            }
+            // SU MOBILE: Spegne il microfono in automatico dopo 1.8s di silenzio
+            if (isMobile) {
+              fermaAscoltoDocente();
             }
           }, 1800);
         }
@@ -1668,17 +1672,18 @@ recDocente.onerror = (e) => {
 
       
 
-      recDocente.onend = () => { 
-        // Pausa di 200ms per permettere ad Android di liberare la scheda audio prima di riaprire il mic
-        if (inAscoltoDocente) {
+recDocente.onend = () => { 
+        // Su PC riavvia l'ascolto continuo; su Mobile arresta pulito per evitare i bip a ripetizione
+        if (inAscoltoDocente && !isMobile) {
           setTimeout(() => {
             if (inAscoltoDocente) {
               try { recDocente.start(); } catch(err) {}
             }
           }, 200);
+        } else if (isMobile && inAscoltoDocente) {
+          fermaAscoltoDocente();
         }
       };
-    }
 
     function toggleMicrofonoDocente() {
       if (!recDocente) return alert("Browser non supportato. Usa Chrome o Edge.");
