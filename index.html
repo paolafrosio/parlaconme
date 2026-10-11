@@ -977,6 +977,7 @@ function inizializzaRete() {
         peer = new Peer(ID_STANZA_DOCENTE, CONFIGURAZIONE_PEER);
         
         peer.on('open', (id) => {
+          // Mostra l'ID reale dell'aula sul badge dell'header docente
           const elCodice = document.getElementById('codiceAulaDocente');
           if (elCodice) {
             elCodice.innerText = id || ID_STANZA_DOCENTE;
@@ -987,14 +988,8 @@ function inizializzaRete() {
           connessioniStudenti.push(conn);
           aggiornaContatoreStudenti();
 
-          conn.on('data', (data) => {
-            if (data.tipo === 'lingua_selezionata') {
-              conn.linguaStudente = data.lingua;
-              const testoAttuale = document.getElementById('testoITA').value;
-              if (testoAttuale.trim()) {
-                inviaTraduzioneAStudente(conn, testoAttuale);
-              }
-            }
+          conn.on('data', (dati) => {
+            applicaDatiRicevuti(dati);
           });
 
           conn.on('close', () => {
