@@ -732,7 +732,9 @@
           <button class="btn-main" style="width: auto;" onclick="apriModalitaStudente()" data-tooltip="Attiva ascolto voce studente" aria-label="Modalità Studente a Docente">🔄 Studente ➔ Docente</button>
           <button class="btn-main" style="width: auto;" onclick="cancellaTutto()" data-tooltip="Cancella tutto il testo" aria-label="Cancella tutto">🗑️ Cancella</button>
           <button class="btn-main" style="width: auto;" onclick="salvaInCronologia()" data-tooltip="Salva frase nella lezione" aria-label="Salva frase in cronologia">📌 Salva Frase</button>
-          
+         <!-- CODICE MODIFICATO -->
+<button class="btn-main" style="width: auto;" onclick="salvaInCronologia()" data-tooltip="Salva frase nella lezione" aria-label="Salva frase in cronologia">📌 Salva Frase</button>
+<button class="btn-main" style="width: auto;" onclick="apriModalCronologia()" data-tooltip="Vedi e gestisci le frasi salvate" aria-label="Gestisci cronologia">📜 Lista (<span id="countCronologia">0</span>)</button> 
           <!-- PULSANTE MIC CIRCOLARE SVG FISSO -->
           <button id="btnMic" class="btn-mic-container" onclick="toggleMicrofonoDocente()" data-tooltip="Attiva/disattiva microfono" data-tooltip-pos="bottom-tight" aria-label="Attiva o disattiva microfono docente">
             <div class="btn-mic-circle">
@@ -849,7 +851,23 @@
       <button class="btn-main" style="width: auto; margin-top: 14px;" onclick="chiudiQRCode()" data-tooltip="Chiudi finestra" aria-label="Chiudi QR Code">Chiudi</button>
     </div>
   </div>
+<!-- MODALE CRONOLOGIA FRASI -->
+  <div id="modalCronologia" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-title">📜 Frasi Salvate per la Lezione</span>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-main" style="width: auto; background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: rgba(248, 113, 113, 0.3);" onclick="svuotaInteraCronologia()">🗑️ Svuota Tutto</button>
+          <button class="btn-tool" onclick="chiudiModalCronologia()" aria-label="Chiudi finestra">✖️</button>
+        </div>
+      </div>
+      <div id="listaCronologiaBody" class="modal-body" style="display: flex; flex-direction: column; gap: 10px; font-size: 15px;">
+        <!-- Le frasi salvate compariranno qui -->
+      </div>
+    </div>
+  </div>
 
+  <script>
   <script>
     // Rileva se l'utente è su mobile/tablet (Android/iOS)
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -1350,18 +1368,83 @@
       }
     }
 
-    function salvaInCronologia() {
-      const testoITA = document.getElementById('testoITA').value.trim();
-      if (!testoITA) return;
-      let riga = { ita: testoITA };
-      ELENCO_LINGUE.forEach(l => {
-        const el = document.getElementById('box_' + l.code);
-        if (el && el.innerText !== '...') riga[l.code] = el.innerText;
-        else if (traduzioniRicevuteRete[l.code]) riga[l.code] = traduzioniRicevuteRete[l.code];
-      });
-      cronologiaLezione.push(riga);
-      aggiornaStato(`Salvato (${cronologiaLezione.length})`);
-    }
+// NUOVO SISTEMA GESTIONE CRONOLOGIA
+function salvaInCronologia() {
+  const testoITA = document.getElementById('testoITA').value.trim();
+  if (!testoITA) return;
+
+  let riga = { 
+    id: Date.now(), 
+    ita: testoITA 
+  };
+
+  ELENCO_LINGUE.forEach(l => {
+    const el = document.getElementById('box_' + l.code);
+    if (el && el.innerText !== '...') riga[l.code] = el.innerText;
+    else if (traduzioniRicevuteRete[l.code]) riga[l.code] = traduzioniRicevuteRete[l.code];
+  });
+
+  cronologiaLezione.push(riga);
+  aggiornaContatoreCronologia();
+  aggiornaStato(`Salvato (${cronologiaLezione.length})`);
+}
+
+function aggiornaContatoreCronologia() {
+  const countEl = document.getElementById('countCronologia');
+  if (countEl) countEl.innerText = cronologiaLezione.length;
+}
+
+function apriModalCronologia() {
+  renderizzaListaCronologia();
+  document.getElementById('modalCronologia').style.display = 'flex';
+}
+
+function chiudiModalCronologia() {
+  document.getElementById('modalCronologia').style.display = 'none';
+}
+
+function renderizzaListaCronologia() {
+  const container = document.getElementById('listaCronologiaBody');
+  if (!container) return;
+
+  if (cronologiaLezione.length === 0) {
+    container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 20px;">Nessuna frase salvata finora.</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  cronologiaLezione.forEach((item, index) => {
+    const box = document.createElement('div');
+    box.style.cssText = 'background: rgba(15, 23, 42, 0.5); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;';
+    
+    box.innerHTML = `
+      <div style="flex-grow: 1; word-break: break-word;">
+        <strong style="color: var(--primary-cyan);">${index + 1}. 🇮🇹 ITA:</strong> ${item.ita}
+      </div>
+      <button class="btn-svg-icon" style="color: #f87171; flex-shrink: 0;" data-tooltip="Elimina questa frase" onclick="eliminaSingolaFrase(${item.id})">
+        <svg viewBox="0 0 24 24" style="width:20px; height:20px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+      </button>
+    `;
+    container.appendChild(box);
+  });
+}
+
+function eliminaSingolaFrase(id) {
+  cronologiaLezione = cronologiaLezione.filter(item => item.id !== id);
+  aggiornaContatoreCronologia();
+  renderizzaListaCronologia();
+  aggiornaStato(`Frase rimossa (${cronologiaLezione.length})`);
+}
+
+function svuotaInteraCronologia() {
+  if (cronologiaLezione.length === 0) return;
+  if (confirm("Sei sicuro di voler cancellare tutte le frasi salvate nella cronologia?")) {
+    cronologiaLezione = [];
+    aggiornaContatoreCronologia();
+    renderizzaListaCronologia();
+    aggiornaStato('Cronologia svuotata');
+  }
+}
 
     function scaricaLezione() {
       let contenuto = "VOCABOLARIO LEZIONE CPIA\n=========================\n\n";
