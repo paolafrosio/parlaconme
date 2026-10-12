@@ -2,123 +2,580 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ParlaConMe - Accesso Aula CPIA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ParlaConMe - Vista Studente</title>
+  
+  <link rel="icon" type="image/png" href="logo_bianco.png?v=5">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+
   <style>
     :root {
-      --bg: #070b14;
-      --card-bg: rgba(15, 23, 42, 0.75);
+      --bg-gradient: radial-gradient(circle at 15% 15%, #06b6d4 0%, transparent 35%),
+                     radial-gradient(circle at 85% 25%, #a855f7 0%, transparent 40%),
+                     radial-gradient(circle at 50% 85%, #2563eb 0%, transparent 45%),
+                     #070b14;
+      --card-bg: rgba(15, 23, 42, 0.65);
       --card-border: rgba(56, 189, 248, 0.3);
-      --primary: #38bdf8;
-      --text: #f8fafc;
+      --card-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+      --text-color: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary-cyan: #38bdf8;
+      --card-body-bg: rgba(10, 15, 29, 0.6);
+      --box-ita-bg: rgba(15, 23, 42, 0.7);
+    }
+
+    body.light-mode {
+      --bg-gradient: radial-gradient(circle at 15% 15%, #bae6fd 0%, transparent 40%),
+                     radial-gradient(circle at 85% 25%, #e9d5ff 0%, transparent 40%),
+                     radial-gradient(circle at 50% 85%, #93c5fd 0%, transparent 45%),
+                     #e2e8f0;
+      --card-bg: rgba(255, 255, 255, 0.75);
+      --card-border: rgba(2, 132, 199, 0.25);
+      --card-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+      --text-color: #0f172a;
+      --text-muted: #475569;
+      --primary-cyan: #0284c7;
+      --card-body-bg: rgba(248, 250, 252, 0.85);
+      --box-ita-bg: rgba(241, 245, 249, 0.9);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      overflow-x: hidden;
     }
     body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: radial-gradient(circle at 50% 30%, #0284c7 0%, transparent 60%), var(--bg);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg-gradient);
       background-attachment: fixed;
-      color: var(--text);
       margin: 0;
-      padding: 16px;
+      padding: 12px;
+      color: var(--text-color);
       min-height: 100vh;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      box-sizing: border-box;
+      flex-direction: column;
+      transition: background 0.3s, color 0.3s;
     }
-    .login-card {
+
+    .flag-icon {
+      width: 22px;
+      height: 16px;
+      object-fit: cover;
+      border-radius: 3px;
+      vertical-align: middle;
+      display: inline-block;
+      box-shadow: 0 0 2px rgba(0,0,0,0.5);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 10px;
+      flex-wrap: wrap;
       background: var(--card-bg);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
+      padding: 10px 18px;
+      border-radius: 20px;
+      box-shadow: var(--card-shadow);
       border: 1px solid var(--card-border);
-      border-radius: 24px;
-      padding: 28px 20px;
-      width: 100%;
-      max-width: 380px;
-      text-align: center;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     }
     h1 {
-      margin: 0 0 8px 0;
-      font-size: 24px;
-      color: var(--primary);
+      margin: 0;
+      color: var(--text-color);
+      font-size: 20px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
     }
-    p {
-      color: #94a3b8;
-      font-size: 14px;
-      margin-bottom: 20px;
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
-    input {
+
+    .status-badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+    .status-connected { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
+    .status-connecting { background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.3); }
+    .status-disconnected { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); }
+
+    .btn-tool {
+      background: none;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-color);
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+
+    .btn-main {
+      background: rgba(14, 165, 233, 0.2);
+      color: var(--primary-cyan);
+      border: 1px solid var(--card-border);
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      width: 100%;
+    }
+    .btn-main:hover {
+      background: rgba(14, 165, 233, 0.4);
+      color: var(--text-color);
+    }
+
+    /* VISTA PIN MANUAL SINGER */
+    .pin-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 1;
+      max-width: 400px;
+      margin: 40px auto;
+      width: 100%;
+    }
+    .pin-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--card-border);
+      width: 100%;
+      text-align: center;
+    }
+    .pin-input {
       width: 100%;
       padding: 14px;
-      font-size: 22px;
+      font-size: 28px;
       font-weight: bold;
       text-align: center;
-      letter-spacing: 3px;
+      letter-spacing: 8px;
+      border-radius: 16px;
       border: 1px solid var(--card-border);
-      border-radius: 14px;
-      background: rgba(10, 15, 29, 0.8);
-      color: #fff;
-      margin-bottom: 18px;
-      box-sizing: border-box;
+      background: var(--card-body-bg);
+      color: var(--primary-cyan);
+      margin: 16px 0;
       outline: none;
     }
-    input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
-    }
-    button {
+
+    /* VISTA TRADUZIONE MAIN */
+    .student-view-container {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      flex-grow: 1;
       width: 100%;
-      padding: 14px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .student-card-main {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .student-card-main.speaking-card {
+      border-color: #ef4444 !important;
+      box-shadow: 0 0 25px rgba(239, 68, 68, 0.6) !important;
+    }
+
+    .student-lang-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+      background: var(--card-body-bg);
+      padding: 12px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+    }
+    .student-select {
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 600;
       font-size: 16px;
-      font-weight: bold;
-      color: #070b14;
-      background: var(--primary);
-      border: none;
+      font-family: inherit;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      color: var(--text-color);
+      width: 100%;
+      outline: none;
+    }
+
+    .student-display-text {
+      background: var(--card-body-bg);
+      border: 1px solid var(--card-border);
       border-radius: 14px;
+      padding: 16px;
+      font-size: 18px;
+      line-height: 1.5;
+      flex-grow: 1;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text-color);
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
+      min-height: 120px;
+    }
+    .student-display-ita-box {
+      background: var(--box-ita-bg) !important;
+      color: var(--text-color) !important;
+      min-height: 60px;
+      max-height: 140px;
+      flex-grow: 0;
+      margin-bottom: 14px;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+    }
+    .btn-svg-icon {
+      background: transparent;
+      border: none;
+      padding: 6px;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-cyan);
       transition: all 0.2s ease;
-      box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
     }
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 24px rgba(56, 189, 248, 0.7);
+    .btn-svg-icon svg { width: 26px; height: 26px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+    .btn-svg-icon:hover { color: #ffffff; transform: scale(1.15); }
+    .btn-svg-icon.active-speaking { color: #ef4444 !important; animation: pulseNeon 1.5s infinite; }
+    
+    @keyframes pulseNeon {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+      70% { box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
+    .rtl { direction: rtl; text-align: right; }
   </style>
 </head>
 <body>
 
-  <div class="login-card">
-<h1>
-  <img src="logo_bianco.png?v=4" alt="Logo" style="height: 38px; vertical-align: middle; margin-right: 8px;">
-  ParlaConMe
-</h1>
-    <p>Inserisci il PIN della stanza mostrato sulla LIM dal docente:</p>
-    
-    <input type="text" id="pinInput" placeholder="Es. 1234" maxlength="15" autocomplete="off" onkeypress="gestisciInvio(event)">
-    <button onclick="connettiAllaStanza()">Entra in Aula ➔</button>
+  <!-- INTESTAZIONE -->
+  <div class="header">
+    <h1><img src="logo_bianco.png?v=5" alt="Logo" style="height: 32px;">ParlaConMe</h1>
+    <div class="top-controls">
+      <div id="studentStatusBadge" class="status-badge status-connecting">
+        🟡 Inizializzazione...
+      </div>
+      <button class="btn-tool" onclick="toggleDarkMode()">🌙</button>
+    </div>
+  </div>
+
+  <!-- VISTA INSERIMENTO PIN MANUALE (Mostrata solo se non si inquadra il QR) -->
+  <div id="pinContainer" class="pin-container">
+    <div class="pin-card">
+      <h2 style="margin:0 0 8px 0; color: var(--primary-cyan); font-size: 20px;">🏫 Entra in Aula</h2>
+      <p style="font-size: 13px; color: var(--text-muted); margin:0;">Inserisci il PIN di 4 cifre mostrato sulla LIM:</p>
+      
+      <input type="number" id="inputPin" class="pin-input" placeholder="0000" maxlength="4" oninput="if(this.value.length>4)this.value=this.value.slice(0,4)">
+      
+      <button class="btn-main" onclick="connettiConPinManuale()">Entra nell'Aula ➔</button>
+    </div>
+  </div>
+
+  <!-- VISTA STUDENTE PRINCIPALE -->
+  <div id="studentViewContainer" class="student-view-container">
+    <div id="mainStudentCard" class="student-card-main">
+      <div class="student-lang-bar">
+        <label for="myLangSelect" style="font-weight: 700; font-size: 13px; color: var(--text-muted);">🌐 Scegli la tua lingua / Select language:</label>
+        <select id="myLangSelect" class="student-select" onchange="cambiaLinguaStudente()"></select>
+      </div>
+      
+      <div style="font-weight: 700; font-size: 13px; color: var(--primary-cyan); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+        <img src="https://flagcdn.com/w40/it.png" class="flag-icon" alt="ITA"> Italiano (Docente):
+      </div>
+      <div id="studentDisplayITA" class="student-display-text student-display-ita-box">In attesa dell'insegnante...</div>
+
+      <div style="font-weight: 700; font-size: 13px; margin-bottom: 6px; color: var(--primary-cyan);">🌐 Traduzione / Translation:</div>
+      <div id="studentDisplayText" class="student-display-text">In attesa della traduzione...</div>
+
+      <div class="card-footer">
+        <button id="btnTransNormal" class="btn-svg-icon" title="Ascolta traduzione" onclick="toggleLetturaStudente(0.9, this)">
+          <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+        </button>
+
+        <button class="btn-svg-icon" title="Copia testo" onclick="copiaTestoStudente()">
+          <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        </button>
+      </div>
+    </div>
   </div>
 
   <script>
-    function connettiAllaStanza() {
-      const inputEl = document.getElementById('pinInput');
-      let pin = inputEl.value.trim();
+    let peer = null;
+    let connStudenteAInsegnante = null;
+    let timerRiconnessione = null;
+    let traduzioniRicevuteRete = {};
+    let testoITARicevutoRete = '';
+    let elementoAudioAttivo = null;
+    let elencoVociDisponibili = [];
+
+    // CONFIGURAZIONE STUN/TURN AVANZATA
+    const CONFIGURAZIONE_PEER = {
+      config: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' },
+          { urls: 'stun:stun2.l.google.com:19302' },
+          { urls: 'stun:openrelay.metered.ca:80' },
+          { urls: 'turn:openrelay.metered.ca:80', username: 'openrelay', credential: 'openrelay' },
+          { urls: 'turn:openrelay.metered.ca:443', username: 'openrelay', credential: 'openrelay' }
+        ]
+      }
+    };
+
+    const ELENCO_LINGUE = [
+      { code: 'sq', langGroup: 'sq', flag: 'al', name: 'Albanese' },
+      { code: 'ar', langGroup: 'ar', flag: 'sa', name: 'Arabo', rtl: true },
+      { code: 'bn', langGroup: 'bn', flag: 'bd', name: 'Bengalese' },
+      { code: 'zh-CN', langGroup: 'zh', flag: 'cn', name: 'Cinese' },
+      { code: 'fr', langGroup: 'fr', flag: 'fr', name: 'Francese' },
+      { code: 'en', langGroup: 'en', flag: 'gb', name: 'Inglese' },
+      { code: 'es', langGroup: 'es', flag: 'es', name: 'Spagnolo' },
+      { code: 'uk', langGroup: 'uk', flag: 'ua', name: 'Ucraino' },
+      { code: 'ur', langGroup: 'ur', flag: 'pk', name: 'Urdu', rtl: true }
+    ];
+
+    function caricaVoci() {
+      if ('speechSynthesis' in window) {
+        elencoVociDisponibili = window.speechSynthesis.getVoices();
+      }
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = caricaVoci;
+      caricaVoci();
+    }
+
+    function popolaSelectLingue() {
+      const select = document.getElementById('myLangSelect');
+      select.innerHTML = '';
+      ELENCO_LINGUE.forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l.code;
+        opt.innerText = l.name;
+        select.appendChild(opt);
+      });
+    }
+
+    function aggiornaStatoVisivo(stato) {
+      const badge = document.getElementById('studentStatusBadge');
+      if (!badge) return;
+      badge.className = 'status-badge';
+
+      if (stato === 'connected') {
+        badge.classList.add('status-connected');
+        badge.innerHTML = '🟢 Connesso';
+      } else if (stato === 'connecting') {
+        badge.classList.add('status-connecting');
+        badge.innerHTML = '🟡 Riconnessione...';
+      } else {
+        badge.classList.add('status-disconnected');
+        badge.innerHTML = '🔴 Disconnesso';
+      }
+    }
+
+    function inizializzaRete(pinAula) {
+      const stanzaTarget = 'cpia-aula-' + pinAula;
+      aggiornaStatoVisivo('connecting');
+
+      if (!peer || peer.destroyed) {
+        peer = new Peer(CONFIGURAZIONE_PEER);
+      }
+
+      peer.on('open', () => {
+        connettiAStanzaDocente(stanzaTarget);
+      });
+
+      peer.on('error', (err) => {
+        console.error('PeerJS Error:', err);
+        aggiornaStatoVisivo('disconnected');
+        avviaRiconnessioneAutomatica(stanzaTarget);
+      });
+    }
+
+    function connettiAStanzaDocente(stanzaTarget) {
+      if (connStudenteAInsegnante) {
+        connStudenteAInsegnante.close();
+      }
+
+      connStudenteAInsegnante = peer.connect(stanzaTarget, { reliable: true });
+
+      connStudenteAInsegnante.on('open', () => {
+        clearInterval(timerRiconnessione);
+        aggiornaStatoVisivo('connected');
+        
+        // Mostra l'interfaccia di traduzione principale
+        document.getElementById('pinContainer').style.display = 'none';
+        document.getElementById('studentViewContainer').style.display = 'flex';
+
+        // Richiede subito l'ultimo testo disponibile
+        connStudenteAInsegnante.send({ tipo: 'RICHIESTA_SINCRONIZZAZIONE' });
+      });
+
+      connStudenteAInsegnante.on('data', (dati) => applicaDatiRicevuti(dati));
+
+      connStudenteAInsegnante.on('close', () => {
+        aggiornaStatoVisivo('disconnected');
+        avviaRiconnessioneAutomatica(stanzaTarget);
+      });
+
+      connStudenteAInsegnante.on('error', () => {
+        aggiornaStatoVisivo('disconnected');
+        avviaRiconnessioneAutomatica(stanzaTarget);
+      });
+    }
+
+    function avviaRiconnessioneAutomatica(stanzaTarget) {
+      clearInterval(timerRiconnessione);
+      timerRiconnessione = setInterval(() => {
+        aggiornaStatoVisivo('connecting');
+        if (peer && !peer.destroyed) {
+          connettiAStanzaDocente(stanzaTarget);
+        }
+      }, 4000);
+    }
+
+    function applicaDatiRicevuti(dati) {
+      if (!dati || dati.tipo === 'RICHIESTA_SINCRONIZZAZIONE') return;
+
+      traduzioniRicevuteRete = dati.traduzioni || {};
+      testoITARicevutoRete = dati.ita || '';
+
+      const displayITA = document.getElementById('studentDisplayITA');
+      displayITA.innerText = testoITARicevutoRete || 'In attesa dell\'insegnante...';
+
+      cambiaLinguaStudente();
+    }
+
+    function cambiaLinguaStudente() {
+      fermaTuttaLettura();
+      const lang = document.getElementById('myLangSelect').value;
+      const display = document.getElementById('studentDisplayText');
+      const langObj = ELENCO_LINGUE.find(l => l.code === lang);
       
-      if (!pin) {
-        alert("Per favore, inserisci il PIN della stanza.");
+      if (langObj && langObj.rtl) display.classList.add('rtl');
+      else display.classList.remove('rtl');
+
+      display.innerText = traduzioniRicevuteRete[lang] || 'In attesa della traduzione...';
+    }
+
+    function connettiConPinManuale() {
+      const pinInput = document.getElementById('inputPin').value.trim();
+      if (!pinInput || pinInput.length < 4) {
+        alert("Inserisci un PIN valido di 4 cifre.");
+        return;
+      }
+      inizializzaRete(pinInput);
+    }
+
+    function fermaTuttaLettura() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      document.querySelectorAll('.btn-svg-icon').forEach(btn => btn.classList.remove('active-speaking'));
+      document.getElementById('mainStudentCard').classList.remove('speaking-card');
+      elementoAudioAttivo = null;
+    }
+
+    function toggleLetturaStudente(velocita, btnIcon) {
+      if (elementoAudioAttivo === btnIcon) {
+        fermaTuttaLettura();
         return;
       }
 
-      // Normalizza il PIN inserito
-      const stanzaId = pin.startsWith('cpia-aula-') ? pin : 'cpia-aula-' + pin;
-      
-      // Reindirizza a index.html passando la stanza nell'URL
-      window.location.href = 'index.html?stanza=' + encodeURIComponent(stanzaId);
+      const langCode = document.getElementById('myLangSelect').value;
+      const testoPuro = document.getElementById('studentDisplayText').innerText.trim();
+
+      if (!testoPuro || testoPuro.startsWith('In attesa')) return;
+
+      const objLang = ELENCO_LINGUE.find(l => l.code === langCode);
+      const prefissoLingua = objLang ? objLang.langGroup : langCode.split('-')[0];
+
+      let voceTrovata = elencoVociDisponibili.find(v => v.lang.toLowerCase().startsWith(prefissoLingua.toLowerCase()));
+
+      if (!voceTrovata && 'speechSynthesis' in window) {
+        alert(`Sintesi vocale per la lingua [${objLang ? objLang.name : langCode}] non trovata sul tuo dispositivo.`);
+        return;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(testoPuro);
+      utterance.voice = voceTrovata;
+      utterance.lang = voceTrovata.lang;
+      utterance.rate = velocita;
+
+      utterance.onstart = () => {
+        elementoAudioAttivo = btnIcon;
+        btnIcon.classList.add('active-speaking');
+        document.getElementById('mainStudentCard').classList.add('speaking-card');
+      };
+      utterance.onend = () => fermaTuttaLettura();
+      utterance.onerror = () => fermaTuttaLettura();
+
+      window.speechSynthesis.speak(utterance);
     }
 
-    function gestisciInvio(e) {
-      if (e.key === 'Enter') {
-        connettiAllaStanza();
-      }
+    function copiaTestoStudente() {
+      const testo = document.getElementById('studentDisplayText').innerText;
+      if (!testo || testo.startsWith('In attesa')) return;
+      navigator.clipboard.writeText(testo).then(() => {
+        alert('✓ Testo copiato!');
+      });
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('light-mode');
+    }
+
+    // CONTROLLO AVVIO AUTOMATICO DA QR CODE VIA URL PARAMETER
+    popolaSelectLingue();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const pinDaUrl = urlParams.get('pin') || urlParams.get('stanza');
+
+    if (pinDaUrl) {
+      // Pulisce il prefisso se presente
+      const pinPulito = pinDaUrl.replace('cpia-aula-', '');
+      document.getElementById('inputPin').value = pinPulito;
+      inizializzaRete(pinPulito);
+    } else {
+      aggiornaStatoVisivo('disconnected');
     }
   </script>
 </body>
