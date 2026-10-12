@@ -903,7 +903,6 @@
     let testoITARicevutoRete = '';
 
     let elementoAudioAttivo = null;
-    let oggettoAudioCloudCurrent = null;
 
     let peer = null;
     let connessioniStudenti = [];
@@ -1114,14 +1113,10 @@
       display.scrollTop = display.scrollHeight;
     }
 
-    /* GESTIONE AUDIO UNIVERSALE CON FALLBACK CLOUD HD NATIVO */
+    /* GESTIONE AUDIO NATIVA STABILE E ROBUSTA SENZA BLOCCHI CORS */
     function fermaTuttaLettura() {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
-      }
-      if (oggettoAudioCloudCurrent) {
-        oggettoAudioCloudCurrent.pause();
-        oggettoAudioCloudCurrent = null;
       }
       document.querySelectorAll('.btn-svg-icon').forEach(btn => btn.classList.remove('active-speaking'));
       document.querySelectorAll('.card, .student-card-main').forEach(c => c.classList.remove('speaking-card'));
@@ -1177,55 +1172,35 @@
       const testoPuro = elText ? elText.innerText.trim() : '';
 
       if (!testoPuro || testoPuro === '...' || testoPuro.startsWith('In attesa')) return;
+      if (!('speechSynthesis' in window)) {
+        aggiornaStato('Sintesi non supportata');
+        return;
+      }
 
+      const utterance = new SpeechSynthesisUtterance(testoPuro);
       const langCode = voiceLang.split('-')[0];
       const voceMigliore = selezionaVoceMigliore(langCode);
-
-      // SE È PRESENTE UNA VOCE LOCALE AD ALTA DEFINIZIONE (Natural, Google, Neural)
-      if ('speechSynthesis' in window && voceMigliore) {
-        const utterance = new SpeechSynthesisUtterance(testoPuro);
-        utterance.voice = voceMigliore;
-        utterance.lang = voiceLang;
-        utterance.rate = velocita;
-
-        utterance.onstart = () => {
-          elementoAudioAttivo = btnIcon;
-          if (btnIcon) btnIcon.classList.add('active-speaking');
-          if (cardElement) cardElement.classList.add('speaking-card');
-          aggiornaStato('Ascolto...');
-        };
-
-        utterance.onend = () => fermaTuttaLettura();
-        utterance.onerror = () => riproduciAudioCloud(testoPuro, langCode, velocita, btnIcon, cardElement);
-
-        window.speechSynthesis.speak(utterance);
-      } else {
-        // FALLBACK AUTOMATICO SU AUDIO CLOUD GOOGLE TRANSLATE HD
-        riproduciAudioCloud(testoPuro, langCode, velocita, btnIcon, cardElement);
-      }
-    }
-
-    function riproduciAudioCloud(testo, langCode, velocita, btnIcon, cardElement) {
-      const urlAudio = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(testo)}&tl=${langCode}&client=tw-ob`;
       
-      const audio = new Audio(urlAudio);
-      audio.playbackRate = velocita;
-      oggettoAudioCloudCurrent = audio;
+      if (voceMigliore) {
+        utterance.voice = voceMigliore;
+      }
+      utterance.lang = voiceLang;
+      utterance.rate = velocita;
 
-      audio.onplay = () => {
+      utterance.onstart = () => {
         elementoAudioAttivo = btnIcon;
         if (btnIcon) btnIcon.classList.add('active-speaking');
         if (cardElement) cardElement.classList.add('speaking-card');
-        aggiornaStato('Ascolto Cloud...');
+        aggiornaStato('Ascolto...');
       };
 
-      audio.onended = () => fermaTuttaLettura();
-      audio.onerror = () => {
-        aggiornaStato('Audio non disponibile');
+      utterance.onend = () => fermaTuttaLettura();
+      utterance.onerror = () => {
+        aggiornaStato('Errore riproduzione');
         fermaTuttaLettura();
       };
 
-      audio.play().catch(e => console.error("Errore audio cloud:", e));
+      window.speechSynthesis.speak(utterance);
     }
 
     let vociDisponibili = [];
@@ -1249,15 +1224,14 @@
 
       if (!compatibili.length) return null;
 
-      // Restituisce la voce locale solo se è riconosciuta come ad alta qualità
-      let sceltaHD = compatibili.find(v => 
-        v.name.includes('Google') || 
+      let scelta = compatibili.find(v => 
         v.name.includes('Natural') || 
+        v.name.includes('Google') || 
         v.name.includes('Neural') ||
         v.name.includes('Online')
       );
 
-      return sceltaHD || null; // Se c'è solo una voce generica/robotica, restituisce null per attivare l'audio cloud
+      return scelta || compatibili[0];
     }
 
     function copiaTestoStudente() {
@@ -1779,7 +1753,7 @@
         .replace(/\bapri virgolette\b/gi, '"')
         .replace(/\bchiudi virgolette\b/gi, '"')
         .replace(/\s+([,.?!:;])/g, '$1')
-        .replace(/\(\s+/g, '(')         .replace(/\s+\)/g, ')');
+        .replace(/\(\s+/g, '(') .replace(/\s+\)/g, ')');
 
       return t.replace(/(^|[.?!]\s+|\n+)([a-zàèéìòù])/g, (match, p1, p2) => p1 + p2.toUpperCase());
     }
