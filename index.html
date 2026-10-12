@@ -621,6 +621,16 @@
     }
     .rtl { direction: rtl; text-align: right; }
 
+    /* CONTENITORE QR CODE AD ALTO CONTRASTO */
+    .qr-box-container {
+      background: #ffffff !important;
+      padding: 20px !important;
+      border-radius: 20px !important;
+      display: inline-block !important;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+      margin: 12px auto !important;
+    }
+
     @media (max-width: 600px) {
       body { padding: 6px; }
       h1 { font-size: 18px; }
@@ -840,16 +850,21 @@
     </div>
   </div>
 
+  <!-- MODALE QR CODE OTTIMIZZATA PER LA MESSA A FUOCO -->
   <div id="modalQR" class="modal-overlay">
-    <div class="modal-card" style="align-items: center; text-align: center; max-width: 400px;">
-      <h2 style="margin-top:0; color: var(--primary-cyan); font-size: 20px;">📱 Connetti gli Studenti</h2>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 5px;"><strong>Smartphone:</strong> Inquadra il QR Code</p>
-      <div id="qrcode" style="margin: 8px auto; padding: 12px; background: white; border-radius: 16px; box-shadow: var(--card-shadow);"></div>
+    <div class="modal-card" style="align-items: center; text-align: center; max-width: 440px;">
+      <h2 style="margin-top:0; color: var(--primary-cyan); font-size: 22px;">📱 Connetti gli Studenti</h2>
+      <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 2px;">Inquadra il QR Code con lo smartphone:</p>
       
-      <div style="background: rgba(14, 165, 233, 0.15); border: 1px solid var(--card-border); border-radius: 14px; padding: 10px; width: 100%; box-sizing: border-box; margin-top: 8px;">
-        <p style="margin: 0; font-size: 13px; color: var(--primary-cyan);"><strong>Da PC (Laboratorio):</strong></p>
-        <p style="margin: 2px 0; font-size: 12px; color: var(--text-muted);">Vai su: <strong style="text-decoration: underline;">parlaconme/studente.html</strong></p>
-        <p style="margin: 0; font-weight: bold; font-size: 18px; color: #f87171;">PIN Stanza: <span id="roomCodeDisplay">...</span></p>
+      <!-- CONTENITORE BIANCO PULITO PER FACILITARE LA FOTOCAMERA -->
+      <div class="qr-box-container">
+        <div id="qrcode"></div>
+      </div>
+      
+      <div style="background: rgba(14, 165, 233, 0.15); border: 1px solid var(--card-border); border-radius: 14px; padding: 12px; width: 100%; box-sizing: border-box; margin-top: 4px;">
+        <p style="margin: 0; font-size: 14px; color: var(--primary-cyan);"><strong>Da PC / Browser:</strong></p>
+        <p style="margin: 2px 0; font-size: 13px; color: var(--text-muted);">Vai su: <strong style="text-decoration: underline;">parlaconme/studente.html</strong></p>
+        <p style="margin: 4px 0 0 0; font-weight: bold; font-size: 20px; color: #f87171;">PIN Stanza: <span id="roomCodeDisplay">...</span></p>
       </div>
 
       <button class="btn-main" style="width: auto; margin-top: 14px;" onclick="chiudiQRCode()" data-tooltip="Chiudi finestra" aria-label="Chiudi QR Code">Chiudi</button>
@@ -881,9 +896,13 @@
     let fontSizeITACorrente = 16;
     let linguaFocusCorrente = null;
     let cronologiaLezione = [];
-    let ID_PROGRESSIVO_CRONOLOGIA = 0; // Identificatore univoco e progressivo
+    let ID_PROGRESSIVO_CRONOLOGIA = 0;
     let testoConfermatoDocente = '';
     let eStudente = false;
+
+    // CACHE TRADUZIONI LATO DOCENTE PER AZZERARE L'EFFETTO IMBUTO
+    let cacheTraduzioniDocente = {};
+
     let traduzioniRicevuteRete = {};
     let testoITARicevutoRete = '';
 
@@ -900,9 +919,7 @@
         iceServers: [
           { urls: 'stun:stun.l.google.com:19302' },
           { urls: 'stun:stun1.l.google.com:19302' },
-          { urls: 'stun:stun2.l.google.com:19302' },
-          { urls: 'stun:stun3.l.google.com:19302' },
-          { urls: 'stun:stun4.l.google.com:19302' }
+          { urls: 'stun:stun2.l.google.com:19302' }
         ]
       }
     };
@@ -930,13 +947,10 @@
 
     let lingueAttive = ['sq', 'ar', 'bn', 'zh-CN', 'fr', 'en', 'es', 'uk'];
 
-    /* FUNZIONE PER CONVERTIRE TUTTE LE EMOJI DELLE BANDIERE IN IMMAGINI TWEMOJI SU WINDOWS */
+    /* RENDERING UNIFORME BANDIERE SU WINDOWS VIA TWEMOJI */
     function applicaTwemoji() {
       if (window.twemoji) {
-        twemoji.parse(document.body, {
-          folder: 'svg',
-          ext: '.svg'
-        });
+        twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
       }
     }
 
@@ -971,7 +985,15 @@
       connStudenteAInsegnante.on('open', () => {
         clearInterval(timerRiconnessione);
         aggiornaStatoVisivoStudente('connected');
-        connStudenteAInsegnante.send({ tipo: 'RICHIESTA_SINCRONIZZAZIONE' });
+        
+        // Legge la lingua preferita scelta dall'alunno in studente.html
+        const urlParams = new URLSearchParams(window.location.search);
+        const miaLingua = urlParams.get('lang') || 'en';
+
+        connStudenteAInsegnante.send({ 
+          tipo: 'RICHIESTA_SINCRONIZZAZIONE',
+          lang: miaLingua
+        });
         aggiornaStato('Connesso');
       });
 
@@ -1001,19 +1023,25 @@
     function inizializzaRete() {
       const urlParams = new URLSearchParams(window.location.search);
       const stanzaTarget = urlParams.get('stanza');
+      const linguaPredefinita = urlParams.get('lang');
 
       if (stanzaTarget) {
         eStudente = true;
-        impostaVistaStudente();
+        impostaVistaStudente(linguaPredefinita);
 
         if (document.getElementById('codiceAulaDocente')) {
           document.getElementById('codiceAulaDocente').innerText = stanzaTarget.replace('cpia-aula-', '');
         }
 
-        peer = new Peer(CONFIGURAZIONE_PEER);
-        peer.on('open', () => {
-          connettiAStanzaDocente(stanzaTarget);
-        });
+        // SCAGLIONAMENTO CASUALE INGRESSO STUDENTI PER AZZERARE LA SIGNALING STORM
+        const ritardoMilli = Math.floor(Math.random() * 750) + 50; 
+        setTimeout(() => {
+          peer = new Peer(CONFIGURAZIONE_PEER);
+          peer.on('open', () => {
+            connettiAStanzaDocente(stanzaTarget);
+          });
+        }, ritardoMilli);
+
       } else {
         peer = new Peer(ID_STANZA_DOCENTE, CONFIGURAZIONE_PEER);
         
@@ -1026,8 +1054,22 @@
           aggiornaContatoreStudenti();
           
           conn.on('data', (dati) => {
+            // RISPOSTA CON INVIO MIRATO DEI SOLI DATI IN CACHE (ZERO CARICO DI RETE)
             if (dati && dati.tipo === 'RICHIESTA_SINCRONIZZAZIONE') {
-              traduciTutto();
+              const testoAttuale = document.getElementById('testoITA').value.trim();
+              const linguaInviata = dati.lang;
+
+              let pacchettoTraduzioni = {};
+              if (linguaInviata && cacheTraduzioniDocente[linguaInviata]) {
+                pacchettoTraduzioni[linguaInviata] = cacheTraduzioniDocente[linguaInviata];
+              } else {
+                pacchettoTraduzioni = cacheTraduzioniDocente;
+              }
+
+              conn.send({
+                ita: testoAttuale,
+                traduzioni: pacchettoTraduzioni
+              });
             }
           });
 
@@ -1039,7 +1081,7 @@
       }
     }
 
-    function impostaVistaStudente() {
+    function impostaVistaStudente(linguaIniziale) {
       document.getElementById('docenteContainer').style.display = 'none';
       document.getElementById('btnQR').style.display = 'none';
       document.getElementById('btnLangConfig').style.display = 'none';
@@ -1059,6 +1101,7 @@
           const opt = document.createElement('option');
           opt.value = l.code;
           opt.innerText = l.name;
+          if (linguaIniziale && l.code === linguaIniziale) opt.selected = true;
           select.appendChild(opt);
         });
       }
@@ -1165,7 +1208,9 @@
     function applicaDatiRicevuti(dati) {
       if (!dati || dati.tipo === 'RICHIESTA_SINCRONIZZAZIONE') return;
 
-      traduzioniRicevuteRete = dati.traduzioni || {};
+      if (dati.traduzioni) {
+        Object.assign(traduzioniRicevuteRete, dati.traduzioni);
+      }
       testoITARicevutoRete = dati.ita || '';
 
       if (eStudente) {
@@ -1194,14 +1239,19 @@
       const container = document.getElementById('qrcode');
       container.innerHTML = '';
       
+      // Preserva la corrispondenza esatta del PIN
       document.getElementById('roomCodeDisplay').innerText = ID_STANZA_DOCENTE.replace('cpia-aula-', '');
 
       const urlLezione = window.location.href.split('?')[0] + '?stanza=' + ID_STANZA_DOCENTE;
 
+      // QR Code ingrandito per una scansione facile dalla fotocamera dello smartphone
       new QRCode(container, {
         text: urlLezione,
-        width: 160,
-        height: 160
+        width: 210,
+        height: 210,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
       });
 
       modal.style.display = 'flex';
@@ -1330,6 +1380,7 @@
     function cancellaTutto() {
       clearTimeout(timerPausaSilenzio);
       testoConfermatoDocente = '';
+      cacheTraduzioniDocente = {};
       document.getElementById('testoITA').value = '';
       document.getElementById('testoStudente').value = '';
       lingueAttive.forEach(l => {
@@ -1374,7 +1425,7 @@
       linguaFocusCorrente = null;
     }
 
-    /* GESTIONE CRONOLOGIA CORRETTA CON ID UNIVOCO PROGRESSIVO */
+    /* SALVATAGGIO CRONOLOGIA INTEGRO ED ISOLATO */
     function salvaInCronologia() {
       const testoITA = document.getElementById('testoITA').value.trim();
       if (!testoITA) return;
@@ -1875,6 +1926,7 @@
       const testo = document.getElementById('testoITA').value.trim();
 
       if (!testo) {
+        cacheTraduzioniDocente = {};
         ELENCO_LINGUE.forEach(l => {
           const el = document.getElementById('box_' + l.code);
           if (el) el.innerText = '...';
@@ -1885,8 +1937,8 @@
       }
 
       aggiornaStato('Traduzione...');
-      let traduzioniMap = {};
 
+      // TRADUZIONE IN PARALLELO SALVANDO IN CACHE LATO DOCENTE
       let promesse = ELENCO_LINGUE.map(l => {
         return chiamaGoogleTranslate(testo, 'it', l.code).then(trad => {
           if (trad) {
@@ -1900,7 +1952,7 @@
               mBody.innerText = trad;
               mBody.scrollTop = mBody.scrollHeight;
             }
-            traduzioniMap[l.code] = trad;
+            cacheTraduzioniDocente[l.code] = trad;
           }
         });
       });
@@ -1909,7 +1961,7 @@
         aggiornaStato('Tradotto');
         trasmettiDatiRete({
           ita: testo,
-          traduzioni: traduzioniMap
+          traduzioni: cacheTraduzioniDocente
         });
       });
     }
