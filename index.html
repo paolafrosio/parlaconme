@@ -13,6 +13,10 @@
 
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  
+  <!-- RESPONSIVEVOICE PER SINTESI VOCALE MULTILINGUA UNIVERSALE -->
+  <script src="https://code.responsivevoice.org/responsivevoice.js?key=FREE_KEY"></script>
+
   <style>
     :root {
       --bg-gradient: radial-gradient(circle at 15% 15%, #06b6d4 0%, transparent 35%),
@@ -62,7 +66,6 @@
       transition: background 0.3s, color 0.3s;
     }
 
-    /* SVG FLAG STYLING */
     .flag-icon {
       width: 22px;
       height: 16px;
@@ -851,7 +854,6 @@
     let testoITARicevutoRete = '';
 
     let elementoAudioAttivo = null;
-    let audioLettoreCloud = null;
 
     let peer = null;
     let connessioniStudenti = [];
@@ -871,26 +873,26 @@
       }
     };
 
-    /* ELENCO LINGUE COMPLETO */
+    /* TABELLA LINGUE CON NOMI VOCALI MADRELINGUA RESPONSIVEVOICE */
     const ELENCO_LINGUE = [
-      { code: 'sq', voice: 'sq-AL', flag: 'al', name: 'Albanese' },
-      { code: 'ar', voice: 'ar-SA', flag: 'sa', name: 'Arabo', rtl: true },
-      { code: 'bn', voice: 'bn-BD', flag: 'bd', name: 'Bengalese' },
-      { code: 'zh-CN', voice: 'zh-CN', flag: 'cn', name: 'Cinese' },
-      { code: 'fa', voice: 'fa-IR', flag: 'ir', name: 'Farsi', rtl: true },
-      { code: 'fr', voice: 'fr-FR', flag: 'fr', name: 'Francese' },
-      { code: 'hi', voice: 'hi-IN', flag: 'in', name: 'Hindi' },
-      { code: 'en', voice: 'en-US', flag: 'gb', name: 'Inglese' },
-      { code: 'ps', voice: 'ps-AF', flag: 'af', name: 'Pashto', rtl: true },
-      { code: 'pt', voice: 'pt-PT', flag: 'pt', name: 'Portoghese' },
-      { code: 'ro', voice: 'ro-RO', flag: 'ro', name: 'Rumeno' },
-      { code: 'ru', voice: 'ru-RU', flag: 'ru', name: 'Russo' },
-      { code: 'es', voice: 'es-ES', flag: 'es', name: 'Spagnolo' },
-      { code: 'tl', voice: 'tl-PH', flag: 'ph', name: 'Tagalog' },
-      { code: 'de', voice: 'de-DE', flag: 'de', name: 'Tedesco' },
-      { code: 'ti', voice: 'ti-ET', flag: 'er', name: 'Tigrino' },
-      { code: 'uk', voice: 'uk-UA', flag: 'ua', name: 'Ucraino' },
-      { code: 'ur', voice: 'ur-PK', flag: 'pk', name: 'Urdu', rtl: true }
+      { code: 'sq', voice: 'sq-AL', rvoice: 'Albanian Male', flag: 'al', name: 'Albanese' },
+      { code: 'ar', voice: 'ar-SA', rvoice: 'Arabic Male', flag: 'sa', name: 'Arabo', rtl: true },
+      { code: 'bn', voice: 'bn-BD', rvoice: 'Bengali Male', flag: 'bd', name: 'Bengalese' },
+      { code: 'zh-CN', voice: 'zh-CN', rvoice: 'Chinese Female', flag: 'cn', name: 'Cinese' },
+      { code: 'fa', voice: 'fa-IR', rvoice: 'Arabic Male', flag: 'ir', name: 'Farsi', rtl: true },
+      { code: 'fr', voice: 'fr-FR', rvoice: 'French Female', flag: 'fr', name: 'Francese' },
+      { code: 'hi', voice: 'hi-IN', rvoice: 'Hindi Female', flag: 'in', name: 'Hindi' },
+      { code: 'en', voice: 'en-US', rvoice: 'UK English Female', flag: 'gb', name: 'Inglese' },
+      { code: 'ps', voice: 'ps-AF', rvoice: 'Arabic Male', flag: 'af', name: 'Pashto', rtl: true },
+      { code: 'pt', voice: 'pt-PT', rvoice: 'Portuguese Female', flag: 'pt', name: 'Portoghese' },
+      { code: 'ro', voice: 'ro-RO', rvoice: 'Romanian Female', flag: 'ro', name: 'Rumeno' },
+      { code: 'ru', voice: 'ru-RU', rvoice: 'Russian Female', flag: 'ru', name: 'Russo' },
+      { code: 'es', voice: 'es-ES', rvoice: 'Spanish Female', flag: 'es', name: 'Spagnolo' },
+      { code: 'tl', voice: 'tl-PH', rvoice: 'Filipino Female', flag: 'ph', name: 'Tagalog' },
+      { code: 'de', voice: 'de-DE', rvoice: 'German Female', flag: 'de', name: 'Tedesco' },
+      { code: 'ti', voice: 'ti-ET', rvoice: 'Arabic Male', flag: 'er', name: 'Tigrino' },
+      { code: 'uk', voice: 'uk-UA', rvoice: 'Ukrainian Female', flag: 'ua', name: 'Ucraino' },
+      { code: 'ur', voice: 'ur-PK', rvoice: 'Urdu Female', flag: 'pk', name: 'Urdu', rtl: true }
     ];
 
     let lingueAttive = ['sq', 'ar', 'bn', 'zh-CN', 'fr', 'en', 'es', 'uk'];
@@ -1036,9 +1038,8 @@
     }
 
     function fermaTuttaLettura() {
-      if (audioLettoreCloud) {
-        audioLettoreCloud.pause();
-        audioLettoreCloud = null;
+      if (window.responsiveVoice && window.responsiveVoice.isPlaying()) {
+        window.responsiveVoice.cancel();
       }
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -1067,7 +1068,7 @@
       avviaLetturaGenerica('studentDisplayText', lang, velocita, btnIcon, cardEl);
     }
 
-    /* MOTORE AUDIO HYBRID: Cloud Google Translate TTS con fallback locale */
+    /* SISTEMA SINTESI VOCALE CON RESPONSIVEVOICE (Supporto Arabo, Ucraino, Bengalese, ecc.) */
     function avviaLetturaGenerica(idElementoTesto, langCode, velocita, btnIcon, cardElement) {
       fermaTuttaLettura();
 
@@ -1076,28 +1077,24 @@
 
       if (!testoPuro || testoPuro === '...' || testoPuro.startsWith('In attesa')) return;
 
-      const codiceLinguaBase = langCode.split('-')[0].toLowerCase();
+      const objLang = ELENCO_LINGUE.find(l => l.code === langCode);
+      const nomeVoceResponsive = (langCode === 'it') ? 'Italian Female' : (objLang ? objLang.rvoice : 'UK English Female');
 
-      // Tentativo 1: Audio Cloud HD in lingua nativa via Google Translate TTS
-      const urlAudioCloud = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(testoPuro)}&tl=${codiceLinguaBase}&client=tw-ob`;
-
-      audioLettoreCloud = new Audio(urlAudioCloud);
-      if (velocita < 0.8) audioLettoreCloud.playbackRate = 0.75;
-
-      audioLettoreCloud.onplay = () => {
+      if (window.responsiveVoice) {
         elementoAudioAttivo = btnIcon;
         if (btnIcon) btnIcon.classList.add('active-speaking');
         if (cardElement) cardElement.classList.add('speaking-card');
         aggiornaStato('Ascolto...');
-      };
 
-      audioLettoreCloud.onended = () => fermaTuttaLettura();
-
-      audioLettoreCloud.onerror = () => {
-        // Tentativo 2: Fallback su SpeechSynthesis locale del browser se offline
-        if (!('speechSynthesis' in window)) return;
+        window.responsiveVoice.speak(testoPuro, nomeVoceResponsive, {
+          rate: velocita,
+          onend: () => fermaTuttaLettura(),
+          onerror: () => fermaTuttaLettura()
+        });
+      } else if ('speechSynthesis' in window) {
+        // Fallback Web Speech API
         const utterance = new SpeechSynthesisUtterance(testoPuro);
-        utterance.lang = langCode;
+        utterance.lang = objLang ? objLang.voice : langCode;
         utterance.rate = velocita;
 
         utterance.onstart = () => {
@@ -1110,11 +1107,7 @@
         utterance.onerror = () => fermaTuttaLettura();
 
         window.speechSynthesis.speak(utterance);
-      };
-
-      audioLettoreCloud.play().catch(() => {
-        audioLettoreCloud.onerror();
-      });
+      }
     }
 
     function leggiTestoScheda(lang, velocita, btnIcon, cardElement) {
