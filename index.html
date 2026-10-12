@@ -13,9 +13,6 @@
 
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  
-  <!-- RESPONSIVEVOICE PER SINTESI VOCALE MULTILINGUA UNIVERSALE -->
-  <script src="https://code.responsivevoice.org/responsivevoice.js?key=FREE_KEY"></script>
 
   <style>
     :root {
@@ -854,6 +851,7 @@
     let testoITARicevutoRete = '';
 
     let elementoAudioAttivo = null;
+    let audioCorrente = null;
 
     let peer = null;
     let connessioniStudenti = [];
@@ -873,26 +871,25 @@
       }
     };
 
-    /* TABELLA LINGUE CON NOMI VOCALI MADRELINGUA RESPONSIVEVOICE */
     const ELENCO_LINGUE = [
-      { code: 'sq', voice: 'sq-AL', rvoice: 'Albanian Male', flag: 'al', name: 'Albanese' },
-      { code: 'ar', voice: 'ar-SA', rvoice: 'Arabic Male', flag: 'sa', name: 'Arabo', rtl: true },
-      { code: 'bn', voice: 'bn-BD', rvoice: 'Bengali Male', flag: 'bd', name: 'Bengalese' },
-      { code: 'zh-CN', voice: 'zh-CN', rvoice: 'Chinese Female', flag: 'cn', name: 'Cinese' },
-      { code: 'fa', voice: 'fa-IR', rvoice: 'Arabic Male', flag: 'ir', name: 'Farsi', rtl: true },
-      { code: 'fr', voice: 'fr-FR', rvoice: 'French Female', flag: 'fr', name: 'Francese' },
-      { code: 'hi', voice: 'hi-IN', rvoice: 'Hindi Female', flag: 'in', name: 'Hindi' },
-      { code: 'en', voice: 'en-US', rvoice: 'UK English Female', flag: 'gb', name: 'Inglese' },
-      { code: 'ps', voice: 'ps-AF', rvoice: 'Arabic Male', flag: 'af', name: 'Pashto', rtl: true },
-      { code: 'pt', voice: 'pt-PT', rvoice: 'Portuguese Female', flag: 'pt', name: 'Portoghese' },
-      { code: 'ro', voice: 'ro-RO', rvoice: 'Romanian Female', flag: 'ro', name: 'Rumeno' },
-      { code: 'ru', voice: 'ru-RU', rvoice: 'Russian Female', flag: 'ru', name: 'Russo' },
-      { code: 'es', voice: 'es-ES', rvoice: 'Spanish Female', flag: 'es', name: 'Spagnolo' },
-      { code: 'tl', voice: 'tl-PH', rvoice: 'Filipino Female', flag: 'ph', name: 'Tagalog' },
-      { code: 'de', voice: 'de-DE', rvoice: 'German Female', flag: 'de', name: 'Tedesco' },
-      { code: 'ti', voice: 'ti-ET', rvoice: 'Arabic Male', flag: 'er', name: 'Tigrino' },
-      { code: 'uk', voice: 'uk-UA', rvoice: 'Ukrainian Female', flag: 'ua', name: 'Ucraino' },
-      { code: 'ur', voice: 'ur-PK', rvoice: 'Urdu Female', flag: 'pk', name: 'Urdu', rtl: true }
+      { code: 'sq', voice: 'sq', flag: 'al', name: 'Albanese' },
+      { code: 'ar', voice: 'ar', flag: 'sa', name: 'Arabo', rtl: true },
+      { code: 'bn', voice: 'bn', flag: 'bd', name: 'Bengalese' },
+      { code: 'zh-CN', voice: 'zh-CN', flag: 'cn', name: 'Cinese' },
+      { code: 'fa', voice: 'fa', flag: 'ir', name: 'Farsi', rtl: true },
+      { code: 'fr', voice: 'fr', flag: 'fr', name: 'Francese' },
+      { code: 'hi', voice: 'hi', flag: 'in', name: 'Hindi' },
+      { code: 'en', voice: 'en', flag: 'gb', name: 'Inglese' },
+      { code: 'ps', voice: 'ps', flag: 'af', name: 'Pashto', rtl: true },
+      { code: 'pt', voice: 'pt', flag: 'pt', name: 'Portoghese' },
+      { code: 'ro', voice: 'ro', flag: 'ro', name: 'Rumeno' },
+      { code: 'ru', voice: 'ru', flag: 'ru', name: 'Russo' },
+      { code: 'es', voice: 'es', flag: 'es', name: 'Spagnolo' },
+      { code: 'tl', voice: 'tl', flag: 'ph', name: 'Tagalog' },
+      { code: 'de', voice: 'de', flag: 'de', name: 'Tedesco' },
+      { code: 'ti', voice: 'ti', flag: 'er', name: 'Tigrino' },
+      { code: 'uk', voice: 'uk', flag: 'ua', name: 'Ucraino' },
+      { code: 'ur', voice: 'ur', flag: 'pk', name: 'Urdu', rtl: true }
     ];
 
     let lingueAttive = ['sq', 'ar', 'bn', 'zh-CN', 'fr', 'en', 'es', 'uk'];
@@ -1038,8 +1035,9 @@
     }
 
     function fermaTuttaLettura() {
-      if (window.responsiveVoice && window.responsiveVoice.isPlaying()) {
-        window.responsiveVoice.cancel();
+      if (audioCorrente) {
+        audioCorrente.pause();
+        audioCorrente = null;
       }
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -1068,7 +1066,7 @@
       avviaLetturaGenerica('studentDisplayText', lang, velocita, btnIcon, cardEl);
     }
 
-    /* SISTEMA SINTESI VOCALE CON RESPONSIVEVOICE (Supporto Arabo, Ucraino, Bengalese, ecc.) */
+    /* SISTEMA TTS UNIVERSALE SU CLOUD CON FALLBACK WEB SPEECH */
     function avviaLetturaGenerica(idElementoTesto, langCode, velocita, btnIcon, cardElement) {
       fermaTuttaLettura();
 
@@ -1078,23 +1076,19 @@
       if (!testoPuro || testoPuro === '...' || testoPuro.startsWith('In attesa')) return;
 
       const objLang = ELENCO_LINGUE.find(l => l.code === langCode);
-      const nomeVoceResponsive = (langCode === 'it') ? 'Italian Female' : (objLang ? objLang.rvoice : 'UK English Female');
+      const targetLang = objLang ? objLang.voice : langCode.split('-')[0];
 
-      if (window.responsiveVoice) {
-        elementoAudioAttivo = btnIcon;
-        if (btnIcon) btnIcon.classList.add('active-speaking');
-        if (cardElement) cardElement.classList.add('speaking-card');
-        aggiornaStato('Ascolto...');
+      // TENTATIVO 1: WEB SPEECH API SE DISPONIBILE SUL PC
+      let voceInstallata = null;
+      if ('speechSynthesis' in window) {
+        const voci = window.speechSynthesis.getVoices();
+        voceInstallata = voci.find(v => v.lang.toLowerCase().startsWith(targetLang.toLowerCase()));
+      }
 
-        window.responsiveVoice.speak(testoPuro, nomeVoceResponsive, {
-          rate: velocita,
-          onend: () => fermaTuttaLettura(),
-          onerror: () => fermaTuttaLettura()
-        });
-      } else if ('speechSynthesis' in window) {
-        // Fallback Web Speech API
+      if (voceInstallata) {
         const utterance = new SpeechSynthesisUtterance(testoPuro);
-        utterance.lang = objLang ? objLang.voice : langCode;
+        utterance.voice = voceInstallata;
+        utterance.lang = voceInstallata.lang;
         utterance.rate = velocita;
 
         utterance.onstart = () => {
@@ -1107,6 +1101,24 @@
         utterance.onerror = () => fermaTuttaLettura();
 
         window.speechSynthesis.speak(utterance);
+      } else {
+        // TENTATIVO 2: CLOUD SPEECH AUDIO STREAMING PER ARABO, UCRAINO, BENGALESE ECC.
+        const urlAudio = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(testoPuro)}&tl=${targetLang}&client=gtx`;
+
+        audioCorrente = new Audio(urlAudio);
+        if (velocita < 0.8) audioCorrente.playbackRate = 0.8;
+
+        audioCorrente.onplay = () => {
+          elementoAudioAttivo = btnIcon;
+          if (btnIcon) btnIcon.classList.add('active-speaking');
+          if (cardElement) cardElement.classList.add('speaking-card');
+          aggiornaStato('Ascolto...');
+        };
+
+        audioCorrente.onended = () => fermaTuttaLettura();
+        audioCorrente.onerror = () => fermaTuttaLettura();
+
+        audioCorrente.play().catch(() => fermaTuttaLettura());
       }
     }
 
@@ -1857,6 +1869,13 @@
     }
 
     function aggiornaStato(msg) { document.getElementById('status').innerText = msg; }
+
+    // Carica le voci locali all'avvio
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
 
     inizializzaGriglia();
     inizializzaRete();
