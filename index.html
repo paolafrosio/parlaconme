@@ -50,7 +50,7 @@
       overflow-x: hidden;
     }
     body {
-      font-family: 'Inter', 'Segoe UI Emoji', 'Noto Color Emoji', 'Apple Color Emoji', sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background: var(--bg-gradient);
       background-attachment: fixed;
       margin: 0;
@@ -60,6 +60,17 @@
       display: flex;
       flex-direction: column;
       transition: background 0.3s, color 0.3s;
+    }
+
+    /* SVG FLAG STYLING */
+    .flag-icon {
+      width: 22px;
+      height: 16px;
+      object-fit: cover;
+      border-radius: 3px;
+      vertical-align: middle;
+      display: inline-block;
+      box-shadow: 0 0 2px rgba(0,0,0,0.5);
     }
 
     [data-tooltip] { position: relative; }
@@ -392,6 +403,9 @@
       font-weight: 700;
       font-size: 16px;
       color: var(--primary-cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     .card-body {
       background-color: var(--card-body-bg);
@@ -678,7 +692,9 @@
     <div class="source-box">
       <div class="label-row">
         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-          <label for="testoITA">🇮🇹 Parla o Scrivi in Italiano (Docente):</label>
+          <label for="testoITA">
+            <img src="https://flagcdn.com/w40/it.png" class="flag-icon" alt="ITA"> Parla o Scrivi in Italiano (Docente):
+          </label>
           <div class="zoom-bar">
             <button class="btn-tool" onclick="cambiaZoomITA(-2)" data-tooltip="Riduci testo italiano" aria-label="Riduci testo italiano">A-</button>
             <button class="btn-tool" onclick="resetZoomITA()" data-tooltip="Reset testo italiano" aria-label="Reset testo italiano">A</button>
@@ -721,7 +737,9 @@
       </div>
       
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 4px;">
-        <div style="font-weight: 700; font-size: 14px; color: var(--primary-cyan);">🇮🇹 Italiano (Docente):</div>
+        <div style="font-weight: 700; font-size: 14px; color: var(--primary-cyan); display: flex; align-items: center; gap: 6px;">
+          <img src="https://flagcdn.com/w40/it.png" class="flag-icon" alt="ITA"> Italiano (Docente):
+        </div>
         <div style="display: flex; gap: 8px;">
           <button id="btnItaSlow" class="btn-svg-icon" data-tooltip="Ascolta lento" aria-label="Ascolta italiano lento" onclick="toggleLetturaItalianoStudente(0.5, this)">
             <svg viewBox="0 0 24 24"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>
@@ -803,7 +821,6 @@
     </div>
   </div>
 
-  <!-- MODALE CRONOLOGIA -->
   <div id="modalCronologia" class="modal-overlay">
     <div class="modal-card">
       <div class="modal-header">
@@ -853,28 +870,33 @@
       }
     };
 
+    /* ELENCO LINGUE CON CONVERSIONE SVG FLAG CDN E CODICI TTS ESTESI */
     const ELENCO_LINGUE = [
-      { code: 'sq', voice: 'sq-AL', name: '🇦🇱 Albanese' },
-      { code: 'ar', voice: 'ar-SA', name: '🇸🇦 Arabo', rtl: true },
-      { code: 'bn', voice: 'bn-BD', name: '🇧🇩 Bengalese' },
-      { code: 'zh-CN', voice: 'zh-CN', name: '🇨🇳 Cinese' },
-      { code: 'fa', voice: 'fa-IR', name: '🇮🇷 Farsi', rtl: true },
-      { code: 'fr', voice: 'fr-FR', name: '🇫🇷 Francese' },
-      { code: 'hi', voice: 'hi-IN', name: '🇮🇳 Hindi' },
-      { code: 'en', voice: 'en-US', name: '🇬🇧 Inglese' },
-      { code: 'ps', voice: 'ps-AF', name: '🇦🇫 Pashto', rtl: true },
-      { code: 'pt', voice: 'pt-PT', name: '🇵🇹 Portoghese' },
-      { code: 'ro', voice: 'ro-RO', name: '🇷🇴 Rumeno' },
-      { code: 'ru', voice: 'ru-RU', name: '🇷🇺 Russo' },
-      { code: 'es', voice: 'es-ES', name: '🇪🇸 Spagnolo' },
-      { code: 'tl', voice: 'tl-PH', name: '🇵🇭 Tagalog' },
-      { code: 'de', voice: 'de-DE', name: '🇩🇪 Tedesco' },
-      { code: 'ti', voice: 'ti-ET', name: '🇪🇷 Tigrino' },
-      { code: 'uk', voice: 'uk-UA', name: '🇺🇦 Ucraino' },
-      { code: 'ur', voice: 'ur-PK', name: '🇵🇰 Urdu', rtl: true }
+      { code: 'sq', voice: 'sq-AL', flag: 'al', name: 'Albanese' },
+      { code: 'ar', voice: 'ar-SA', flag: 'sa', name: 'Arabo', rtl: true },
+      { code: 'bn', voice: 'bn-BD', flag: 'bd', name: 'Bengalese' },
+      { code: 'zh-CN', voice: 'zh-CN', flag: 'cn', name: 'Cinese' },
+      { code: 'fa', voice: 'fa-IR', flag: 'ir', name: 'Farsi', rtl: true },
+      { code: 'fr', voice: 'fr-FR', flag: 'fr', name: 'Francese' },
+      { code: 'hi', voice: 'hi-IN', flag: 'in', name: 'Hindi' },
+      { code: 'en', voice: 'en-US', flag: 'gb', name: 'Inglese' },
+      { code: 'ps', voice: 'ps-AF', flag: 'af', name: 'Pashto', rtl: true },
+      { code: 'pt', voice: 'pt-PT', flag: 'pt', name: 'Portoghese' },
+      { code: 'ro', voice: 'ro-RO', flag: 'ro', name: 'Rumeno' },
+      { code: 'ru', voice: 'ru-RU', flag: 'ru', name: 'Russo' },
+      { code: 'es', voice: 'es-ES', flag: 'es', name: 'Spagnolo' },
+      { code: 'tl', voice: 'tl-PH', flag: 'ph', name: 'Tagalog' },
+      { code: 'de', voice: 'de-DE', flag: 'de', name: 'Tedesco' },
+      { code: 'ti', voice: 'ti-ET', flag: 'er', name: 'Tigrino' },
+      { code: 'uk', voice: 'uk-UA', flag: 'ua', name: 'Ucraino' },
+      { code: 'ur', voice: 'ur-PK', flag: 'pk', name: 'Urdu', rtl: true }
     ];
 
     let lingueAttive = ['sq', 'ar', 'bn', 'zh-CN', 'fr', 'en', 'es', 'uk'];
+
+    function getFlagHTML(flagCode) {
+      return `<img src="https://flagcdn.com/w40/${flagCode}.png" class="flag-icon" alt="${flagCode}">`;
+    }
 
     function aggiornaContatoreStudenti() {
       const countEl = document.getElementById('studentCount');
@@ -1052,10 +1074,15 @@
       if (!('speechSynthesis' in window)) return;
 
       const utterance = new SpeechSynthesisUtterance(testoPuro);
-      const langCode = voiceLang.split('-')[0];
-      const voceMigliore = selezionaVoceMigliore(langCode);
-      if (voceMigliore) utterance.voice = voceMigliore;
-      utterance.lang = voiceLang;
+      const langPrefix = voiceLang.split('-')[0].toLowerCase();
+      
+      utterance.lang = voiceLang; // Impostazione primaria fondamentale per il browser
+
+      const voceMigliore = selezionaVoceMigliore(langPrefix);
+      if (voceMigliore) {
+        utterance.voice = voceMigliore;
+      }
+
       utterance.rate = velocita;
 
       utterance.onstart = () => {
@@ -1157,7 +1184,7 @@
         card.id = 'card_' + l.code;
         card.innerHTML = `
           <div class="card-header">
-            <span class="card-title">${l.name}</span>
+            <span class="card-title">${getFlagHTML(l.flag)} ${l.name}</span>
             <button class="btn-svg-icon" style="padding: 2px;" data-tooltip="Ingrandisci" data-tooltip-pos="left" aria-label="Ingrandisci lingua ${l.name}" onclick="apriFocus('${l.code}', '${l.name}')">
               <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             </button>
@@ -1196,7 +1223,7 @@
         const item = document.createElement('label');
         item.className = 'lang-item';
         const checked = lingueAttive.includes(l.code) ? 'checked' : '';
-        item.innerHTML = `<input type="checkbox" value="${l.code}" ${checked} onchange="toggleLingua('${l.code}')"> ${l.name}`;
+        item.innerHTML = `<input type="checkbox" value="${l.code}" ${checked} onchange="toggleLingua('${l.code}')"> ${getFlagHTML(l.flag)} ${l.name}`;
         list.appendChild(item);
       });
       document.getElementById('modalLangConfig').style.display = 'flex';
@@ -1301,7 +1328,6 @@
       linguaFocusCorrente = null;
     }
 
-    /* SALVATAGGIO IN CRONOLOGIA */
     function salvaInCronologia() {
       const testoITA = document.getElementById('testoITA').value.trim();
       if (!testoITA) return;
@@ -1353,7 +1379,7 @@
         
         box.innerHTML = `
           <div style="flex-grow: 1; word-break: break-word;">
-            <strong style="color: var(--primary-cyan);">${index + 1}. 🇮🇹 ITA:</strong> ${item.ita}
+            <strong style="color: var(--primary-cyan);">${index + 1}. ITA:</strong> ${item.ita}
           </div>
           <button class="btn-svg-icon" style="color: #f87171; flex-shrink: 0;" data-tooltip="Elimina questa frase" onclick="eliminaSingolaFrase(${item.id_univoco})">
             <svg viewBox="0 0 24 24" style="width:20px; height:20px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
@@ -1389,7 +1415,7 @@
         const testoTradotto = document.getElementById('studentDisplayText').innerText;
         const obj = ELENCO_LINGUE.find(x => x.code === lang);
         
-        contenuto += `🇮🇹 ITALIANO:\n${testoITA}\n\n`;
+        contenuto += `ITALIANO:\n${testoITA}\n\n`;
         contenuto += `${obj ? obj.name : lang.toUpperCase()}:\n${testoTradotto}\n`;
       } else {
         let frasiDaScrivere = [...cronologiaLezione];
@@ -1412,7 +1438,7 @@
         }
 
         frasiDaScrivere.forEach((item, index) => {
-          contenuto += `FRASE ${index + 1}:\n🇮🇹 ITA: ${item.ita}\n`;
+          contenuto += `FRASE ${index + 1}:\nITA: ${item.ita}\n`;
           lingueAttive.forEach(l => {
             const obj = ELENCO_LINGUE.find(x => x.code === l);
             contenuto += `${obj ? obj.name : l}: ${item[l] || '...'}\n`;
@@ -1493,7 +1519,7 @@
 
       frasiDaStampare.forEach((item, index) => {
         html += `<div class="block">
-          <div class="ita">${index + 1}. 🇮🇹 ITA: ${item.ita}</div>`;
+          <div class="ita">${index + 1}. ITA: ${item.ita}</div>`;
         if (item[langCode]) {
           html += `<div class="trans"><strong>${nomeLingua}:</strong> ${item[langCode]}</div>`;
         }
@@ -1505,7 +1531,6 @@
       win.document.close();
     }
 
-    /* ESPORTAZIONE PDF COMPLETO MULTI-LINGUA CORRETTA */
     function stampaOEsportaPDF() {
       if (eStudente) {
         window.print();
@@ -1556,7 +1581,7 @@
       `;
 
       frasiDaStampare.forEach((item, index) => {
-        html += `<div class="block"><div class="ita">${index + 1}. 🇮🇹 ITA: ${item.ita}</div>`;
+        html += `<div class="block"><div class="ita">${index + 1}. ITA: ${item.ita}</div>`;
         
         ELENCO_LINGUE.forEach(l => {
           if (lingueAttive.includes(l.code) && item[l.code]) {
@@ -1574,7 +1599,9 @@
 
     let vociDisponibili = [];
     function caricaVoci() {
-      if ('speechSynthesis' in window) vociDisponibili = window.speechSynthesis.getVoices();
+      if ('speechSynthesis' in window) {
+        vociDisponibili = window.speechSynthesis.getVoices();
+      }
     }
     caricaVoci();
     if ('speechSynthesis' in window) {
@@ -1582,23 +1609,32 @@
       window.speechSynthesis.onvoiceschanged = caricaVoci;
     }
 
-    function selezionaVoceMigliore(langCode) {
+    /* SELEZIONE VOCE SINTESI VOCALE AVANZATA E ROBUSTA */
+    function selezionaVoceMigliore(langPrefix) {
       if (!vociDisponibili.length) caricaVoci();
-      const prefix = langCode.toLowerCase().split('-')[0];
-      
+
+      const prefix = langPrefix.toLowerCase().split('-')[0];
+
+      // 1. Cerca corrispondenza esatta di lingua (es. 'ar-SA' o 'sq-AL')
       let compatibili = vociDisponibili.filter(v => v.lang.toLowerCase().startsWith(prefix));
-      
-      if (!compatibili.length) {
-        compatibili = vociDisponibili.filter(v => 
-          v.name.toLowerCase().includes(prefix) || 
-          v.lang.toLowerCase().includes(prefix)
+
+      if (compatibili.length > 0) {
+        // Cerca voci ad alta qualità se presenti
+        let ottima = compatibili.find(v => 
+          v.name.includes('Online') || 
+          v.name.includes('Natural') || 
+          v.name.includes('Neural') || 
+          v.name.includes('Google')
         );
+        return ottima || compatibili[0];
       }
 
-      if (!compatibili.length) return null;
+      // 2. Se non la trova, cerca nel nome della voce
+      let perNome = vociDisponibili.find(v => v.name.toLowerCase().includes(prefix));
+      if (perNome) return perNome;
 
-      let scelta = compatibili.find(v => v.name.includes('Online') || v.name.includes('Natural') || v.name.includes('Neural') || v.name.includes('Google'));
-      return scelta || compatibili[0];
+      // Se non c'è voce specifica installata nel sistema operativo, lascia la gestione nativa al browser senza forzare la voce in inglese
+      return null;
     }
 
     function applicaPunteggiaturaAvanzata(testo) {
