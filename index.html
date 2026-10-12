@@ -380,7 +380,7 @@
     <h1><img src="logo_bianco.png?v=5" alt="Logo" style="height: 38px; vertical-align: middle; margin-right: 6px;">ParlaConMe</h1>
     <div class="top-controls">
       <span style="background: rgba(255, 255, 255, 0.1); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--primary-cyan);">
-        🏫 Aula: <span id="codiceAulaDocente">---</span>
+        🏫 PIN Aula: <span id="codiceAulaDocente">---</span>
       </span>
       
       <div id="studentCounterContainer" class="student-counter-badge">
@@ -435,8 +435,8 @@
       <div id="qrcode" style="margin: 8px auto; padding: 12px; background: white; border-radius: 16px;"></div>
       
       <div style="background: rgba(14, 165, 233, 0.15); border: 1px solid var(--card-border); border-radius: 14px; padding: 10px; width: 100%; box-sizing: border-box; margin-top: 8px;">
-        <p style="margin: 0; font-size: 13px; color: var(--primary-cyan);"><strong>O vai su:</strong> studente.html</p>
-        <p style="margin: 4px 0 0 0; font-weight: bold; font-size: 18px; color: #f87171;">PIN Stanza: <span id="roomCodeDisplay">...</span></p>
+        <p style="margin: 0; font-size: 13px; color: var(--primary-cyan);"><strong>PIN Manuale Studente:</strong></p>
+        <p style="margin: 4px 0 0 0; font-weight: bold; font-size: 22px; color: #f87171;"><span id="roomCodeDisplay">...</span></p>
       </div>
 
       <button class="btn-main" style="width: auto; margin-top: 14px;" onclick="chiudiQRCode()">Chiudi</button>
@@ -450,9 +450,11 @@
     let peer = null;
     let connessioniStudenti = [];
 
-    let ID_STANZA_DOCENTE = 'cpia-aula-' + Math.floor(1000 + Math.random() * 9000);
+    // GENERATORE PIN NUMERICO SEMPLICE DI 4 CIFRE
+    // Usiamo sempre e solo questo numero per identificare l'aula
+    let PIN_AULA = Math.floor(1000 + Math.random() * 9000).toString();
+    let ID_STANZA_DOCENTE = 'cpia-aula-' + PIN_AULA;
 
-    // CONFIGURAZIONE STUN/TURN AVANZATA PER SUPERSARE I FIREWALL 4G/5G
     const CONFIGURAZIONE_PEER = {
       config: {
         iceServers: [
@@ -497,7 +499,7 @@
       peer = new Peer(ID_STANZA_DOCENTE, CONFIGURAZIONE_PEER);
 
       if (document.getElementById('codiceAulaDocente')) {
-        document.getElementById('codiceAulaDocente').innerText = ID_STANZA_DOCENTE.replace('cpia-aula-', '');
+        document.getElementById('codiceAulaDocente').innerText = PIN_AULA;
       }
 
       peer.on('connection', (conn) => {
@@ -538,12 +540,12 @@
       const container = document.getElementById('qrcode');
       container.innerHTML = '';
       
-      document.getElementById('roomCodeDisplay').innerText = ID_STANZA_DOCENTE.replace('cpia-aula-', '');
+      document.getElementById('roomCodeDisplay').innerText = PIN_AULA;
 
-      // Costruisce l'URL diretto a studente.html includendo la stanza
+      // Crea l'URL che punta a studente.html con il PIN preciso
       let urlBase = window.location.href.split('index.html')[0];
       if (!urlBase.endsWith('/')) urlBase += '/';
-      const urlStudente = urlBase + 'studente.html?stanza=' + ID_STANZA_DOCENTE;
+      const urlStudente = urlBase + 'studente.html?pin=' + PIN_AULA;
 
       new QRCode(container, {
         text: urlStudente,
