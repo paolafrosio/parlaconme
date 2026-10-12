@@ -697,7 +697,7 @@
           🏫 Aula: <span id="codiceAulaDocente">---</span>
         </span>
         
-        <!-- CONTATORE STUDENTI ORIGINALE -->
+        <!-- CONTATORE STUDENTI -->
         <div id="studentCounterContainer" class="student-counter-badge">
           👥 Studenti: <span id="studentCount">0</span>
         </div>
@@ -850,13 +850,12 @@
     </div>
   </div>
 
-  <!-- MODALE QR CODE OTTIMIZZATA PER LA MESSA A FUOCO -->
+  <!-- MODALE QR CODE -->
   <div id="modalQR" class="modal-overlay">
     <div class="modal-card" style="align-items: center; text-align: center; max-width: 440px;">
       <h2 style="margin-top:0; color: var(--primary-cyan); font-size: 22px;">📱 Connetti gli Studenti</h2>
       <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 2px;">Inquadra il QR Code con lo smartphone:</p>
       
-      <!-- CONTENITORE BIANCO PULITO PER FACILITARE LA FOTOCAMERA -->
       <div class="qr-box-container">
         <div id="qrcode"></div>
       </div>
@@ -882,7 +881,6 @@
         </div>
       </div>
       <div id="listaCronologiaBody" class="modal-body" style="display: flex; flex-direction: column; gap: 10px; font-size: 15px;">
-        <!-- Le frasi salvate compariranno qui -->
       </div>
     </div>
   </div>
@@ -900,13 +898,12 @@
     let testoConfermatoDocente = '';
     let eStudente = false;
 
-    // CACHE TRADUZIONI LATO DOCENTE PER AZZERARE L'EFFETTO IMBUTO
     let cacheTraduzioniDocente = {};
-
     let traduzioniRicevuteRete = {};
     let testoITARicevutoRete = '';
 
     let elementoAudioAttivo = null;
+    let oggettoAudioCloudCurrent = null;
 
     let peer = null;
     let connessioniStudenti = [];
@@ -947,7 +944,6 @@
 
     let lingueAttive = ['sq', 'ar', 'bn', 'zh-CN', 'fr', 'en', 'es', 'uk'];
 
-    /* RENDERING UNIFORME BANDIERE SU WINDOWS VIA TWEMOJI */
     function applicaTwemoji() {
       if (window.twemoji) {
         twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
@@ -986,7 +982,6 @@
         clearInterval(timerRiconnessione);
         aggiornaStatoVisivoStudente('connected');
         
-        // Legge la lingua preferita scelta dall'alunno in studente.html
         const urlParams = new URLSearchParams(window.location.search);
         const miaLingua = urlParams.get('lang') || 'en';
 
@@ -1033,7 +1028,6 @@
           document.getElementById('codiceAulaDocente').innerText = stanzaTarget.replace('cpia-aula-', '');
         }
 
-        // SCAGLIONAMENTO CASUALE INGRESSO STUDENTI PER AZZERARE LA SIGNALING STORM
         const ritardoMilli = Math.floor(Math.random() * 750) + 50; 
         setTimeout(() => {
           peer = new Peer(CONFIGURAZIONE_PEER);
@@ -1054,7 +1048,6 @@
           aggiornaContatoreStudenti();
           
           conn.on('data', (dati) => {
-            // RISPOSTA CON INVIO MIRATO DEI SOLI DATI IN CACHE (ZERO CARICO DI RETE)
             if (dati && dati.tipo === 'RICHIESTA_SINCRONIZZAZIONE') {
               const testoAttuale = document.getElementById('testoITA').value.trim();
               const linguaInviata = dati.lang;
@@ -1121,9 +1114,14 @@
       display.scrollTop = display.scrollHeight;
     }
 
+    /* GESTIONE AUDIO UNIVERSALE CON FALLBACK CLOUD HD NATIVO */
     function fermaTuttaLettura() {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
+      }
+      if (oggettoAudioCloudCurrent) {
+        oggettoAudioCloudCurrent.pause();
+        oggettoAudioCloudCurrent = null;
       }
       document.querySelectorAll('.btn-svg-icon').forEach(btn => btn.classList.remove('active-speaking'));
       document.querySelectorAll('.card, .student-card-main').forEach(c => c.classList.remove('speaking-card'));
@@ -1151,35 +1149,6 @@
       avviaLetturaGenerica('studentDisplayText', voiceLang, velocita, btnIcon, cardEl);
     }
 
-    function avviaLetturaGenerica(idElementoTesto, voiceLang, velocita, btnIcon, cardElement) {
-      fermaTuttaLettura();
-
-      const elText = document.getElementById(idElementoTesto);
-      const testoPuro = elText ? elText.innerText.trim() : '';
-
-      if (!testoPuro || testoPuro === '...' || testoPuro.startsWith('In attesa')) return;
-      if (!('speechSynthesis' in window)) return;
-
-      const utterance = new SpeechSynthesisUtterance(testoPuro);
-      const langCode = voiceLang.split('-')[0];
-      const voceMigliore = selezionaVoceMigliore(langCode);
-      if (voceMigliore) utterance.voice = voceMigliore;
-      utterance.lang = voiceLang;
-      utterance.rate = velocita;
-
-      utterance.onstart = () => {
-        elementoAudioAttivo = btnIcon;
-        if (btnIcon) btnIcon.classList.add('active-speaking');
-        if (cardElement) cardElement.classList.add('speaking-card');
-        aggiornaStato('Ascolto...');
-      };
-
-      utterance.onend = () => fermaTuttaLettura();
-      utterance.onerror = () => fermaTuttaLettura();
-
-      window.speechSynthesis.speak(utterance);
-    }
-
     function leggiTestoScheda(lang, velocita, btnIcon, cardElement) {
       if (elementoAudioAttivo === btnIcon) {
         fermaTuttaLettura();
@@ -1188,6 +1157,107 @@
       const obj = ELENCO_LINGUE.find(l => l.code === lang);
       const voiceLang = obj ? obj.voice : lang;
       avviaLetturaGenerica('box_' + lang, voiceLang, velocita, btnIcon, cardElement);
+    }
+
+    function leggiTestoFocus(velocita, btnIcon) {
+      if (!linguaFocusCorrente) return;
+      if (elementoAudioAttivo === btnIcon) {
+        fermaTuttaLettura();
+        return;
+      }
+      const obj = ELENCO_LINGUE.find(l => l.code === linguaFocusCorrente);
+      const voiceLang = obj ? obj.voice : linguaFocusCorrente;
+      avviaLetturaGenerica('modalBody', voiceLang, velocita, btnIcon, null);
+    }
+
+    function avviaLetturaGenerica(idElementoTesto, voiceLang, velocita, btnIcon, cardElement) {
+      fermaTuttaLettura();
+
+      const elText = document.getElementById(idElementoTesto);
+      const testoPuro = elText ? elText.innerText.trim() : '';
+
+      if (!testoPuro || testoPuro === '...' || testoPuro.startsWith('In attesa')) return;
+
+      const langCode = voiceLang.split('-')[0];
+      const voceMigliore = selezionaVoceMigliore(langCode);
+
+      // SE È PRESENTE UNA VOCE LOCALE AD ALTA DEFINIZIONE (Natural, Google, Neural)
+      if ('speechSynthesis' in window && voceMigliore) {
+        const utterance = new SpeechSynthesisUtterance(testoPuro);
+        utterance.voice = voceMigliore;
+        utterance.lang = voiceLang;
+        utterance.rate = velocita;
+
+        utterance.onstart = () => {
+          elementoAudioAttivo = btnIcon;
+          if (btnIcon) btnIcon.classList.add('active-speaking');
+          if (cardElement) cardElement.classList.add('speaking-card');
+          aggiornaStato('Ascolto...');
+        };
+
+        utterance.onend = () => fermaTuttaLettura();
+        utterance.onerror = () => riproduciAudioCloud(testoPuro, langCode, velocita, btnIcon, cardElement);
+
+        window.speechSynthesis.speak(utterance);
+      } else {
+        // FALLBACK AUTOMATICO SU AUDIO CLOUD GOOGLE TRANSLATE HD
+        riproduciAudioCloud(testoPuro, langCode, velocita, btnIcon, cardElement);
+      }
+    }
+
+    function riproduciAudioCloud(testo, langCode, velocita, btnIcon, cardElement) {
+      const urlAudio = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(testo)}&tl=${langCode}&client=tw-ob`;
+      
+      const audio = new Audio(urlAudio);
+      audio.playbackRate = velocita;
+      oggettoAudioCloudCurrent = audio;
+
+      audio.onplay = () => {
+        elementoAudioAttivo = btnIcon;
+        if (btnIcon) btnIcon.classList.add('active-speaking');
+        if (cardElement) cardElement.classList.add('speaking-card');
+        aggiornaStato('Ascolto Cloud...');
+      };
+
+      audio.onended = () => fermaTuttaLettura();
+      audio.onerror = () => {
+        aggiornaStato('Audio non disponibile');
+        fermaTuttaLettura();
+      };
+
+      audio.play().catch(e => console.error("Errore audio cloud:", e));
+    }
+
+    let vociDisponibili = [];
+    function caricaVoci() {
+      if ('speechSynthesis' in window) vociDisponibili = window.speechSynthesis.getVoices();
+    }
+    caricaVoci();
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = caricaVoci;
+    }
+
+    function selezionaVoceMigliore(langCode) {
+      if (!vociDisponibili.length) caricaVoci();
+      const baseCode = langCode.toLowerCase().split('-')[0];
+      
+      let compatibili = vociDisponibili.filter(v => {
+        const vLang = v.lang.toLowerCase().replace('_', '-');
+        return vLang.startsWith(baseCode);
+      });
+
+      if (!compatibili.length) return null;
+
+      // Restituisce la voce locale solo se è riconosciuta come ad alta qualità
+      let sceltaHD = compatibili.find(v => 
+        v.name.includes('Google') || 
+        v.name.includes('Natural') || 
+        v.name.includes('Neural') ||
+        v.name.includes('Online')
+      );
+
+      return sceltaHD || null; // Se c'è solo una voce generica/robotica, restituisce null per attivare l'audio cloud
     }
 
     function copiaTestoStudente() {
@@ -1239,15 +1309,12 @@
       const container = document.getElementById('qrcode');
       container.innerHTML = '';
       
-      // Preserva la corrispondenza esatta del PIN
       const pinNumerico = ID_STANZA_DOCENTE.replace('cpia-aula-', '');
       document.getElementById('roomCodeDisplay').innerText = pinNumerico;
 
-      // OPZIONE A: IL QR CODE PUNTA A studente.html PASSANDO IL PIN AUTOMATICO
       const baseURL = window.location.href.split('?')[0].replace(/index.*\.html$/, '');
       const urlLezione = baseURL + 'studente.html?stanza=' + pinNumerico;
 
-      // QR Code ingrandito ad alto contrasto
       new QRCode(container, {
         text: urlLezione,
         width: 210,
@@ -1428,7 +1495,6 @@
       linguaFocusCorrente = null;
     }
 
-    /* SALVATAGGIO CRONOLOGIA INTEGRO ED ISOLATO */
     function salvaInCronologia() {
       const testoITA = document.getElementById('testoITA').value.trim();
       if (!testoITA) return;
@@ -1699,35 +1765,6 @@
       win.document.close();
     }
 
-    let vociDisponibili = [];
-    function caricaVoci() {
-      if ('speechSynthesis' in window) vociDisponibili = window.speechSynthesis.getVoices();
-    }
-    caricaVoci();
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.getVoices();
-      window.speechSynthesis.onvoiceschanged = caricaVoci;
-    }
-
-    function selezionaVoceMigliore(langCode) {
-      if (!vociDisponibili.length) caricaVoci();
-      const prefix = langCode.toLowerCase().split('-')[0];
-      
-      let compatibili = vociDisponibili.filter(v => v.lang.toLowerCase().startsWith(prefix));
-      
-      if (!compatibili.length) {
-        compatibili = vociDisponibili.filter(v => 
-          v.name.toLowerCase().includes(prefix) || 
-          v.lang.toLowerCase().includes(prefix)
-        );
-      }
-
-      if (!compatibili.length) return null;
-
-      let scelta = compatibili.find(v => v.name.includes('Online') || v.name.includes('Natural') || v.name.includes('Neural') || v.name.includes('Google'));
-      return scelta || compatibili[0];
-    }
-
     function applicaPunteggiaturaAvanzata(testo) {
       let t = testo
         .replace(/\bvirgola\b/gi, ',')
@@ -1752,7 +1789,6 @@
 
     if (SpeechRecognition) {
       recDocente = new SpeechRecognition();
-      
       recDocente.continuous = !isMobile;
       recDocente.interimResults = true;
       recDocente.lang = 'it-IT';
@@ -1941,7 +1977,6 @@
 
       aggiornaStato('Traduzione...');
 
-      // TRADUZIONE IN PARALLELO SALVANDO IN CACHE LATO DOCENTE
       let promesse = ELENCO_LINGUE.map(l => {
         return chiamaGoogleTranslate(testo, 'it', l.code).then(trad => {
           if (trad) {
