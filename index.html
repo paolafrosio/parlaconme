@@ -7,7 +7,6 @@
   
   <link rel="icon" type="image/png" href="logo_bianco.png?v=5">
 
-  <!-- FONT INTER PER UNA MIGLIORE LEGGIBILITÀ -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -16,7 +15,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     :root {
-      /* TEMA DARK NEON PREDEFINITO */
       --bg-gradient: radial-gradient(circle at 15% 15%, #06b6d4 0%, transparent 35%),
                      radial-gradient(circle at 85% 25%, #a855f7 0%, transparent 40%),
                      radial-gradient(circle at 50% 85%, #2563eb 0%, transparent 45%),
@@ -32,7 +30,6 @@
     }
 
     body.light-mode {
-      /* TEMA LIGHT GLASS */
       --bg-gradient: radial-gradient(circle at 15% 15%, #bae6fd 0%, transparent 40%),
                      radial-gradient(circle at 85% 25%, #e9d5ff 0%, transparent 40%),
                      radial-gradient(circle at 50% 85%, #93c5fd 0%, transparent 45%),
@@ -53,7 +50,7 @@
       overflow-x: hidden;
     }
     body {
-      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-family: 'Inter', 'Segoe UI Emoji', 'Noto Color Emoji', 'Apple Color Emoji', sans-serif;
       background: var(--bg-gradient);
       background-attachment: fixed;
       margin: 0;
@@ -65,10 +62,7 @@
       transition: background 0.3s, color 0.3s;
     }
 
-    /* TOOLTIP PERSONALIZZATO SUI PULSANTI */
-    [data-tooltip] {
-      position: relative;
-    }
+    [data-tooltip] { position: relative; }
     [data-tooltip]:hover::after {
       content: attr(data-tooltip);
       position: absolute;
@@ -86,35 +80,11 @@
       backdrop-filter: blur(8px);
     }
 
-    [data-tooltip]:hover::after {
-      bottom: 125%;
-      left: 50%;
-      transform: translateX(-50%);
-    }
+    [data-tooltip]:hover::after { bottom: 125%; left: 50%; transform: translateX(-50%); }
+    [data-tooltip-pos="bottom"]:hover::after { bottom: auto; top: 125%; left: 50%; transform: translateX(-50%); }
+    [data-tooltip-pos="bottom-tight"]:hover::after { bottom: auto; top: 105%; left: 50%; transform: translateX(-50%); }
+    [data-tooltip-pos="left"]:hover::after { bottom: auto; top: 50%; right: 125%; left: auto; transform: translateY(-50%); }
 
-    [data-tooltip-pos="bottom"]:hover::after {
-      bottom: auto;
-      top: 125%;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-
-    [data-tooltip-pos="bottom-tight"]:hover::after {
-      bottom: auto;
-      top: 105%;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-
-    [data-tooltip-pos="left"]:hover::after {
-      bottom: auto;
-      top: 50%;
-      right: 125%;
-      left: auto;
-      transform: translateY(-50%);
-    }
-
-    /* HEADER GLASS */
     .header {
       display: flex;
       justify-content: space-between;
@@ -220,7 +190,6 @@
       text-overflow: ellipsis;
     }
     
-    /* SOURCE BOX DOCENTE */
     .source-box {
       background: var(--card-bg);
       backdrop-filter: blur(20px);
@@ -281,7 +250,6 @@
       box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
     }
 
-    /* PULSANTE MICROFONO FISSO */
     .btn-mic-container {
       display: flex;
       flex-direction: column;
@@ -384,7 +352,6 @@
       overflow: hidden;
     }
 
-    /* GRIGLIA SCHEDE GLASS DOCENTE */
     .grid-container {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
@@ -482,7 +449,6 @@
       animation: pulseNeon 1.5s infinite;
     }
 
-    /* VISTA STUDENTE INTEGRATA GLASS COERENTE */
     .student-view-container {
       display: none;
       flex-direction: column;
@@ -539,7 +505,6 @@
       color: var(--text-color) !important;
     }
 
-    /* MODALE GLASS */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -617,7 +582,6 @@
       .student-select { width: 100%; }
     }
 
-    /* REGOLE DI STAMPA */
     @media print {
       @page { margin: 10mm; size: auto; }
       html, body {
@@ -669,12 +633,10 @@
     <h1><img src="logo_bianco.png?v=5" alt="Logo" style="height: 38px; vertical-align: middle; margin-right: 6px;">ParlaConMe</h1>
     <div class="top-controls">
       <div style="display: flex; align-items: center; gap: 8px;">
-        <!-- BADGE CODICE AULA -->
         <span style="background: rgba(255, 255, 255, 0.1); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--primary-cyan, #00f2fe);">
           🏫 Aula: <span id="codiceAulaDocente">---</span>
         </span>
         
-        <!-- CONTATORE STUDENTI ORIGINALE -->
         <div id="studentCounterContainer" class="student-counter-badge">
           👥 Studenti: <span id="studentCount">0</span>
         </div>
@@ -729,7 +691,6 @@
           <button class="btn-main" style="width: auto;" onclick="salvaInCronologia()" data-tooltip="Salva frase nella lezione" aria-label="Salva frase in cronologia">📌 Salva Frase</button>
           <button class="btn-main" style="width: auto;" onclick="apriModalCronologia()" data-tooltip="Vedi e gestisci le frasi salvate" aria-label="Gestisci cronologia">📜 Lista (<span id="countCronologia">0</span>)</button>
           
-          <!-- PULSANTE MIC CIRCOLARE SVG FISSO -->
           <button id="btnMic" class="btn-mic-container" onclick="toggleMicrofonoDocente()" data-tooltip="Attiva/disattiva microfono" data-tooltip-pos="bottom-tight" aria-label="Attiva o disattiva microfono docente">
             <div class="btn-mic-circle">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -751,10 +712,9 @@
     <div id="gridContainer" class="grid-container"></div>
   </div>
 
-  <!-- INTERFACCIA DEDICATA BILINGUE PER STUDENTI -->
+  <!-- VISTA STUDENTE -->
   <div id="studentViewContainer" class="student-view-container">
     <div id="mainStudentCard" class="student-card-main">
-      
       <div class="student-lang-bar">
         <label for="myLangSelect"><strong>🌐 Scegli la tua lingua / Choose language:</strong></label>
         <select id="myLangSelect" class="student-select" style="font-size: 15px; width: 100%;" onchange="cambiaLinguaStudente()" aria-label="Seleziona la tua lingua madre"></select>
@@ -843,7 +803,7 @@
     </div>
   </div>
 
-  <!-- MODALE CRONOLOGIA FRASI -->
+  <!-- MODALE CRONOLOGIA -->
   <div id="modalCronologia" class="modal-overlay">
     <div class="modal-card">
       <div class="modal-header">
@@ -854,7 +814,6 @@
         </div>
       </div>
       <div id="listaCronologiaBody" class="modal-body" style="display: flex; flex-direction: column; gap: 10px; font-size: 15px;">
-        <!-- Le frasi salvate compariranno qui -->
       </div>
     </div>
   </div>
@@ -868,7 +827,7 @@
     let fontSizeITACorrente = 16;
     let linguaFocusCorrente = null;
     let cronologiaLezione = [];
-    let ID_PROGRESSIVO_CRONOLOGIA = 0; // Identificatore univoco e progressivo
+    let ID_PROGRESSIVO_CRONOLOGIA = 0;
     let testoConfermatoDocente = '';
     let eStudente = false;
     let traduzioniRicevuteRete = {};
@@ -1342,7 +1301,7 @@
       linguaFocusCorrente = null;
     }
 
-    /* GESTIONE CRONOLOGIA CORRETTA CON ID UNIVOCO PROGRESSIVO */
+    /* SALVATAGGIO IN CRONOLOGIA */
     function salvaInCronologia() {
       const testoITA = document.getElementById('testoITA').value.trim();
       if (!testoITA) return;
@@ -1546,6 +1505,7 @@
       win.document.close();
     }
 
+    /* ESPORTAZIONE PDF COMPLETO MULTI-LINGUA CORRETTA */
     function stampaOEsportaPDF() {
       if (eStudente) {
         window.print();
@@ -1558,9 +1518,9 @@
         const testoCorrenteITA = document.getElementById('testoITA').value.trim();
         if (testoCorrenteITA) {
           let rigaCorrente = { ita: testoCorrenteITA };
-          lingueAttive.forEach(l => {
-            const el = document.getElementById('box_' + l);
-            if (el && el.innerText !== '...') rigaCorrente[l] = el.innerText;
+          ELENCO_LINGUE.forEach(l => {
+            const el = document.getElementById('box_' + l.code);
+            if (el && el.innerText !== '...') rigaCorrente[l.code] = el.innerText;
           });
           frasiDaStampare.push(rigaCorrente);
         }
@@ -1597,12 +1557,13 @@
 
       frasiDaStampare.forEach((item, index) => {
         html += `<div class="block"><div class="ita">${index + 1}. 🇮🇹 ITA: ${item.ita}</div>`;
-        lingueAttive.forEach(l => {
-          const obj = ELENCO_LINGUE.find(x => x.code === l);
-          if (item[l]) {
-            html += `<div class="trans"><strong>${obj ? obj.name : l}:</strong> ${item[l]}</div>`;
+        
+        ELENCO_LINGUE.forEach(l => {
+          if (lingueAttive.includes(l.code) && item[l.code]) {
+            html += `<div class="trans" ${l.rtl ? 'style="direction: rtl; text-align: right;"' : ''}><strong>${l.name}:</strong> ${item[l.code]}</div>`;
           }
         });
+        
         html += `</div>`;
       });
 
