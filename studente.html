@@ -161,25 +161,35 @@
       { code: 'ur', name: '🇵🇰 Urdu' }
     ];
 
-    function inizializzaPagina() {
-      const select = document.getElementById('langInput');
-      select.innerHTML = '';
-      
-      // Carica l'ultima lingua salvata nello smartphone, se presente
-      const ultimaLingua = localStorage.getItem('parlaconme_lang') || 'en';
+function inizializzaPagina() {
+  const select = document.getElementById('langInput');
+  select.innerHTML = '';
+  
+  // Legge il PIN dall'URL (supporta sia ?stanza=1234 sia ?pin=1234)
+  const urlParams = new URLSearchParams(window.location.search);
+  let stanzaDaUrl = urlParams.get('stanza') || urlParams.get('pin');
+  
+  if (stanzaDaUrl) {
+    // Pulizia da prefissi se già presenti
+    stanzaDaUrl = stanzaDaUrl.replace('cpia-aula-', '');
+    document.getElementById('pinInput').value = stanzaDaUrl;
+  }
 
-      ELENCO_LINGUE.forEach(l => {
-        const opt = document.createElement('option');
-        opt.value = l.code;
-        opt.innerText = l.name;
-        if (l.code === ultimaLingua) opt.selected = true;
-        select.appendChild(opt);
-      });
+  // Carica l'ultima lingua salvata nello smartphone
+  const ultimaLingua = localStorage.getItem('parlaconme_lang') || 'en';
 
-      if (window.twemoji) {
-        twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
-      }
-    }
+  ELENCO_LINGUE.forEach(l => {
+    const opt = document.createElement('option');
+    opt.value = l.code;
+    opt.innerText = l.name;
+    if (l.code === ultimaLingua) opt.selected = true;
+    select.appendChild(opt);
+  });
+
+  if (window.twemoji) {
+    twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+  }
+}
 
     function salvaLinguaPreferita() {
       const lang = document.getElementById('langInput').value;
