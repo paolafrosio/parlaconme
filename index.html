@@ -14,6 +14,10 @@
 
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  
+  <!-- LIBRERIA TWEMOJI PER IL RENDERING DELLE BANDIERE SU WINDOWS -->
+  <script src="https://cdn.jsdelivr.net/npm/@twemoji/api@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
+
   <style>
     :root {
       /* TEMA DARK NEON PREDEFINITO */
@@ -63,6 +67,15 @@
       display: flex;
       flex-direction: column;
       transition: background 0.3s, color 0.3s;
+    }
+
+    /* STILE BANDIERE RENDERING TWEMOJI */
+    img.emoji {
+      height: 1.2em;
+      width: 1.2em;
+      margin: 0 .15em 0 .15em;
+      vertical-align: -0.2em;
+      display: inline-block;
     }
 
     /* TOOLTIP PERSONALIZZATO SUI PULSANTI */
@@ -917,6 +930,16 @@
 
     let lingueAttive = ['sq', 'ar', 'bn', 'zh-CN', 'fr', 'en', 'es', 'uk'];
 
+    /* FUNZIONE PER CONVERTIRE TUTTE LE EMOJI DELLE BANDIERE IN IMMAGINI TWEMOJI SU WINDOWS */
+    function applicaTwemoji() {
+      if (window.twemoji) {
+        twemoji.parse(document.body, {
+          folder: 'svg',
+          ext: '.svg'
+        });
+      }
+    }
+
     function aggiornaContatoreStudenti() {
       const countEl = document.getElementById('studentCount');
       if (countEl) countEl.innerText = connessioniStudenti.length;
@@ -938,6 +961,7 @@
         badge.classList.add('status-disconnected');
         badge.innerHTML = '🔴 Disconnesso';
       }
+      applicaTwemoji();
     }
 
     function connettiAStanzaDocente(stanzaTarget) {
@@ -1038,6 +1062,7 @@
           select.appendChild(opt);
         });
       }
+      applicaTwemoji();
     }
 
     function cambiaLinguaStudente() {
@@ -1180,6 +1205,7 @@
       });
 
       modal.style.display = 'flex';
+      applicaTwemoji();
     }
 
     function chiudiQRCode() {
@@ -1228,6 +1254,7 @@
       });
 
       gestisciInput();
+      applicaTwemoji();
     }
 
     function apriGestioneLingue() {
@@ -1241,6 +1268,7 @@
         list.appendChild(item);
       });
       document.getElementById('modalLangConfig').style.display = 'flex';
+      applicaTwemoji();
     }
 
     function toggleLingua(code) {
@@ -1317,7 +1345,10 @@
       gestisciInput();
     }
 
-    function apriModalitaStudente() { document.getElementById('studentPanel').style.display = 'block'; }
+    function apriModalitaStudente() { 
+      document.getElementById('studentPanel').style.display = 'block'; 
+      applicaTwemoji();
+    }
     function chiudiModalitaStudente() {
       document.getElementById('studentPanel').style.display = 'none';
       if (inAscoltoStudente) fermaAscoltoStudente();
@@ -1335,6 +1366,7 @@
       if (langObj && langObj.rtl) modalBody.classList.add('rtl');
       else modalBody.classList.remove('rtl');
       document.getElementById('modalFocus').style.display = 'flex';
+      applicaTwemoji();
     }
 
     function chiudiFocus() {
@@ -1372,6 +1404,7 @@
     function apriModalCronologia() {
       renderizzaListaCronologia();
       document.getElementById('modalCronologia').style.display = 'flex';
+      applicaTwemoji();
     }
 
     function chiudiModalCronologia() {
@@ -1402,6 +1435,7 @@
         `;
         container.appendChild(box);
       });
+      applicaTwemoji();
     }
 
     function eliminaSingolaFrase(idTarget) {
@@ -1882,8 +1916,11 @@
 
     function aggiornaStato(msg) { document.getElementById('status').innerText = msg; }
 
-    inizializzaGriglia();
-    inizializzaRete();
+    window.addEventListener('DOMContentLoaded', () => {
+      inizializzaGriglia();
+      inizializzaRete();
+      applicaTwemoji();
+    });
   </script>
 </body>
 </html>
