@@ -851,6 +851,7 @@
     let testoITARicevutoRete = '';
 
     let elementoAudioAttivo = null;
+    let audioLettoreCloud = null;
 
     let peer = null;
     let connessioniStudenti = [];
@@ -870,7 +871,7 @@
       }
     };
 
-    /* ELENCO LINGUE CON CONVERSIONE SVG FLAG CDN E CODICI TTS ESTESI */
+    /* ELENCO LINGUE COMPLETO */
     const ELENCO_LINGUE = [
       { code: 'sq', voice: 'sq-AL', flag: 'al', name: 'Albanese' },
       { code: 'ar', voice: 'ar-SA', flag: 'sa', name: 'Arabo', rtl: true },
@@ -1035,6 +1036,10 @@
     }
 
     function fermaTuttaLettura() {
+      if (audioLettoreCloud) {
+        audioLettoreCloud.pause();
+        audioLettoreCloud = null;
+      }
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
@@ -1049,7 +1054,7 @@
         return;
       }
       const cardEl = document.getElementById('mainStudentCard');
-      avviaLetturaGenerica('studentDisplayITA', 'it-IT', velocita, btnIcon, cardEl);
+      avviaLetturaGenerica('studentDisplayITA', 'it', velocita, btnIcon, cardEl);
     }
 
     function toggleLetturaStudente(velocita, btnIcon) {
@@ -1058,44 +1063,58 @@
         return;
       }
       const lang = document.getElementById('myLangSelect').value;
-      const obj = ELENCO_LINGUE.find(l => l.code === lang);
-      const voiceLang = obj ? obj.voice : lang;
       const cardEl = document.getElementById('mainStudentCard');
-      avviaLetturaGenerica('studentDisplayText', voiceLang, velocita, btnIcon, cardEl);
+      avviaLetturaGenerica('studentDisplayText', lang, velocita, btnIcon, cardEl);
     }
 
-    function avviaLetturaGenerica(idElementoTesto, voiceLang, velocita, btnIcon, cardElement) {
+    /* MOTORE AUDIO HYBRID: Cloud Google Translate TTS con fallback locale */
+    function avviaLetturaGenerica(idElementoTesto, langCode, velocita, btnIcon, cardElement) {
       fermaTuttaLettura();
 
       const elText = document.getElementById(idElementoTesto);
       const testoPuro = elText ? elText.innerText.trim() : '';
 
       if (!testoPuro || testoPuro === '...' || testoPuro.startsWith('In attesa')) return;
-      if (!('speechSynthesis' in window)) return;
 
-      const utterance = new SpeechSynthesisUtterance(testoPuro);
-      const langPrefix = voiceLang.split('-')[0].toLowerCase();
-      
-      utterance.lang = voiceLang; // Impostazione primaria fondamentale per il browser
+      const codiceLinguaBase = langCode.split('-')[0].toLowerCase();
 
-      const voceMigliore = selezionaVoceMigliore(langPrefix);
-      if (voceMigliore) {
-        utterance.voice = voceMigliore;
-      }
+      // Tentativo 1: Audio Cloud HD in lingua nativa via Google Translate TTS
+      const urlAudioCloud = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(testoPuro)}&tl=${codiceLinguaBase}&client=tw-ob`;
 
-      utterance.rate = velocita;
+      audioLettoreCloud = new Audio(urlAudioCloud);
+      if (velocita < 0.8) audioLettoreCloud.playbackRate = 0.75;
 
-      utterance.onstart = () => {
+      audioLettoreCloud.onplay = () => {
         elementoAudioAttivo = btnIcon;
         if (btnIcon) btnIcon.classList.add('active-speaking');
         if (cardElement) cardElement.classList.add('speaking-card');
         aggiornaStato('Ascolto...');
       };
 
-      utterance.onend = () => fermaTuttaLettura();
-      utterance.onerror = () => fermaTuttaLettura();
+      audioLettoreCloud.onended = () => fermaTuttaLettura();
 
-      window.speechSynthesis.speak(utterance);
+      audioLettoreCloud.onerror = () => {
+        // Tentativo 2: Fallback su SpeechSynthesis locale del browser se offline
+        if (!('speechSynthesis' in window)) return;
+        const utterance = new SpeechSynthesisUtterance(testoPuro);
+        utterance.lang = langCode;
+        utterance.rate = velocita;
+
+        utterance.onstart = () => {
+          elementoAudioAttivo = btnIcon;
+          if (btnIcon) btnIcon.classList.add('active-speaking');
+          if (cardElement) cardElement.classList.add('speaking-card');
+          aggiornaStato('Ascolto...');
+        };
+        utterance.onend = () => fermaTuttaLettura();
+        utterance.onerror = () => fermaTuttaLettura();
+
+        window.speechSynthesis.speak(utterance);
+      };
+
+      audioLettoreCloud.play().catch(() => {
+        audioLettoreCloud.onerror();
+      });
     }
 
     function leggiTestoScheda(lang, velocita, btnIcon, cardElement) {
@@ -1103,9 +1122,16 @@
         fermaTuttaLettura();
         return;
       }
-      const obj = ELENCO_LINGUE.find(l => l.code === lang);
-      const voiceLang = obj ? obj.voice : lang;
-      avviaLetturaGenerica('box_' + lang, voiceLang, velocita, btnIcon, cardElement);
+      avviaLetturaGenerica('box_' + lang, lang, velocita, btnIcon, cardElement);
+    }
+
+    function leggiTestoFocus(velocita, btnIcon) {
+      if (elementoAudioAttivo === btnIcon) {
+        fermaTuttaLettura();
+        return;
+      }
+      if (!linguaFocusCorrente) return;
+      avviaLetturaGenerica('modalBody', linguaFocusCorrente, velocita, btnIcon, null);
     }
 
     function copiaTestoStudente() {
@@ -1595,46 +1621,6 @@
       html += `</div><script>window.onload = function() { window.print(); }<\/script></body></html>`;
       win.document.write(html);
       win.document.close();
-    }
-
-    let vociDisponibili = [];
-    function caricaVoci() {
-      if ('speechSynthesis' in window) {
-        vociDisponibili = window.speechSynthesis.getVoices();
-      }
-    }
-    caricaVoci();
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.getVoices();
-      window.speechSynthesis.onvoiceschanged = caricaVoci;
-    }
-
-    /* SELEZIONE VOCE SINTESI VOCALE AVANZATA E ROBUSTA */
-    function selezionaVoceMigliore(langPrefix) {
-      if (!vociDisponibili.length) caricaVoci();
-
-      const prefix = langPrefix.toLowerCase().split('-')[0];
-
-      // 1. Cerca corrispondenza esatta di lingua (es. 'ar-SA' o 'sq-AL')
-      let compatibili = vociDisponibili.filter(v => v.lang.toLowerCase().startsWith(prefix));
-
-      if (compatibili.length > 0) {
-        // Cerca voci ad alta qualità se presenti
-        let ottima = compatibili.find(v => 
-          v.name.includes('Online') || 
-          v.name.includes('Natural') || 
-          v.name.includes('Neural') || 
-          v.name.includes('Google')
-        );
-        return ottima || compatibili[0];
-      }
-
-      // 2. Se non la trova, cerca nel nome della voce
-      let perNome = vociDisponibili.find(v => v.name.toLowerCase().includes(prefix));
-      if (perNome) return perNome;
-
-      // Se non c'è voce specifica installata nel sistema operativo, lascia la gestione nativa al browser senza forzare la voce in inglese
-      return null;
     }
 
     function applicaPunteggiaturaAvanzata(testo) {
