@@ -1240,11 +1240,14 @@
       container.innerHTML = '';
       
       // Preserva la corrispondenza esatta del PIN
-      document.getElementById('roomCodeDisplay').innerText = ID_STANZA_DOCENTE.replace('cpia-aula-', '');
+      const pinNumerico = ID_STANZA_DOCENTE.replace('cpia-aula-', '');
+      document.getElementById('roomCodeDisplay').innerText = pinNumerico;
 
-      const urlLezione = window.location.href.split('?')[0] + '?stanza=' + ID_STANZA_DOCENTE;
+      // OPZIONE A: IL QR CODE PUNTA A studente.html PASSANDO IL PIN AUTOMATICO
+      const baseURL = window.location.href.split('?')[0].replace(/index.*\.html$/, '');
+      const urlLezione = baseURL + 'studente.html?stanza=' + pinNumerico;
 
-      // QR Code ingrandito per una scansione facile dalla fotocamera dello smartphone
+      // QR Code ingrandito ad alto contrasto
       new QRCode(container, {
         text: urlLezione,
         width: 210,
