@@ -2,20 +2,20 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!-- Zoom con due dita ora consentito (accessibilità) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Non invia l'indirizzo della pagina a Google: aiuta la voce a partire -->
+  <meta name="referrer" content="no-referrer">
   <title>ParlaConMe - Traduttore Live CPIA</title>
-  
   <link rel="icon" type="image/png" href="logo_bianco.png?v=5">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
+  <!-- Nessun font di Google: si usano i font già presenti nel dispositivo -->
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@twemoji/api@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@twemoji/api@15/dist/twemoji.min.js" crossorigin="anonymous"></script>
 
   <style>
+    /* ==================== TEMI ==================== */
     :root {
       --bg-gradient: radial-gradient(circle at 15% 15%, #06b6d4 0%, transparent 35%),
                      radial-gradient(circle at 85% 25%, #a855f7 0%, transparent 40%),
@@ -25,12 +25,11 @@
       --card-border: rgba(56, 189, 248, 0.3);
       --card-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.12);
       --text-color: #f8fafc;
-      --text-muted: #94a3b8;
+      --text-muted: #cbd5e1;
       --primary-cyan: #38bdf8;
       --card-body-bg: rgba(10, 15, 29, 0.6);
       --box-ita-bg: rgba(15, 23, 42, 0.7);
     }
-
     body.light-mode {
       --bg-gradient: radial-gradient(circle at 15% 15%, #bae6fd 0%, transparent 40%),
                      radial-gradient(circle at 85% 25%, #e9d5ff 0%, transparent 40%),
@@ -40,8 +39,8 @@
       --card-border: rgba(2, 132, 199, 0.25);
       --card-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
       --text-color: #0f172a;
-      --text-muted: #475569;
-      --primary-cyan: #0284c7;
+      --text-muted: #334155;
+      --primary-cyan: #0369a1;
       --card-body-bg: rgba(248, 250, 252, 0.85);
       --box-ita-bg: rgba(241, 245, 249, 0.9);
     }
@@ -49,7 +48,7 @@
     * { box-sizing: border-box; }
     html, body { width: 100%; overflow-x: hidden; }
     body {
-      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
       background: var(--bg-gradient);
       background-attachment: fixed;
       margin: 0;
@@ -60,34 +59,51 @@
       flex-direction: column;
       transition: background 0.3s, color 0.3s;
     }
+    img.emoji { height: 1.2em; width: 1.2em; margin: 0 .15em; vertical-align: -0.2em; display: inline-block; }
 
-    img.emoji {
-      height: 1.2em;
-      width: 1.2em;
-      margin: 0 .15em;
-      vertical-align: -0.2em;
-      display: inline-block;
+    button:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-visible {
+      outline: 2px solid var(--primary-cyan);
+      outline-offset: 2px;
     }
 
-    [data-tooltip] { position: relative; }
-    [data-tooltip]:hover::after {
-      content: attr(data-tooltip);
-      position: absolute;
-      background: rgba(15, 23, 42, 0.95);
-      color: #38bdf8;
-      border: 1px solid var(--card-border);
-      padding: 5px 9px;
-      font-size: 11px;
-      font-weight: 600;
-      border-radius: 8px;
-      white-space: nowrap;
-      pointer-events: none;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      z-index: 1000;
-      backdrop-filter: blur(8px);
+    /* ==================== SUGGERIMENTI E ETICHETTE ====================
+       PC (mouse): scritta al passaggio del mouse.
+       Smartphone/tablet (touch): piccola scritta sempre visibile sotto l'icona. */
+    .btn-label { display: none; }
+    @media (hover: hover) {
+      [data-tooltip] { position: relative; }
+      [data-tooltip]:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        background: rgba(15, 23, 42, 0.95);
+        color: #38bdf8;
+        border: 1px solid var(--card-border);
+        padding: 5px 9px;
+        font-size: 11px;
+        font-weight: 600;
+        border-radius: 8px;
+        white-space: nowrap;
+        pointer-events: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        z-index: 1000;
+        backdrop-filter: blur(8px);
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+      }
     }
-    [data-tooltip]:hover::after { bottom: 125%; left: 50%; transform: translateX(-50%); }
+    @media (hover: none) {
+      .btn-svg-icon { flex-direction: column; gap: 2px; }
+      .btn-label {
+        display: block;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1.1;
+        color: var(--text-muted);
+      }
+    }
 
+    /* ==================== INTESTAZIONE ==================== */
     .header {
       display: flex;
       justify-content: space-between;
@@ -132,8 +148,7 @@
       justify-content: center;
       backdrop-filter: blur(8px);
     }
-
-    .status-badge-student {
+    .status-badge {
       font-size: 12px;
       font-weight: 600;
       padding: 6px 14px;
@@ -141,11 +156,13 @@
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      white-space: nowrap;
     }
     .status-connected { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
     .status-connecting { background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.3); }
     .status-disconnected { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); }
+    body.light-mode .status-connected { color: #166534; }
+    body.light-mode .status-connecting { color: #854d0e; }
+    body.light-mode .status-disconnected { color: #991b1b; }
 
     .zoom-bar {
       display: flex;
@@ -168,7 +185,7 @@
       transition: all 0.2s;
     }
     .btn-tool:hover { background: rgba(255, 255, 255, 0.12); color: var(--primary-cyan); }
-    
+
     .status {
       font-size: 12px;
       color: var(--text-muted);
@@ -180,13 +197,14 @@
       text-align: center;
       display: inline-block;
       flex-shrink: 0;
-      width: 120px;
-      box-sizing: border-box;
+      min-width: 120px;
+      max-width: 240px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    
+
+    /* ==================== AREA DOCENTE ==================== */
     .source-box {
       background: var(--card-bg);
       backdrop-filter: blur(20px);
@@ -194,10 +212,9 @@
       padding: 18px;
       border-radius: 24px;
       box-shadow: var(--card-shadow);
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       border: 1px solid var(--card-border);
     }
-    
     .label-row {
       display: flex;
       justify-content: space-between;
@@ -243,7 +260,6 @@
       background: none;
       border: none;
       padding: 0;
-      outline: none;
       min-width: 80px;
     }
     .btn-mic-circle {
@@ -258,26 +274,19 @@
       justify-content: center;
       transition: all 0.25s ease;
     }
-    .btn-mic-label {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-color);
-      margin-top: 4px;
-      text-align: center;
-    }
+    .btn-mic-label { font-size: 12px; font-weight: 700; color: var(--text-color); margin-top: 4px; text-align: center; }
     .btn-mic-container.recording .btn-mic-circle {
       background: #ef4444 !important;
       border-color: #f87171 !important;
       box-shadow: 0 0 24px rgba(239, 68, 68, 0.8) !important;
       animation: pulseNeon 1.5s infinite;
     }
-
     @keyframes pulseNeon {
       0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
       70% { box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
       100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
-    
+
     textarea {
       width: 100%;
       height: 95px;
@@ -287,10 +296,18 @@
       border: 1px solid var(--card-border);
       border-radius: 16px;
       resize: vertical;
-      outline: none;
       background: var(--card-body-bg);
       color: var(--text-color);
       box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .avviso-privacy {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      margin: 0 0 12px 0;
+      padding: 0 8px;
+      line-height: 1.4;
     }
 
     .student-panel {
@@ -334,7 +351,6 @@
       min-height: 175px;
     }
     .card.speaking-card { border-color: #ef4444 !important; box-shadow: 0 0 25px rgba(239, 68, 68, 0.6) !important; }
-
     .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     .card-title { font-weight: 700; font-size: 16px; color: var(--primary-cyan); }
     .card-body {
@@ -350,7 +366,6 @@
       overflow-y: auto;
       color: var(--text-color);
     }
-    
     .card-footer { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 10px; }
     .btn-svg-icon {
       background: transparent;
@@ -365,6 +380,7 @@
     .btn-svg-icon svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; }
     .btn-svg-icon.active-speaking { color: #ef4444 !important; animation: pulseNeon 1.5s infinite; }
 
+    /* ==================== VISTA STUDENTE ==================== */
     .student-view-container {
       display: none;
       flex-direction: column;
@@ -387,7 +403,6 @@
       flex-grow: 1;
     }
     .student-card-main.speaking-card { border-color: #ef4444 !important; box-shadow: 0 0 25px rgba(239, 68, 68, 0.6) !important; }
-
     .student-lang-bar {
       display: flex;
       flex-direction: column;
@@ -411,8 +426,9 @@
       word-break: break-word;
       color: var(--text-color);
     }
-    .student-display-ita-box { background: var(--box-ita-bg) !important; color: var(--text-color) !important; }
+    .student-display-ita-box { background: var(--box-ita-bg) !important; }
 
+    /* ==================== FINESTRE (MODAL) ==================== */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -474,74 +490,91 @@
       margin: 12px auto !important;
     }
 
+    /* Avviso a comparsa (messaggi brevi) */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.95);
+      color: #f8fafc;
+      border: 1px solid var(--card-border);
+      padding: 10px 18px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      max-width: 90vw;
+      text-align: center;
+      z-index: 2000;
+      display: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+
     @media (max-width: 600px) {
       body { padding: 6px; }
       h1 { font-size: 18px; }
       .header { flex-direction: column; align-items: flex-start; }
       .top-controls { width: 100%; justify-content: flex-start; }
-      .student-lang-bar { flex-direction: column; align-items: flex-start; }
       .student-select { width: 100%; }
     }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <h1><img src="logo_bianco.png?v=5" alt="Logo" style="height: 38px; vertical-align: middle; margin-right: 6px;">ParlaConMe</h1>
+  <header class="header">
+    <h1><img src="logo_bianco.png?v=5" alt="" style="height: 38px; vertical-align: middle; margin-right: 6px;">ParlaConMe</h1>
     <div class="top-controls">
       <div style="display: flex; align-items: center; gap: 8px;">
-        <span style="background: rgba(255, 255, 255, 0.1); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--primary-cyan, #00f2fe);">
+        <span style="background: rgba(255, 255, 255, 0.1); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--primary-cyan);">
           🏫 Aula: <span id="codiceAulaDocente">---</span>
         </span>
         <div id="studentCounterContainer" class="student-counter-badge">
           👥 Studenti: <span id="studentCount">0</span>
         </div>
       </div>
-      
-      <div id="studentStatusBadge" class="status-badge-student status-connecting" style="display: none;">
-        🟡 Connessione...
-      </div>
+
+      <div id="badgeConnessione" class="status-badge status-connecting" role="status" aria-live="polite">🟡 Avvio...</div>
+
       <button id="btnQR" class="btn-main" onclick="mostraQRCode()" data-tooltip="Genera QR Code">📱 Trasmetti</button>
       <button id="btnLangConfig" class="btn-tool" onclick="apriGestioneLingue()" data-tooltip="Gestisci lingue">⚙️ Lingue</button>
-      <button class="btn-tool" onclick="toggleDarkMode()" data-tooltip="Cambia tema">🌙</button>
+      <button class="btn-tool" onclick="toggleDarkMode()" data-tooltip="Cambia tema" aria-label="Cambia tema chiaro/scuro">🌙</button>
       <div class="zoom-bar">
-        <button class="btn-tool" onclick="cambiaZoom(-2)">A-</button>
-        <button class="btn-tool" onclick="resetZoom()">A</button>
-        <button class="btn-tool" onclick="cambiaZoom(2)">A+</button>
+        <button class="btn-tool" onclick="cambiaZoom(-2)" aria-label="Riduci testo">A-</button>
+        <button class="btn-tool" onclick="resetZoom()" aria-label="Dimensione testo normale">A</button>
+        <button class="btn-tool" onclick="cambiaZoom(2)" aria-label="Ingrandisci testo">A+</button>
       </div>
-      <button id="btnTopPDF" class="btn-main" style="width: auto;" onclick="stampaOEsportaPDF()">🖨️ PDF</button>
-      <button id="btnTopTXT" class="btn-main" style="width: auto;" onclick="scaricaLezione()">📥 TXT</button>
-      <span id="status" class="status">Pronto</span>
+      <button id="btnTopPDF" class="btn-main" onclick="stampaOEsportaPDF()">🖨️ PDF</button>
+      <button id="btnTopTXT" class="btn-main" onclick="scaricaLezione()">📥 TXT</button>
+      <span id="status" class="status" role="status">Pronto</span>
     </div>
-  </div>
+  </header>
 
+  <!-- ==================== VISTA DOCENTE ==================== -->
   <div id="docenteContainer">
     <div id="studentPanel" class="student-panel">
       <div class="student-header">
-        <label>🗣️ <strong>Modalità Studente:</strong> Parla nella tua lingua ➔ Traduzione al docente</label>
+        <label for="studentLangSelect">🗣️ <strong>Modalità Studente:</strong> Parla nella tua lingua ➔ Traduzione al docente</label>
         <div style="display: flex; gap: 6px; flex-wrap: wrap; width: 100%; margin-top: 4px;">
           <select id="studentLangSelect" class="student-select" style="flex-grow: 1;"></select>
-          <button id="btnMicStudent" class="btn-main" style="width: auto;" onclick="toggleMicrofonoStudente()">🎙️ Parla</button>
-          <button class="btn-tool" style="color: #f87171; font-size: 18px; font-weight: bold;" onclick="chiudiModalitaStudente()">✕</button>
+          <button id="btnMicStudent" class="btn-main" onclick="toggleMicrofonoStudente()">🎙️ Parla</button>
+          <button class="btn-tool" style="color: #f87171; font-size: 18px; font-weight: bold;" onclick="chiudiModalitaStudente()" aria-label="Chiudi modalità studente">✕</button>
         </div>
       </div>
-      <textarea id="testoStudente" placeholder="Trascrizione e traduzione..." style="height: 60px;"></textarea>
+      <textarea id="testoStudente" aria-label="Trascrizione e traduzione dello studente" placeholder="Trascrizione e traduzione..." style="height: 60px;"></textarea>
     </div>
 
     <div class="source-box">
       <div class="label-row">
-        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-          <label for="testoITA">🇮🇹 Parla o Scrivi in Italiano (Docente):</label>
-        </div>
+        <label for="testoITA">🇮🇹 Parla o Scrivi in Italiano (Docente):</label>
         <div class="action-btns">
-          <button class="btn-main" style="width: auto;" onclick="apriModalitaStudente()">🔄 Studente ➔ Docente</button>
-          <button class="btn-main" style="width: auto;" onclick="cancellaTutto()">🗑️ Cancella</button>
-          <button class="btn-main" style="width: auto;" onclick="salvaInCronologia()">📌 Salva Frase</button>
-          <button class="btn-main" style="width: auto;" onclick="apriModalCronologia()">📜 Lista (<span id="countCronologia">0</span>)</button>
-          
-          <button id="btnMic" class="btn-mic-container" onclick="toggleMicrofonoDocente()">
+          <button class="btn-main" onclick="apriModalitaStudente()">🔄 Studente ➔ Docente</button>
+          <button class="btn-main" onclick="cancellaTutto()">🗑️ Cancella</button>
+          <button class="btn-main" onclick="salvaInCronologia()">📌 Salva Frase</button>
+          <button class="btn-main" onclick="apriModalCronologia()">📜 Lista (<span id="countCronologia">0</span>)</button>
+
+          <button id="btnMic" class="btn-mic-container" onclick="toggleMicrofonoDocente()" aria-label="Attiva o ferma il microfono">
             <div class="btn-mic-circle">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
                 <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
                 <line x1="12" y1="19" x2="12" y2="22"></line>
@@ -555,62 +588,55 @@
       <textarea id="testoITA" placeholder="Scrivi o premi il pulsante per parlare..." oninput="registraModificaManuale()"></textarea>
     </div>
 
+    <p class="avviso-privacy">ℹ️ Le frasi vengono tradotte e lette da servizi online (Google). Non dire né scrivere dati personali (nome completo, indirizzo, documenti).</p>
+
     <div id="gridContainer" class="grid-container"></div>
   </div>
 
+  <!-- ==================== VISTA STUDENTE ==================== -->
   <div id="studentViewContainer" class="student-view-container">
     <div id="mainStudentCard" class="student-card-main">
-      
+
       <div class="student-lang-bar">
         <label for="myLangSelect"><strong>🌐 Scegli la tua lingua / Choose language:</strong></label>
         <select id="myLangSelect" class="student-select" style="font-size: 15px; width: 100%;" onchange="cambiaLinguaStudente()"></select>
       </div>
-      
+
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 4px;">
         <div style="font-weight: 700; font-size: 14px; color: var(--primary-cyan);">🇮🇹 Italiano (Docente):</div>
         <div style="display: flex; gap: 8px;">
-          <button id="btnItaSlow" class="btn-svg-icon" onclick="toggleLetturaItalianoStudente(0.5, this)">
-            <svg viewBox="0 0 24 24"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>
-          </button>
-          <button id="btnItaNormal" class="btn-svg-icon" onclick="toggleLetturaItalianoStudente(0.9, this)">
-            <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
-          </button>
+          <button id="btnItaSlow" class="btn-svg-icon" data-icona="lento" data-label="Ascolta italiano lento" data-corta="Lento" onclick="toggleLetturaItalianoStudente(0.5, this)"></button>
+          <button id="btnItaNormal" class="btn-svg-icon" data-icona="audio" data-label="Ascolta italiano" data-corta="Ascolta" onclick="toggleLetturaItalianoStudente(0.9, this)"></button>
         </div>
       </div>
-      <div id="studentDisplayITA" class="student-display-text student-display-ita-box" style="flex-grow: 0; min-height: 60px; max-height: 140px; margin-bottom: 14px;">In attesa dell'insegnante...</div>
+      <div id="studentDisplayITA" class="student-display-text student-display-ita-box" lang="it" aria-live="polite" style="flex-grow: 0; min-height: 60px; max-height: 140px; margin-bottom: 14px;">In attesa dell'insegnante...</div>
 
-      <div style="font-weight: 700; font-size: 14px; margin-bottom: 6px; color: var(--primary-cyan);">🌐 Traduzione nella tua lingua:</div>
-      <div id="studentDisplayText" class="student-display-text">In attesa della traduzione...</div>
+      <div style="font-weight: 700; font-size: 14px; margin-bottom: 6px; color: var(--primary-cyan);">🌐 Traduzione nella tua lingua / Translation:</div>
+      <div id="studentDisplayText" class="student-display-text" aria-live="polite">In attesa della traduzione...</div>
 
       <div class="card-footer" style="justify-content: space-between; margin-top: 14px; gap: 6px;">
         <div style="display: flex; gap: 12px; flex-wrap: nowrap;">
-          <button id="btnTransSlow" class="btn-svg-icon" onclick="toggleLetturaStudente(0.5, this)">
-            <svg viewBox="0 0 24 24"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>
-          </button>
-          <button id="btnTransNormal" class="btn-svg-icon" onclick="toggleLetturaStudente(0.9, this)">
-            <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
-          </button>
+          <button id="btnTransSlow" class="btn-svg-icon" data-icona="lento" data-label="Ascolta traduzione lenta" data-corta="Lento" onclick="toggleLetturaStudente(0.5, this)"></button>
+          <button id="btnTransNormal" class="btn-svg-icon" data-icona="audio" data-label="Ascolta traduzione" data-corta="Ascolta" onclick="toggleLetturaStudente(0.9, this)"></button>
         </div>
         <div style="display: flex; gap: 8px;">
-          <button class="btn-svg-icon" onclick="scaricaPDFSingoloDallaVistaStudente()">
-            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-          </button>
-          <button class="btn-svg-icon" onclick="copiaTestoStudente()">
-            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-          </button>
+          <button class="btn-svg-icon" data-icona="scarica" data-label="Scarica PDF" data-corta="PDF" onclick="scaricaPDFSingoloDallaVistaStudente()"></button>
+          <button class="btn-svg-icon" data-icona="copia" data-label="Copia testo" data-corta="Copia" onclick="copiaTestoStudente()"></button>
         </div>
       </div>
+      <p class="avviso-privacy" style="margin: 12px 0 0 0;">ℹ️ Traduzione automatica: può contenere errori. Non scrivere dati personali. / Automatic translation: it may contain errors. Do not share personal data.</p>
     </div>
   </div>
 
+  <!-- ==================== FINESTRE ==================== -->
   <div id="modalFocus" class="modal-overlay">
     <div class="modal-card">
       <div class="modal-header">
         <span id="modalTitle" class="modal-title">Lingua</span>
         <div style="display: flex; gap: 8px;">
-          <button class="btn-svg-icon" onclick="leggiTestoFocus(0.5, this)"><svg viewBox="0 0 24 24"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg></button>
-          <button class="btn-svg-icon" onclick="leggiTestoFocus(0.9, this)"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg></button>
-          <button class="btn-tool" onclick="chiudiFocus()">✖️</button>
+          <button class="btn-svg-icon" data-icona="lento" data-label="Ascolta lento" data-corta="Lento" onclick="leggiTestoFocus(0.5, this)"></button>
+          <button class="btn-svg-icon" data-icona="audio" data-label="Ascolta" data-corta="Ascolta" onclick="leggiTestoFocus(0.9, this)"></button>
+          <button class="btn-tool" onclick="chiudiFocus()" aria-label="Chiudi">✖️</button>
         </div>
       </div>
       <div id="modalBody" class="modal-body">...</div>
@@ -621,7 +647,7 @@
     <div class="modal-card">
       <div class="modal-header">
         <span class="modal-title">⚙️ Lingue della Classe</span>
-        <button class="btn-main" style="width: auto;" onclick="chiudiGestioneLingue()">✖️ Salva</button>
+        <button class="btn-main" onclick="chiudiGestioneLingue()">✖️ Salva</button>
       </div>
       <div id="langSelectorList" class="lang-grid-selector"></div>
     </div>
@@ -631,12 +657,12 @@
     <div class="modal-card" style="align-items: center; text-align: center; max-width: 440px;">
       <h2 style="margin-top:0; color: var(--primary-cyan); font-size: 22px;">📱 Connetti gli Studenti</h2>
       <div class="qr-box-container"><div id="qrcode"></div></div>
-      <div style="background: rgba(14, 165, 233, 0.15); border: 1px solid var(--card-border); border-radius: 14px; padding: 12px; width: 100%; box-sizing: border-box; margin-top: 4px;">
+      <div style="background: rgba(14, 165, 233, 0.15); border: 1px solid var(--card-border); border-radius: 14px; padding: 12px; width: 100%; margin-top: 4px;">
         <p style="margin: 0; font-size: 14px; color: var(--primary-cyan);"><strong>Da PC / Browser:</strong></p>
-        <p style="margin: 2px 0; font-size: 13px; color: var(--text-muted);">parlaconme/studente.html</p>
+        <p id="urlStudenteDisplay" style="margin: 2px 0; font-size: 13px; color: var(--text-muted); word-break: break-all;">studente.html</p>
         <p style="margin: 4px 0 0 0; font-weight: bold; font-size: 20px; color: #f87171;">PIN Stanza: <span id="roomCodeDisplay">...</span></p>
       </div>
-      <button class="btn-main" style="width: auto; margin-top: 14px;" onclick="chiudiQRCode()">Chiudi</button>
+      <button class="btn-main" style="margin-top: 14px;" onclick="chiudiQRCode()">Chiudi</button>
     </div>
   </div>
 
@@ -645,49 +671,38 @@
       <div class="modal-header">
         <span class="modal-title">📜 Frasi Salvate</span>
         <div style="display: flex; gap: 8px;">
-          <button class="btn-main" style="width: auto; background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: rgba(248, 113, 113, 0.3);" onclick="svuotaInteraCronologia()">🗑️ Svuota Tutto</button>
-          <button class="btn-tool" onclick="chiudiModalCronologia()">✖️</button>
+          <button class="btn-main" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: rgba(248, 113, 113, 0.3);" onclick="svuotaInteraCronologia()">🗑️ Svuota Tutto</button>
+          <button class="btn-tool" onclick="chiudiModalCronologia()" aria-label="Chiudi">✖️</button>
         </div>
       </div>
       <div id="listaCronologiaBody" class="modal-body" style="display: flex; flex-direction: column; gap: 10px; font-size: 15px;"></div>
     </div>
   </div>
 
+  <div id="toast" role="status" aria-live="polite"></div>
+
   <script>
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    /* =====================================================================
+       1. CONFIGURAZIONE
+       ===================================================================== */
 
-    let timerDebounce = null;
-    let timerPausaSilenzio = null;
-    let fontSizeCorrente = 16;
-    let fontSizeITACorrente = 16;
-    let linguaFocusCorrente = null;
-    let cronologiaLezione = [];
-    let ID_PROGRESSIVO_CRONOLOGIA = 0;
-    let testoConfermatoDocente = '';
-    let eStudente = false;
+    // ---- OPZIONALE: server "ponte" (TURN) per le connessioni difficili ----
+    // Lasciare null se non lo si usa. Se un giorno si ottengono i dati di un
+    // servizio TURN, sostituire null con:
+    //   { urls: 'turn:indirizzo.del.servizio:443', username: 'NOME', credential: 'CHIAVE' }
+    const TURN_SERVER = null;
 
-    let cacheTraduzioniDocente = {};
-    let traduzioniRicevuteRete = {};
-    let testoITARicevutoRete = '';
+    const PREFISSO_STANZA = 'cpia-aula-';
+    const LUNGHEZZA_PIN = 6;
 
-    let elementoAudioAttivo = null;
+    const TESTO_NON_DISPONIBILE = 'Traduzione non disponibile';
+    const TESTO_ATTESA_DOCENTE = "In attesa dell'insegnante...";
+    const TESTO_ATTESA_TRAD = 'In attesa della traduzione...';
+    const TESTO_TRAD_IN_ARRIVO = 'Traduzione in arrivo...';
+    const TESTI_SEGNAPOSTO = [TESTO_NON_DISPONIBILE, TESTO_ATTESA_DOCENTE, TESTO_ATTESA_TRAD, TESTO_TRAD_IN_ARRIVO, '...'];
 
-    let peer = null;
-    let connessioniStudenti = [];
-    let connStudenteAInsegnante = null;
-    let timerRiconnessione = null;
-    let ID_STANZA_DOCENTE = 'cpia-aula-' + Math.floor(1000 + Math.random() * 9000);
-
-    const CONFIGURAZIONE_PEER = {
-      config: {
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:stun1.l.google.com:19302' },
-          { urls: 'stun:stun2.l.google.com:19302' }
-        ]
-      }
-    };
-
+    // ELENCO LINGUE
+    // NOTA: per aggiungere una lingua, modificare l'elenco qui E nel file studente.html
     const ELENCO_LINGUE = [
       { code: 'sq', voice: 'sq-AL', name: '🇦🇱 Albanese' },
       { code: 'ar', voice: 'ar-SA', name: '🇸🇦 Arabo', rtl: true },
@@ -708,387 +723,743 @@
       { code: 'uk', voice: 'uk-UA', name: '🇺🇦 Ucraino' },
       { code: 'ur', voice: 'ur-PK', name: '🇵🇰 Urdu', rtl: true }
     ];
+    const LINGUA_PER_CODICE = {};
+    ELENCO_LINGUE.forEach(l => { LINGUA_PER_CODICE[l.code] = l; });
 
-    let lingueAttive = ['sq', 'ar', 'bn', 'zh-CN', 'fr', 'en', 'es', 'uk'];
+    const LINGUE_PREDEFINITE = ['sq', 'ar', 'bn', 'zh-CN', 'fr', 'en', 'es', 'uk'];
 
-    function applicaTwemoji() {
-      if (window.twemoji) {
-        twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+    // ---- LETTURA AD ALTA VOCE ----
+    // Lingue per cui la voce online di Google ha funzionato nelle prove
+    // (Mac, Android, iPhone, Windows). Per le altre (farsi, pashto, tigrino)
+    // si usa solo la voce del dispositivo. L'italiano ('it') non è stato
+    // provato, ma in caso di problemi l'app passa da sola alla voce del dispositivo.
+    const LINGUE_CON_GOOGLE = ['sq', 'ar', 'bn', 'zh-CN', 'fr', 'hi', 'en', 'pt', 'ro', 'ru', 'es', 'tl', 'de', 'uk', 'ur', 'it'];
+    const MAX_CARATTERI_PEZZO = 180;   // Google legge bene solo pezzi brevi
+    const VELOCITA_LENTA_GOOGLE = 0.7; // rallentamento della voce Google nella lettura "lenta"
+
+    // Icone (disegni) usate dai pulsanti
+    const ICONE = {
+      lento: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>',
+      audio: '<svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>',
+      scarica: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>',
+      copia: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>',
+      lente: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>',
+      cestino: '<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>'
+    };
+
+    /* =====================================================================
+       2. STATO DELL'APPLICAZIONE
+       ===================================================================== */
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    let eStudente = false;
+
+    let fontSizeCorrente = 16;
+    let linguaFocusCorrente = null;
+    let elementoAudioAttivo = null;
+
+    // Docente: testo, traduzioni, cronologia
+    let lingueAttive = leggiLS('parlaconme_lingue_attive', LINGUE_PREDEFINITE)
+      .filter(c => LINGUA_PER_CODICE[c]);
+    if (!lingueAttive.length) lingueAttive = [...LINGUE_PREDEFINITE];
+    let cronologiaLezione = leggiLS('parlaconme_cronologia', []);
+    let ID_PROGRESSIVO_CRONOLOGIA = cronologiaLezione.reduce((m, r) => Math.max(m, r.id_univoco || 0), 0);
+
+    let testoConfermatoDocente = '';
+    let cacheTraduzioniDocente = {};   // traduzioni valide per "testoTradotto"
+    let testoTradotto = '';
+    let generazioneTraduzione = 0;     // serve a ignorare le risposte arrivate in ritardo
+    let controllerTraduzione = null;
+    let traduzionePendente = false;
+    let timerDebounce = null;
+    let timerPausaSilenzio = null;
+
+    // Studente: dati ricevuti
+    let traduzioniRicevuteRete = {};
+    let testoITARicevutoRete = '';
+
+    // Rete
+    let peer = null;
+    let connessioniStudenti = [];       // lato docente
+    let pinDocente = generaPin();
+    let tentativiPin = 0;
+    let timerRiconnessioneDocente = null;
+
+    let stanzaTarget = null;            // lato studente
+    let connStudente = null;
+    let tentativoConn = 0;
+    let timerRiconnessione = null;
+    let timerTimeoutConn = null;
+
+    /* =====================================================================
+       3. FUNZIONI DI SERVIZIO
+       ===================================================================== */
+    const $ = id => document.getElementById(id);
+
+    // Rende "innocuo" qualunque testo prima di inserirlo in una pagina HTML
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function leggiLS(chiave, predefinito) {
+      try {
+        const v = localStorage.getItem(chiave);
+        return v ? JSON.parse(v) : predefinito;
+      } catch (e) { return predefinito; }
+    }
+    function scriviLS(chiave, valore) {
+      try { localStorage.setItem(chiave, JSON.stringify(valore)); } catch (e) {}
+    }
+
+    function generaPin() {
+      const a = new Uint32Array(1);
+      crypto.getRandomValues(a);
+      const min = Math.pow(10, LUNGHEZZA_PIN - 1);
+      const max = Math.pow(10, LUNGHEZZA_PIN) - min;
+      return String(min + (a[0] % max));
+    }
+
+    function applicaTwemoji(radice) {
+      if (window.twemoji) twemoji.parse(radice || document.body, { folder: 'svg', ext: '.svg' });
+    }
+
+    function aggiornaStato(msg) { $('status').innerText = msg; }
+
+    let timerToast = null;
+    function mostraAvviso(msg, durata) {
+      const t = $('toast');
+      t.innerText = msg;
+      t.style.display = 'block';
+      clearTimeout(timerToast);
+      timerToast = setTimeout(() => { t.style.display = 'none'; }, durata || 3500);
+    }
+    function nascondiAvviso() {
+      clearTimeout(timerToast);
+      $('toast').style.display = 'none';
+    }
+
+    // Riempie i pulsanti-icona (icona + etichetta per touch + suggerimento per mouse)
+    function costruisciIcone(radice) {
+      (radice || document).querySelectorAll('[data-icona]').forEach(b => {
+        const etichetta = b.dataset.label || '';
+        const corta = b.dataset.corta || etichetta;
+        b.type = 'button';
+        b.setAttribute('aria-label', etichetta);
+        b.setAttribute('data-tooltip', etichetta);
+        b.innerHTML = (ICONE[b.dataset.icona] || '') + '<span class="btn-label">' + esc(corta) + '</span>';
+        b.removeAttribute('data-icona');
+      });
+    }
+
+    function statoConnessione(stato, testo) {
+      const badge = $('badgeConnessione');
+      if (!badge) return;
+      badge.className = 'status-badge status-' + stato;
+      const icona = stato === 'connected' ? '🟢' : (stato === 'connecting' ? '🟡' : '🔴');
+      badge.textContent = icona + ' ' + testo;
+      applicaTwemoji(badge);
+    }
+
+    function configPeer() {
+      const iceServers = [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' }
+      ];
+      if (TURN_SERVER) iceServers.push(TURN_SERVER);
+      return { config: { iceServers } };
+    }
+
+    /* =====================================================================
+       4. RETE - AVVIO
+       ===================================================================== */
+    function inizializzaRete() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const stanza = urlParams.get('stanza');
+      if (stanza) {
+        eStudente = true;
+        stanzaTarget = stanza;
+        impostaVistaStudente(urlParams.get('lang'));
+        $('codiceAulaDocente').innerText = stanza.replace(PREFISSO_STANZA, '');
+        statoConnessione('connecting', 'Connessione...');
+        // Ingresso scaglionato: ogni studente attende un tempo casuale (0,2 - 3,5 secondi)
+        const ritardo = 200 + Math.random() * 3300;
+        setTimeout(creaPeerStudente, ritardo);
+      } else {
+        avviaReteDocente();
       }
+    }
+
+    /* =====================================================================
+       5. RETE - LATO DOCENTE
+       ===================================================================== */
+    function avviaReteDocente() {
+      $('codiceAulaDocente').innerText = pinDocente;
+      statoConnessione('connecting', 'Avvio aula...');
+      const questoPeer = new Peer(PREFISSO_STANZA + pinDocente, configPeer());
+      peer = questoPeer;
+
+      questoPeer.on('open', () => {
+        if (peer !== questoPeer) return;
+        statoConnessione('connected', 'Aula attiva');
+        $('codiceAulaDocente').innerText = pinDocente;
+      });
+
+      questoPeer.on('connection', gestisciNuovoStudente);
+
+      questoPeer.on('disconnected', () => {
+        if (peer !== questoPeer) return;
+        statoConnessione('connecting', 'Riconnessione...');
+        clearTimeout(timerRiconnessioneDocente);
+        timerRiconnessioneDocente = setTimeout(() => {
+          if (peer === questoPeer && !questoPeer.destroyed) {
+            try { questoPeer.reconnect(); } catch (e) {}
+          }
+        }, 3000);
+      });
+
+      questoPeer.on('error', err => {
+        if (peer !== questoPeer) return;
+        if (err.type === 'unavailable-id') {
+          // PIN già occupato: ne generiamo uno nuovo
+          try { questoPeer.destroy(); } catch (e) {}
+          tentativiPin++;
+          if (tentativiPin <= 10) {
+            pinDocente = generaPin();
+            avviaReteDocente();
+          } else {
+            statoConnessione('disconnected', 'Impossibile creare l\'aula');
+          }
+          return;
+        }
+        statoConnessione('disconnected', 'Server non raggiungibile');
+        if (questoPeer.destroyed) {
+          clearTimeout(timerRiconnessioneDocente);
+          timerRiconnessioneDocente = setTimeout(avviaReteDocente, 5000);
+        }
+      });
+    }
+
+    function gestisciNuovoStudente(conn) {
+      conn.studentLang = null;
+      connessioniStudenti.push(conn);
+      conn.on('open', () => { conn._eraAperta = true; aggiornaContatoreStudenti(); });
+      conn.on('data', dati => gestisciMessaggioStudente(conn, dati));
+      const rimuovi = () => {
+        connessioniStudenti = connessioniStudenti.filter(c => c !== conn);
+        aggiornaContatoreStudenti();
+      };
+      conn.on('close', rimuovi);
+      conn.on('error', rimuovi);
+      aggiornaContatoreStudenti();
     }
 
     function aggiornaContatoreStudenti() {
-      const countEl = document.getElementById('studentCount');
-      if (countEl) countEl.innerText = connessioniStudenti.length;
+      connessioniStudenti = connessioniStudenti.filter(c => !(c._eraAperta && !c.open));
+      const n = connessioniStudenti.filter(c => c.open).length;
+      const el = $('studentCount');
+      if (el) el.innerText = n;
+    }
+    setInterval(aggiornaContatoreStudenti, 4000);
+
+    function gestisciMessaggioStudente(conn, dati) {
+      // Controllo di sicurezza: accettiamo solo la richiesta prevista
+      if (!dati || typeof dati !== 'object' || dati.tipo !== 'RICHIESTA_SINCRONIZZAZIONE') return;
+      const lang = (typeof dati.lang === 'string' && LINGUA_PER_CODICE[dati.lang]) ? dati.lang : null;
+      if (lang) conn.studentLang = lang;
+      inviaStatoA(conn);
+      if (lang) assicuraTraduzione(lang);
     }
 
-    function aggiornaStatoVisivoStudente(stato) {
-      const badge = document.getElementById('studentStatusBadge');
-      if (!badge) return;
-      badge.style.display = 'inline-flex';
-      badge.className = 'status-badge-student';
+    function inviaStatoA(conn) {
+      if (!conn.open) return;
+      const testo = $('testoITA').value.trim();
+      const valide = testo && testo === testoTradotto;
+      conn.send({ ita: testo, traduzioni: valide ? cacheTraduzioniDocente : {} });
+    }
 
-      if (stato === 'connected') {
-        badge.classList.add('status-connected');
-        badge.innerHTML = '🟢 Connesso';
-      } else if (stato === 'connecting') {
-        badge.classList.add('status-connecting');
-        badge.innerHTML = '🟡 Riconnessione...';
-      } else {
-        badge.classList.add('status-disconnected');
-        badge.innerHTML = '🔴 Disconnesso';
+    function trasmettiDatiRete(dati) {
+      connessioniStudenti.forEach(conn => { if (conn.open) conn.send(dati); });
+    }
+
+    // Quando entra uno studente con una lingua non ancora tradotta
+    function assicuraTraduzione(lang) {
+      const testo = $('testoITA').value.trim();
+      if (!testo) return;
+      if (testo !== testoTradotto) {
+        if (!traduzionePendente) gestisciInput(0);
+      } else if (cacheTraduzioniDocente[lang] === undefined) {
+        traduciSoloLingua(lang);
       }
-      applicaTwemoji();
     }
 
-    function connettiAStanzaDocente(stanzaTarget) {
-      aggiornaStatoVisivoStudente('connecting');
-      connStudenteAInsegnante = peer.connect(stanzaTarget, { reliable: true });
+    /* =====================================================================
+       6. RETE - LATO STUDENTE (con ritentativi ordinati)
+       ===================================================================== */
+    function creaPeerStudente() {
+      if (peer) { try { peer.destroy(); } catch (e) {} }
+      const questoPeer = new Peer(configPeer());
+      peer = questoPeer;
+      questoPeer.on('open', () => { if (peer === questoPeer) apriConnessioneStudente(); });
+      questoPeer.on('disconnected', () => { if (peer === questoPeer) pianificaRitentativo('Rete interrotta.'); });
+      questoPeer.on('error', err => {
+        if (peer !== questoPeer) return;
+        if (err.type === 'peer-unavailable') pianificaRitentativo('Aula non trovata: controlla il PIN.');
+        else pianificaRitentativo('Non riesco a collegarmi.');
+      });
+    }
 
-      connStudenteAInsegnante.on('open', () => {
-        clearInterval(timerRiconnessione);
-        aggiornaStatoVisivoStudente('connected');
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        const miaLingua = urlParams.get('lang') || 'en';
+    function chiudiConnessioneStudente() {
+      clearTimeout(timerTimeoutConn);
+      if (connStudente) {
+        const vecchia = connStudente;
+        connStudente = null;   // i suoi eventi verranno ignorati
+        try { vecchia.close(); } catch (e) {}
+      }
+    }
 
-        connStudenteAInsegnante.send({ 
-          tipo: 'RICHIESTA_SINCRONIZZAZIONE',
-          lang: miaLingua
-        });
+    function apriConnessioneStudente() {
+      chiudiConnessioneStudente();
+      const conn = peer.connect(stanzaTarget, { reliable: true });
+      connStudente = conn;
+
+      // Se dopo 15 secondi non è partita, si chiude e si riprova
+      timerTimeoutConn = setTimeout(() => {
+        if (connStudente === conn && !conn.open) {
+          chiudiConnessioneStudente();
+          pianificaRitentativo('Il collegamento non parte.');
+        }
+      }, 15000);
+
+      conn.on('open', () => {
+        if (connStudente !== conn) return;
+        clearTimeout(timerTimeoutConn);
+        clearTimeout(timerRiconnessione);
+        timerRiconnessione = null;
+        tentativoConn = 0;
+        statoConnessione('connected', 'Connesso');
+        conn.send({ tipo: 'RICHIESTA_SINCRONIZZAZIONE', lang: $('myLangSelect').value });
         aggiornaStato('Connesso');
       });
-
-      connStudenteAInsegnante.on('data', (dati) => applicaDatiRicevuti(dati));
-
-      connStudenteAInsegnante.on('close', () => {
-        aggiornaStatoVisivoStudente('disconnected');
-        avviaRiconnessioneAutomatica(stanzaTarget);
-      });
-
-      connStudenteAInsegnante.on('error', () => {
-        aggiornaStatoVisivoStudente('disconnected');
-        avviaRiconnessioneAutomatica(stanzaTarget);
-      });
+      conn.on('data', applicaDatiRicevuti);
+      conn.on('close', () => { if (connStudente === conn) pianificaRitentativo('Collegamento interrotto.'); });
+      conn.on('error', () => { if (connStudente === conn) pianificaRitentativo('Non riesco a collegarmi.'); });
     }
 
-    function avviaRiconnessioneAutomatica(stanzaTarget) {
-      clearInterval(timerRiconnessione);
-      timerRiconnessione = setInterval(() => {
-        aggiornaStatoVisivoStudente('connecting');
-        if (peer && !peer.destroyed) {
-          connettiAStanzaDocente(stanzaTarget);
-        }
-      }, 4000);
+    // Un solo tentativo alla volta, con pause sempre più lunghe
+    function pianificaRitentativo(messaggio) {
+      if (timerRiconnessione) return;
+      clearTimeout(timerTimeoutConn);
+      tentativoConn++;
+      const attesa = Math.min(2000 * tentativoConn, 15000) + Math.random() * 1500;
+      const secondi = Math.round(attesa / 1000);
+      statoConnessione('disconnected', (messaggio || 'Non riesco a collegarmi.') + ' Riprovo tra ' + secondi + ' s');
+      timerRiconnessione = setTimeout(() => {
+        timerRiconnessione = null;
+        statoConnessione('connecting', 'Connessione... (tentativo ' + (tentativoConn + 1) + ')');
+        if (!peer || peer.destroyed || peer.disconnected) creaPeerStudente();
+        else apriConnessioneStudente();
+      }, attesa);
     }
 
-    function inizializzaRete() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const stanzaTarget = urlParams.get('stanza');
-      const linguaPredefinita = urlParams.get('lang');
-
-      if (stanzaTarget) {
-        eStudente = true;
-        impostaVistaStudente(linguaPredefinita);
-
-        if (document.getElementById('codiceAulaDocente')) {
-          document.getElementById('codiceAulaDocente').innerText = stanzaTarget.replace('cpia-aula-', '');
-        }
-
-        const ritardoMilli = Math.floor(Math.random() * 750) + 50; 
-        setTimeout(() => {
-          peer = new Peer(CONFIGURAZIONE_PEER);
-          peer.on('open', () => {
-            connettiAStanzaDocente(stanzaTarget);
-          });
-        }, ritardoMilli);
-
-      } else {
-        peer = new Peer(ID_STANZA_DOCENTE, CONFIGURAZIONE_PEER);
-        
-        if (document.getElementById('codiceAulaDocente')) {
-          document.getElementById('codiceAulaDocente').innerText = ID_STANZA_DOCENTE.replace('cpia-aula-', '');
-        }
-
-        peer.on('connection', (conn) => {
-          connessioniStudenti.push(conn);
-          aggiornaContatoreStudenti();
-          
-          conn.on('data', (dati) => {
-            if (dati && dati.tipo === 'RICHIESTA_SINCRONIZZAZIONE') {
-              const testoAttuale = document.getElementById('testoITA').value.trim();
-              const linguaInviata = dati.lang;
-
-              let pacchettoTraduzioni = {};
-              if (linguaInviata && cacheTraduzioniDocente[linguaInviata]) {
-                pacchettoTraduzioni[linguaInviata] = cacheTraduzioniDocente[linguaInviata];
-              } else {
-                pacchettoTraduzioni = cacheTraduzioniDocente;
-              }
-
-              conn.send({
-                ita: testoAttuale,
-                traduzioni: pacchettoTraduzioni
-              });
-            }
-          });
-
-          conn.on('close', () => {
-            connessioniStudenti = connessioniStudenti.filter(c => c !== conn);
-            aggiornaContatoreStudenti();
-          });
+    function applicaDatiRicevuti(dati) {
+      // Solo la vista studente riceve dati. Controlli di sicurezza sul contenuto.
+      if (!eStudente || !dati || typeof dati !== 'object' || typeof dati.ita !== 'string') return;
+      const trad = {};
+      if (dati.traduzioni && typeof dati.traduzioni === 'object') {
+        Object.entries(dati.traduzioni).forEach(([k, v]) => {
+          if (LINGUA_PER_CODICE[k] && typeof v === 'string') trad[k] = v.slice(0, 5000);
         });
       }
+      fermaTuttaLettura();
+      testoITARicevutoRete = dati.ita.slice(0, 5000);
+      traduzioniRicevuteRete = trad;   // sostituisce sempre: niente traduzioni vecchie
+
+      const displayITA = $('studentDisplayITA');
+      displayITA.innerText = testoITARicevutoRete || TESTO_ATTESA_DOCENTE;
+      displayITA.scrollTop = displayITA.scrollHeight;
+      aggiornaTraduzioneStudente();
     }
 
+    /* =====================================================================
+       7. VISTA STUDENTE
+       ===================================================================== */
     function impostaVistaStudente(linguaIniziale) {
-      document.getElementById('docenteContainer').style.display = 'none';
-      document.getElementById('btnQR').style.display = 'none';
-      document.getElementById('btnLangConfig').style.display = 'none';
-      document.getElementById('studentCounterContainer').style.display = 'none';
-      
-      const btnPDF = document.getElementById('btnTopPDF');
-      const btnTXT = document.getElementById('btnTopTXT');
-      if (btnPDF) btnPDF.style.display = 'inline-flex';
-      if (btnTXT) btnTXT.style.display = 'inline-flex';
+      $('docenteContainer').style.display = 'none';
+      $('btnQR').style.display = 'none';
+      $('btnLangConfig').style.display = 'none';
+      $('studentCounterContainer').style.display = 'none';
+      $('studentViewContainer').style.display = 'flex';
 
-      document.getElementById('studentViewContainer').style.display = 'flex';
-
-      const select = document.getElementById('myLangSelect');
-      if (select) {
-        select.innerHTML = '';
-        ELENCO_LINGUE.forEach(l => {
-          const opt = document.createElement('option');
-          opt.value = l.code;
-          opt.innerText = l.name;
-          if (linguaIniziale && l.code === linguaIniziale) opt.selected = true;
-          select.appendChild(opt);
-        });
-      }
+      const select = $('myLangSelect');
+      select.innerHTML = '';
+      ELENCO_LINGUE.forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l.code;
+        opt.innerText = l.name;
+        if (linguaIniziale && l.code === linguaIniziale) opt.selected = true;
+        select.appendChild(opt);
+      });
       applicaTwemoji();
     }
 
-    // AGGIORNAMENTO ISTANTANEO AL CAMBIO LINGUA STUDENTE
-    function cambiaLinguaStudente() {
-      fermaTuttaLettura();
-      const lang = document.getElementById('myLangSelect').value;
-      const display = document.getElementById('studentDisplayText');
-      const langObj = ELENCO_LINGUE.find(l => l.code === lang);
-      
-      if (langObj && langObj.rtl) display.classList.add('rtl');
-      else display.classList.remove('rtl');
+    function aggiornaTraduzioneStudente() {
+      const lang = $('myLangSelect').value;
+      const display = $('studentDisplayText');
+      const obj = LINGUA_PER_CODICE[lang];
+      display.classList.toggle('rtl', !!(obj && obj.rtl));
+      display.setAttribute('lang', lang);
 
-      // Se la lingua scelta è già presente in memoria la mostra subito
-      if (traduzioniRicevuteRete[lang]) {
-        display.innerText = traduzioniRicevuteRete[lang];
-      } else {
-        // Altrimenti la richiede immediatamente alla LIM del docente
-        display.innerText = 'Richiesta traduzione...';
-        if (connStudenteAInsegnante && connStudenteAInsegnante.open) {
-          connStudenteAInsegnante.send({
-            tipo: 'RICHIESTA_SINCRONIZZAZIONE',
-            lang: lang
-          });
-        }
-      }
+      if (traduzioniRicevuteRete[lang] !== undefined) display.innerText = traduzioniRicevuteRete[lang];
+      else display.innerText = testoITARicevutoRete ? TESTO_TRAD_IN_ARRIVO : TESTO_ATTESA_TRAD;
       display.scrollTop = display.scrollHeight;
     }
 
-    function fermaTuttaLettura() {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
-      document.querySelectorAll('.btn-svg-icon').forEach(btn => btn.classList.remove('active-speaking'));
-      document.querySelectorAll('.card, .student-card-main').forEach(c => c.classList.remove('speaking-card'));
-      elementoAudioAttivo = null;
-    }
-
-    function toggleLetturaItalianoStudente(velocita, btnIcon) {
-      if (elementoAudioAttivo === btnIcon) {
-        fermaTuttaLettura();
-        return;
-      }
-      const cardEl = document.getElementById('mainStudentCard');
-      avviaLetturaGenerica('studentDisplayITA', 'it-IT', velocita, btnIcon, cardEl);
-    }
-
-    function toggleLetturaStudente(velocita, btnIcon) {
-      if (elementoAudioAttivo === btnIcon) {
-        fermaTuttaLettura();
-        return;
-      }
-      const lang = document.getElementById('myLangSelect').value;
-      const obj = ELENCO_LINGUE.find(l => l.code === lang);
-      const voiceLang = obj ? obj.voice : lang;
-      const cardEl = document.getElementById('mainStudentCard');
-      avviaLetturaGenerica('studentDisplayText', voiceLang, velocita, btnIcon, cardEl);
-    }
-
-    function leggiTestoScheda(lang, velocita, btnIcon, cardElement) {
-      if (elementoAudioAttivo === btnIcon) {
-        fermaTuttaLettura();
-        return;
-      }
-      const obj = ELENCO_LINGUE.find(l => l.code === lang);
-      const voiceLang = obj ? obj.voice : lang;
-      avviaLetturaGenerica('box_' + lang, voiceLang, velocita, btnIcon, cardElement);
-    }
-
-    function leggiTestoFocus(velocita, btnIcon) {
-      if (!linguaFocusCorrente) return;
-      if (elementoAudioAttivo === btnIcon) {
-        fermaTuttaLettura();
-        return;
-      }
-      const obj = ELENCO_LINGUE.find(l => l.code === linguaFocusCorrente);
-      const voiceLang = obj ? obj.voice : linguaFocusCorrente;
-      avviaLetturaGenerica('modalBody', voiceLang, velocita, btnIcon, null);
-    }
-
-    function avviaLetturaGenerica(idElementoTesto, voiceLang, velocita, btnIcon, cardElement) {
+    function cambiaLinguaStudente() {
       fermaTuttaLettura();
-
-      const elText = document.getElementById(idElementoTesto);
-      const testoPuro = elText ? elText.innerText.trim() : '';
-
-      if (!testoPuro || testoPuro === '...' || testoPuro.startsWith('In attesa') || testoPuro.startsWith('Richiesta')) return;
-      if (!('speechSynthesis' in window)) {
-        aggiornaStato('Sintesi non supportata');
-        return;
+      const lang = $('myLangSelect').value;
+      try { localStorage.setItem('parlaconme_lang', lang); } catch (e) {}
+      aggiornaTraduzioneStudente();
+      // Se la lingua non è ancora arrivata, la chiede al docente
+      if (testoITARicevutoRete && traduzioniRicevuteRete[lang] === undefined && connStudente && connStudente.open) {
+        connStudente.send({ tipo: 'RICHIESTA_SINCRONIZZAZIONE', lang: lang });
       }
-
-      const utterance = new SpeechSynthesisUtterance(testoPuro);
-      const langCode = voiceLang.split('-')[0];
-      const voceMigliore = selezionaVoceMigliore(langCode);
-      
-      if (voceMigliore) {
-        utterance.voice = voceMigliore;
-      }
-      utterance.lang = voiceLang;
-      utterance.rate = velocita;
-
-      utterance.onstart = () => {
-        elementoAudioAttivo = btnIcon;
-        if (btnIcon) btnIcon.classList.add('active-speaking');
-        if (cardElement) cardElement.classList.add('speaking-card');
-        aggiornaStato('Ascolto...');
-      };
-
-      utterance.onend = () => fermaTuttaLettura();
-      utterance.onerror = () => {
-        aggiornaStato('Errore audio');
-        fermaTuttaLettura();
-      };
-
-      window.speechSynthesis.speak(utterance);
     }
 
+    function copiaTestoStudente() {
+      const testo = $('studentDisplayText').innerText.trim();
+      copiaNegliAppunti(testo);
+    }
+
+    function copiaNegliAppunti(testo) {
+      if (!testo || TESTI_SEGNAPOSTO.includes(testo)) return;
+      if (!navigator.clipboard) { mostraAvviso('Copia non supportata da questo browser'); return; }
+      navigator.clipboard.writeText(testo)
+        .then(() => mostraAvviso('✓ Copiato', 1800))
+        .catch(() => mostraAvviso('Impossibile copiare'));
+    }
+
+    /* =====================================================================
+       8. LETTURA AD ALTA VOCE
+          Ordine: 1) voce online di Google (parte subito, uguale su tutti i
+          dispositivi) -> 2) voce del dispositivo come riserva.
+          Farsi e pashto: solo voce del dispositivo (su Windows con Edge c'è).
+          Tigrino: nessuna voce disponibile.
+       ===================================================================== */
     let vociDisponibili = [];
     function caricaVoci() {
       if ('speechSynthesis' in window) vociDisponibili = window.speechSynthesis.getVoices();
     }
     caricaVoci();
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.getVoices();
-      window.speechSynthesis.onvoiceschanged = caricaVoci;
-    }
+    if ('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = caricaVoci;
 
     function selezionaVoceMigliore(langCode) {
       if (!vociDisponibili.length) caricaVoci();
-      const baseCode = langCode.toLowerCase().split('-')[0];
-      
-      let compatibili = vociDisponibili.filter(v => {
-        const vLang = v.lang.toLowerCase().replace('_', '-');
-        return vLang.startsWith(baseCode);
-      });
-
+      const base = langCode.toLowerCase().split('-')[0];
+      const compatibili = vociDisponibili.filter(v => v.lang.toLowerCase().replace('_', '-').startsWith(base));
       if (!compatibili.length) return null;
-
-      let scelta = compatibili.find(v => 
-        v.name.includes('Natural') || 
-        v.name.includes('Google') || 
-        v.name.includes('Neural') ||
-        v.name.includes('Online')
-      );
-
+      const scelta = compatibili.find(v => /Natural|Google|Neural|Online/.test(v.name));
       return scelta || compatibili[0];
     }
 
-    function copiaTestoStudente() {
-      const testo = document.getElementById('studentDisplayText').innerText;
-      if (!testo || testo.startsWith('In attesa')) return;
-      navigator.clipboard.writeText(testo).then(() => {
-        aggiornaStato('✓ Copiato');
-        setTimeout(() => aggiornaStato('Connesso'), 2000);
-      });
+    // Informazioni su una lingua (compreso l'italiano, che non è nell'elenco)
+    function infoLingua(codice) {
+      if (codice === 'it') return { code: 'it', voice: 'it-IT' };
+      return LINGUA_PER_CODICE[codice] || { code: codice, voice: codice };
     }
 
-    function trasmettiDatiRete(dati) {
-      connessioniStudenti.forEach(conn => {
-        if (conn.open) conn.send(dati);
-      });
-    }
+    // Ogni nuova lettura (o stop) incrementa questo numero: le operazioni
+    // della lettura precedente, arrivate in ritardo, vengono ignorate.
+    let sessioneLettura = 0;
+    let audioGoogle = null;   // un solo elemento audio, riutilizzato (necessario su iPhone)
 
-    function applicaDatiRicevuti(dati) {
-      if (!dati || dati.tipo === 'RICHIESTA_SINCRONIZZAZIONE') return;
-
-      if (dati.traduzioni) {
-        Object.assign(traduzioniRicevuteRete, dati.traduzioni);
+    function ottieniAudioGoogle() {
+      if (!audioGoogle) {
+        audioGoogle = new Audio();
+        audioGoogle.preload = 'auto';
+        audioGoogle.preservesPitch = true;
+        audioGoogle.webkitPreservesPitch = true;
       }
-      testoITARicevutoRete = dati.ita || '';
+      return audioGoogle;
+    }
 
-      if (eStudente) {
-        fermaTuttaLettura();
-        const displayITA = document.getElementById('studentDisplayITA');
-        displayITA.innerText = testoITARicevutoRete || 'In attesa dell\'insegnante...';
-        displayITA.scrollTop = displayITA.scrollHeight;
-        cambiaLinguaStudente();
-      } else {
-        const textareaITA = document.getElementById('testoITA');
-        textareaITA.value = dati.ita;
-        textareaITA.scrollTop = textareaITA.scrollHeight;
+    function fermaTuttaLettura() {
+      sessioneLettura++;
+      if (audioGoogle) {
+        audioGoogle.onended = null;
+        audioGoogle.onerror = null;
+        try { audioGoogle.pause(); } catch (e) {}
+      }
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      document.querySelectorAll('.btn-svg-icon').forEach(b => b.classList.remove('active-speaking'));
+      document.querySelectorAll('.card, .student-card-main').forEach(c => c.classList.remove('speaking-card'));
+      elementoAudioAttivo = null;
+    }
 
-        for (const [lang, testo] of Object.entries(dati.traduzioni)) {
-          const el = document.getElementById('box_' + lang);
-          if (el) {
-            el.innerText = testo;
-            el.scrollTop = el.scrollHeight;
-          }
+    // Spezza il testo in pezzi brevi, a fine frase
+    function dividiTesto(testo, max) {
+      max = max || MAX_CARATTERI_PEZZO;
+      const pulito = testo.replace(/\s+/g, ' ').trim();
+      const frasi = pulito.match(/.+?(?:[。！？؟۔]+|[.!?]+(?=\s|$)|$)/g) || [pulito];
+      const pezzi = [];
+      let corrente = '';
+      const chiudi = () => { if (corrente) pezzi.push(corrente); corrente = ''; };
+
+      frasi.forEach(frase => {
+        frase = frase.trim();
+        if (!frase) return;
+        if (frase.length > max) {
+          // Frase troppo lunga: si spezza per parole (o per caratteri se non ci sono spazi)
+          chiudi();
+          let blocco = '';
+          frase.split(' ').forEach(parola => {
+            while (parola.length > max) {
+              if (blocco) { pezzi.push(blocco); blocco = ''; }
+              pezzi.push(parola.slice(0, max));
+              parola = parola.slice(max);
+            }
+            if ((blocco + ' ' + parola).trim().length > max) { pezzi.push(blocco); blocco = parola; }
+            else blocco = (blocco + ' ' + parola).trim();
+          });
+          if (blocco) pezzi.push(blocco);
+        } else if ((corrente + ' ' + frase).trim().length <= max) {
+          corrente = (corrente + ' ' + frase).trim();
+        } else {
+          chiudi();
+          corrente = frase;
         }
+      });
+      chiudi();
+      return pezzi;
+    }
+
+    function urlVoceGoogle(pezzo, codice) {
+      return 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=' +
+             encodeURIComponent(codice) + '&q=' + encodeURIComponent(pezzo);
+    }
+
+    // Voce del dispositivo (riserva, oppure unica scelta per farsi e pashto)
+    function leggiConDispositivo(testo, codice, velocita, sessione) {
+      if (sessione !== sessioneLettura) return;
+      if (!('speechSynthesis' in window)) {
+        mostraAvviso('Lettura vocale non supportata da questo browser');
+        fermaTuttaLettura();
+        return;
+      }
+      const info = infoLingua(codice);
+      const voce = selezionaVoceMigliore(info.voice.split('-')[0]);
+      if (!voce && vociDisponibili.length) {
+        const msg = codice === 'ti'
+          ? 'Per il tigrino non esiste una voce: leggi il testo. / No voice exists for Tigrinya: please read the text.'
+          : 'Voce non disponibile per questa lingua su questo dispositivo. Leggi il testo (su un PC con Edge potrebbe funzionare). / Voice not available for this language on this device.';
+        mostraAvviso(msg, 6000);
+        fermaTuttaLettura();
+        return;
+      }
+      mostraAvviso('Sto preparando la voce...', 8000);
+      const u = new SpeechSynthesisUtterance(testo);
+      if (voce) u.voice = voce;
+      u.lang = info.voice;
+      u.rate = velocita;
+      u.onstart = () => { if (sessione === sessioneLettura) nascondiAvviso(); };
+      u.onend = () => { if (sessione === sessioneLettura) fermaTuttaLettura(); };
+      u.onerror = () => {
+        if (sessione !== sessioneLettura) return;
+        mostraAvviso('Errore audio');
+        fermaTuttaLettura();
+      };
+      window.speechSynthesis.speak(u);
+    }
+
+    // Voce online di Google, pezzo per pezzo
+    function leggiConGoogle(testo, codice, velocita, sessione) {
+      const pezzi = dividiTesto(testo);
+      const a = ottieniAudioGoogle();
+      const rate = velocita <= 0.5 ? VELOCITA_LENTA_GOOGLE : 1;
+      let i = 0;
+      let tentativi = 0;
+
+      function riserva() {
+        // Se Google non risponde, si continua (dal pezzo rimasto) con la voce del dispositivo
+        if (sessione !== sessioneLettura) return;
+        leggiConDispositivo(pezzi.slice(i).join(' '), codice, velocita, sessione);
+      }
+
+      function prossimo() {
+        if (sessione !== sessioneLettura) return;
+        if (i >= pezzi.length) { fermaTuttaLettura(); return; }
+
+        let concluso = false;
+        const errore = () => {
+          if (concluso || sessione !== sessioneLettura) return;
+          concluso = true;
+          tentativi++;
+          if (tentativi < 2) prossimo();   // un secondo tentativo
+          else riserva();
+        };
+
+        a.onended = () => {
+          if (concluso || sessione !== sessioneLettura) return;
+          concluso = true;
+          i++;
+          tentativi = 0;
+          prossimo();
+        };
+        a.onerror = errore;
+
+        a.src = urlVoceGoogle(pezzi[i], codice);
+        a.defaultPlaybackRate = rate;
+        a.playbackRate = rate;
+        const p = a.play();
+        if (p && p.catch) p.catch(errore);
+      }
+      prossimo();
+    }
+
+    // Punto d'ingresso unico per tutte le letture
+    function avviaLetturaGenerica(idElementoTesto, codice, velocita, btnIcon, cardElement) {
+      fermaTuttaLettura();
+      const elText = $(idElementoTesto);
+      const testo = elText ? elText.innerText.trim() : '';
+      if (!testo || TESTI_SEGNAPOSTO.includes(testo)) return;
+
+      const sessione = sessioneLettura;
+      elementoAudioAttivo = btnIcon;
+      if (btnIcon) btnIcon.classList.add('active-speaking');
+      if (cardElement) cardElement.classList.add('speaking-card');
+
+      if (LINGUE_CON_GOOGLE.includes(codice)) leggiConGoogle(testo, codice, velocita, sessione);
+      else leggiConDispositivo(testo, codice, velocita, sessione);
+    }
+
+    function toggleLetturaItalianoStudente(velocita, btn) {
+      if (elementoAudioAttivo === btn) { fermaTuttaLettura(); return; }
+      avviaLetturaGenerica('studentDisplayITA', 'it', velocita, btn, $('mainStudentCard'));
+    }
+    function toggleLetturaStudente(velocita, btn) {
+      if (elementoAudioAttivo === btn) { fermaTuttaLettura(); return; }
+      avviaLetturaGenerica('studentDisplayText', $('myLangSelect').value, velocita, btn, $('mainStudentCard'));
+    }
+    function leggiTestoScheda(lang, velocita, btn, card) {
+      if (elementoAudioAttivo === btn) { fermaTuttaLettura(); return; }
+      avviaLetturaGenerica('box_' + lang, lang, velocita, btn, card);
+    }
+    function leggiTestoFocus(velocita, btn) {
+      if (!linguaFocusCorrente) return;
+      if (elementoAudioAttivo === btn) { fermaTuttaLettura(); return; }
+      avviaLetturaGenerica('modalBody', linguaFocusCorrente, velocita, btn, null);
+    }
+
+    /* =====================================================================
+       9. TRADUZIONE (solo lingue necessarie, solo l'ultima richiesta conta)
+       ===================================================================== */
+    async function chiamaGoogleTranslate(testo, linguaDa, linguaA, signal) {
+      const targetLang = linguaA.split('-')[0];
+      const url = `https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=${linguaDa}&tl=${targetLang}&q=${encodeURIComponent(testo)}`;
+      try {
+        const res = await fetch(url, signal ? { signal } : undefined);
+        const data = await res.json();
+        if (data && Array.isArray(data) && data[0]) {
+          return Array.isArray(data[0]) ? data[0].join(' ') : data[0];
+        } else if (data && Array.isArray(data.sentences)) {
+          return data.sentences.map(s => s.trans || '').join('');
+        } else if (typeof data === 'string') {
+          return data;
+        }
+      } catch (e) {
+        if (e.name !== 'AbortError') console.error(e);
+      }
+      return null;
+    }
+
+    // Lingue da tradurre: quelle della classe + quelle degli studenti collegati
+    function linguePerTradurre() {
+      const set = new Set(lingueAttive);
+      connessioniStudenti.forEach(c => { if (c.open && c.studentLang) set.add(c.studentLang); });
+      return [...set];
+    }
+
+    function gestisciInput(ritardo) {
+      traduzionePendente = true;
+      aggiornaStato('In attesa...');
+      clearTimeout(timerDebounce);
+      timerDebounce = setTimeout(traduciTutto, ritardo === undefined ? 700 : ritardo);
+    }
+
+    async function traduciTutto() {
+      clearTimeout(timerDebounce);
+      const testo = $('testoITA').value.trim();
+      const gen = ++generazioneTraduzione;
+      if (controllerTraduzione) controllerTraduzione.abort();
+
+      if (!testo) {
+        cacheTraduzioniDocente = {};
+        testoTradotto = '';
+        traduzionePendente = false;
+        aggiornaBox();
+        aggiornaStato('Pronto');
+        trasmettiDatiRete({ ita: '', traduzioni: {} });
+        return;
+      }
+
+      controllerTraduzione = new AbortController();
+      const signal = controllerTraduzione.signal;
+      aggiornaStato('Traduzione...');
+
+      const langs = linguePerTradurre();
+      const risultati = await Promise.all(
+        langs.map(l => chiamaGoogleTranslate(testo, 'it', l, signal).then(t => [l, t]))
+      );
+      if (gen !== generazioneTraduzione) return;   // nel frattempo è arrivata una frase più nuova
+
+      const nuova = {};
+      risultati.forEach(([l, t]) => { nuova[l] = t || TESTO_NON_DISPONIBILE; });
+      cacheTraduzioniDocente = nuova;
+      testoTradotto = testo;
+      traduzionePendente = false;
+      aggiornaBox();
+
+      const fallite = langs.some(l => nuova[l] === TESTO_NON_DISPONIBILE);
+      aggiornaStato(fallite ? 'Tradotto (alcune lingue no)' : 'Tradotto');
+      trasmettiDatiRete({ ita: testo, traduzioni: nuova });
+
+      // Se nel frattempo è entrato uno studente con una lingua nuova
+      linguePerTradurre().filter(l => cacheTraduzioniDocente[l] === undefined).forEach(traduciSoloLingua);
+    }
+
+    async function traduciSoloLingua(lang) {
+      const testo = $('testoITA').value.trim();
+      const gen = generazioneTraduzione;
+      if (!testo || testo !== testoTradotto) return;
+      const trad = await chiamaGoogleTranslate(testo, 'it', lang);
+      if (gen !== generazioneTraduzione || testo !== testoTradotto) return;
+      cacheTraduzioniDocente[lang] = trad || TESTO_NON_DISPONIBILE;
+      aggiornaBox();
+      trasmettiDatiRete({ ita: testo, traduzioni: cacheTraduzioniDocente });
+    }
+
+    // Mostra le traduzioni nelle schede (e nella finestra ingrandita)
+    function aggiornaBox() {
+      lingueAttive.forEach(l => {
+        const el = $('box_' + l);
+        if (!el) return;
+        const t = cacheTraduzioniDocente[l];
+        el.innerText = (t === undefined) ? '...' : t;
+        el.scrollTop = el.scrollHeight;
+      });
+      if (linguaFocusCorrente) {
+        const t = cacheTraduzioniDocente[linguaFocusCorrente];
+        const mBody = $('modalBody');
+        mBody.innerText = (t === undefined) ? '...' : t;
+        mBody.scrollTop = mBody.scrollHeight;
       }
     }
 
-    function mostraQRCode() {
-      const modal = document.getElementById('modalQR');
-      const container = document.getElementById('qrcode');
-      container.innerHTML = '';
-      
-      const pinNumerico = ID_STANZA_DOCENTE.replace('cpia-aula-', '');
-      document.getElementById('roomCodeDisplay').innerText = pinNumerico;
-
-      const baseURL = window.location.href.split('?')[0].replace(/index.*\.html$/, '');
-      const urlLezione = baseURL + 'studente.html?stanza=' + pinNumerico;
-
-      new QRCode(container, {
-        text: urlLezione,
-        width: 210,
-        height: 210,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
-      });
-
-      modal.style.display = 'flex';
-      applicaTwemoji();
-    }
-
-    function chiudiQRCode() {
-      document.getElementById('modalQR').style.display = 'none';
-    }
-
+    /* =====================================================================
+       10. GRIGLIA DELLE LINGUE E IMPOSTAZIONI
+       ===================================================================== */
     function inizializzaGriglia() {
-      const container = document.getElementById('gridContainer');
-      const studentSelect = document.getElementById('studentLangSelect');
+      const container = $('gridContainer');
+      const studentSelect = $('studentLangSelect');
       container.innerHTML = '';
       studentSelect.innerHTML = '';
 
@@ -1098,28 +1469,22 @@
         card.id = 'card_' + l.code;
         card.innerHTML = `
           <div class="card-header">
-            <span class="card-title">${l.name}</span>
-            <button class="btn-svg-icon" style="padding: 2px;" data-tooltip="Ingrandisci" onclick="apriFocus('${l.code}', '${l.name}')">
-              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            </button>
+            <span class="card-title">${esc(l.name)}</span>
+            <button class="btn-svg-icon" data-icona="lente" data-label="Ingrandisci ${esc(l.name.replace(/^\S+\s/, ''))}" data-corta="Ingrandisci" onclick="apriFocus('${l.code}')"></button>
           </div>
-          <div id="box_${l.code}" class="card-body ${l.rtl ? 'rtl' : ''}">...</div>
+          <div id="box_${l.code}" lang="${l.code}" class="card-body ${l.rtl ? 'rtl' : ''}">...</div>
           <div class="card-footer">
-            <button class="btn-svg-icon" data-tooltip="Scarica PDF" onclick="scaricaPDFSingolo('${l.code}')">
-              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-            </button>
-            <button class="btn-svg-icon" data-tooltip="Copia testo" onclick="copiaTesto('${l.code}')">
-              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-            </button>
-            <button class="btn-svg-icon" data-tooltip="Ascolta lento" onclick="leggiTestoScheda('${l.code}', 0.5, this, document.getElementById('card_${l.code}'))">
-              <svg viewBox="0 0 24 24"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>
-            </button>
-            <button class="btn-svg-icon" data-tooltip="Ascolta" onclick="leggiTestoScheda('${l.code}', 0.9, this, document.getElementById('card_${l.code}'))">
-              <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
-            </button>
+            <button class="btn-svg-icon" data-icona="scarica" data-label="Scarica PDF" data-corta="PDF" onclick="scaricaPDFSingolo('${l.code}')"></button>
+            <button class="btn-svg-icon" data-icona="copia" data-label="Copia testo" data-corta="Copia" onclick="copiaTesto('${l.code}')"></button>
+            <button class="btn-svg-icon" data-icona="lento" data-label="Ascolta lento" data-corta="Lento" onclick="leggiTestoScheda('${l.code}', 0.5, this, document.getElementById('card_${l.code}'))"></button>
+            <button class="btn-svg-icon" data-icona="audio" data-label="Ascolta" data-corta="Ascolta" onclick="leggiTestoScheda('${l.code}', 0.9, this, document.getElementById('card_${l.code}'))"></button>
           </div>
         `;
         container.appendChild(card);
+        costruisciIcone(card);
+        const body = $('box_' + l.code);
+        body.style.fontSize = fontSizeCorrente + 'px';
+        if (cacheTraduzioniDocente[l.code] !== undefined) body.innerText = cacheTraduzioniDocente[l.code];
 
         const opt = document.createElement('option');
         opt.value = l.voice;
@@ -1127,28 +1492,35 @@
         studentSelect.appendChild(opt);
       });
 
-      gestisciInput();
-      applicaTwemoji();
+      applicaTwemoji(container);
+      applicaTwemoji(studentSelect);
+      if ($('testoITA').value.trim()) gestisciInput(0);
     }
 
     function apriGestioneLingue() {
-      const list = document.getElementById('langSelectorList');
+      const list = $('langSelectorList');
       list.innerHTML = '';
       ELENCO_LINGUE.forEach(l => {
         const item = document.createElement('label');
         item.className = 'lang-item';
-        const checked = lingueAttive.includes(l.code) ? 'checked' : '';
-        item.innerHTML = `<input type="checkbox" value="${l.code}" ${checked} onchange="toggleLingua('${l.code}')"> ${l.name}`;
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.value = l.code;
+        cb.checked = lingueAttive.includes(l.code);
+        cb.onchange = () => toggleLingua(l.code, cb);
+        item.appendChild(cb);
+        item.appendChild(document.createTextNode(' ' + l.name));
         list.appendChild(item);
       });
-      document.getElementById('modalLangConfig').style.display = 'flex';
-      applicaTwemoji();
+      $('modalLangConfig').style.display = 'flex';
+      applicaTwemoji(list);
     }
 
-    function toggleLingua(code) {
+    function toggleLingua(code, checkbox) {
       if (lingueAttive.includes(code)) {
         if (lingueAttive.length <= 1) {
           alert("Devi mantenere almeno una lingua attiva.");
+          checkbox.checked = true;
           return;
         }
         lingueAttive = lingueAttive.filter(c => c !== code);
@@ -1158,7 +1530,8 @@
     }
 
     function chiudiGestioneLingue() {
-      document.getElementById('modalLangConfig').style.display = 'none';
+      $('modalLangConfig').style.display = 'none';
+      scriviLS('parlaconme_lingue_attive', lingueAttive);
       inizializzaGriglia();
     }
 
@@ -1167,9 +1540,8 @@
     function cambiaZoom(delta) {
       fontSizeCorrente = Math.max(12, Math.min(32, fontSizeCorrente + delta));
       document.querySelectorAll('.card-body, .student-display-text').forEach(el => el.style.fontSize = fontSizeCorrente + 'px');
-      aggiornaStato(`Testo: ${fontSizeCorrente}px`);
+      aggiornaStato('Testo: ' + fontSizeCorrente + 'px');
     }
-
     function resetZoom() {
       fontSizeCorrente = 16;
       document.querySelectorAll('.card-body, .student-display-text').forEach(el => el.style.fontSize = '16px');
@@ -1177,330 +1549,290 @@
     }
 
     function copiaTesto(lang) {
-      const el = document.getElementById('box_' + lang);
-      if (!el) return;
-      const testo = el.innerText.trim();
-      if (!testo || testo === '...') return;
-      navigator.clipboard.writeText(testo).then(() => {
-        aggiornaStato(`✓ Copiato`);
-        setTimeout(() => aggiornaStato('Pronto'), 2000);
-      });
+      const el = $('box_' + lang);
+      if (el) copiaNegliAppunti(el.innerText.trim());
     }
 
     function cancellaTutto() {
       clearTimeout(timerPausaSilenzio);
+      clearTimeout(timerDebounce);
+      generazioneTraduzione++;
+      if (controllerTraduzione) controllerTraduzione.abort();
+      traduzionePendente = false;
       testoConfermatoDocente = '';
       cacheTraduzioniDocente = {};
-      document.getElementById('testoITA').value = '';
-      document.getElementById('testoStudente').value = '';
-      lingueAttive.forEach(l => {
-        const el = document.getElementById('box_' + l);
-        if (el) el.innerText = '...';
-      });
+      testoTradotto = '';
+      $('testoITA').value = '';
+      $('testoStudente').value = '';
+      aggiornaBox();
       aggiornaStato('Pulito');
       trasmettiDatiRete({ ita: '', traduzioni: {} });
     }
 
     function registraModificaManuale() {
-      testoConfermatoDocente = document.getElementById('testoITA').value;
+      testoConfermatoDocente = $('testoITA').value;
       gestisciInput();
     }
 
-    function apriModalitaStudente() { document.getElementById('studentPanel').style.display = 'block'; applicaTwemoji(); }
+    function apriModalitaStudente() { $('studentPanel').style.display = 'block'; applicaTwemoji($('studentPanel')); }
     function chiudiModalitaStudente() {
-      document.getElementById('studentPanel').style.display = 'none';
+      $('studentPanel').style.display = 'none';
       if (inAscoltoStudente) fermaAscoltoStudente();
     }
 
-    function apriFocus(lang, titoloLingua) {
+    function apriFocus(lang) {
       linguaFocusCorrente = lang;
-      const el = document.getElementById('box_' + lang);
-      const testo = el ? el.innerText : '...';
-      document.getElementById('modalTitle').innerText = titoloLingua;
-      const modalBody = document.getElementById('modalBody');
-      modalBody.innerText = testo;
+      const obj = LINGUA_PER_CODICE[lang];
+      const el = $('box_' + lang);
+      $('modalTitle').innerText = obj ? obj.name : lang;
+      const modalBody = $('modalBody');
+      modalBody.innerText = el ? el.innerText : '...';
+      modalBody.setAttribute('lang', lang);
       modalBody.scrollTop = modalBody.scrollHeight;
-      const langObj = ELENCO_LINGUE.find(l => l.code === lang);
-      if (langObj && langObj.rtl) modalBody.classList.add('rtl');
-      else modalBody.classList.remove('rtl');
-      document.getElementById('modalFocus').style.display = 'flex';
-      applicaTwemoji();
+      modalBody.classList.toggle('rtl', !!(obj && obj.rtl));
+      $('modalFocus').style.display = 'flex';
+      applicaTwemoji($('modalFocus'));
     }
-
     function chiudiFocus() {
-      document.getElementById('modalFocus').style.display = 'none';
+      fermaTuttaLettura();
+      $('modalFocus').style.display = 'none';
       linguaFocusCorrente = null;
     }
 
-    function salvaInCronologia() {
-      const testoITA = document.getElementById('testoITA').value.trim();
-      if (!testoITA) return;
+    /* =====================================================================
+       11. QR CODE
+       ===================================================================== */
+    function mostraQRCode() {
+      const container = $('qrcode');
+      container.innerHTML = '';
+      $('roomCodeDisplay').innerText = pinDocente;
 
-      ID_PROGRESSIVO_CRONOLOGIA++;
-      let riga = { id_univoco: ID_PROGRESSIVO_CRONOLOGIA, ita: testoITA };
+      // Indirizzo della cartella in cui si trova questa pagina (funziona con qualsiasi nome di file)
+      const baseURL = window.location.href.split('?')[0].split('#')[0].replace(/[^\/]*$/, '');
+      const urlStudente = baseURL + 'studente.html';
+      $('urlStudenteDisplay').innerText = urlStudente;
 
-      ELENCO_LINGUE.forEach(l => {
-        const el = document.getElementById('box_' + l.code);
-        if (el && el.innerText !== '...') riga[l.code] = el.innerText;
-        else if (traduzioniRicevuteRete[l.code]) riga[l.code] = traduzioniRicevuteRete[l.code];
+      new QRCode(container, {
+        text: urlStudente + '?stanza=' + pinDocente,
+        width: 210,
+        height: 210,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
       });
+      $('modalQR').style.display = 'flex';
+    }
+    function chiudiQRCode() { $('modalQR').style.display = 'none'; }
 
+    /* =====================================================================
+       12. FRASI SALVATE (cronologia, conservata nel browser)
+       ===================================================================== */
+    function salvaInCronologia() {
+      const testo = $('testoITA').value.trim();
+      if (!testo) return;
+      if (testo !== testoTradotto) {
+        mostraAvviso('Attendi la fine della traduzione, poi salva la frase.');
+        return;
+      }
+      ID_PROGRESSIVO_CRONOLOGIA++;
+      const riga = { id_univoco: ID_PROGRESSIVO_CRONOLOGIA, ita: testo };
+      Object.entries(cacheTraduzioniDocente).forEach(([c, t]) => {
+        if (t !== TESTO_NON_DISPONIBILE) riga[c] = t;
+      });
       cronologiaLezione.push(riga);
+      scriviLS('parlaconme_cronologia', cronologiaLezione);
       aggiornaContatoreCronologia();
-      aggiornaStato(`Salvato (${cronologiaLezione.length})`);
+      aggiornaStato('Salvato (' + cronologiaLezione.length + ')');
     }
 
     function aggiornaContatoreCronologia() {
-      const countEl = document.getElementById('countCronologia');
-      if (countEl) countEl.innerText = cronologiaLezione.length;
+      const el = $('countCronologia');
+      if (el) el.innerText = cronologiaLezione.length;
     }
 
     function apriModalCronologia() {
       renderizzaListaCronologia();
-      document.getElementById('modalCronologia').style.display = 'flex';
-      applicaTwemoji();
+      $('modalCronologia').style.display = 'flex';
+      applicaTwemoji($('modalCronologia'));
     }
-
-    function chiudiModalCronologia() { document.getElementById('modalCronologia').style.display = 'none'; }
+    function chiudiModalCronologia() { $('modalCronologia').style.display = 'none'; }
 
     function renderizzaListaCronologia() {
-      const container = document.getElementById('listaCronologiaBody');
-      if (!container) return;
-
+      const container = $('listaCronologiaBody');
+      container.innerHTML = '';
       if (cronologiaLezione.length === 0) {
-        container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 20px;">Nessuna frase salvata finora.</div>';
+        const vuoto = document.createElement('div');
+        vuoto.style.cssText = 'text-align:center; color:var(--text-muted); padding:20px;';
+        vuoto.textContent = 'Nessuna frase salvata finora.';
+        container.appendChild(vuoto);
         return;
       }
-
-      container.innerHTML = '';
       cronologiaLezione.forEach((item, index) => {
         const box = document.createElement('div');
-        box.style.cssText = 'background: rgba(15, 23, 42, 0.5); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;';
-        
-        box.innerHTML = `
-          <div style="flex-grow: 1; word-break: break-word;">
-            <strong style="color: var(--primary-cyan);">${index + 1}. 🇮🇹 ITA:</strong> ${item.ita}
-          </div>
-          <button class="btn-svg-icon" style="color: #f87171; flex-shrink: 0;" onclick="eliminaSingolaFrase(${item.id_univoco})">
-            <svg viewBox="0 0 24 24" style="width:20px; height:20px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-          </button>
-        `;
+        box.style.cssText = 'background: var(--card-body-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;';
+
+        const testo = document.createElement('div');
+        testo.style.cssText = 'flex-grow:1; word-break:break-word;';
+        const forte = document.createElement('strong');
+        forte.style.color = 'var(--primary-cyan)';
+        forte.textContent = (index + 1) + '. 🇮🇹 ITA: ';
+        testo.appendChild(forte);
+        testo.appendChild(document.createTextNode(item.ita));   // testo sempre "innocuo"
+
+        const btn = document.createElement('button');
+        btn.className = 'btn-svg-icon';
+        btn.style.cssText = 'color:#f87171; flex-shrink:0;';
+        btn.dataset.icona = 'cestino';
+        btn.dataset.label = 'Elimina frase';
+        btn.dataset.corta = 'Elimina';
+        btn.onclick = () => eliminaSingolaFrase(item.id_univoco);
+
+        box.appendChild(testo);
+        box.appendChild(btn);
         container.appendChild(box);
+        costruisciIcone(box);
       });
-      applicaTwemoji();
+      applicaTwemoji(container);
     }
 
-    function eliminaSingolaFrase(idTarget) {
-      cronologiaLezione = cronologiaLezione.filter(item => item.id_univoco !== idTarget);
+    function eliminaSingolaFrase(id) {
+      cronologiaLezione = cronologiaLezione.filter(i => i.id_univoco !== id);
+      scriviLS('parlaconme_cronologia', cronologiaLezione);
       aggiornaContatoreCronologia();
       renderizzaListaCronologia();
-      aggiornaStato(`Frase rimossa (${cronologiaLezione.length})`);
+      aggiornaStato('Frase rimossa (' + cronologiaLezione.length + ')');
     }
 
     function svuotaInteraCronologia() {
       if (cronologiaLezione.length === 0) return;
       if (confirm("Sei sicuro di voler cancellare tutte le frasi salvate nella cronologia?")) {
         cronologiaLezione = [];
+        scriviLS('parlaconme_cronologia', cronologiaLezione);
         aggiornaContatoreCronologia();
         renderizzaListaCronologia();
         aggiornaStato('Cronologia svuotata');
       }
     }
 
-    function scaricaLezione() {
-      let contenuto = "VOCABOLARIO LEZIONE CPIA\n=========================\n\n";
-
-      if (eStudente) {
-        const lang = document.getElementById('myLangSelect').value;
-        const testoITA = document.getElementById('studentDisplayITA').innerText;
-        const testoTradotto = document.getElementById('studentDisplayText').innerText;
-        const obj = ELENCO_LINGUE.find(x => x.code === lang);
-        
-        contenuto += `🇮🇹 ITALIANO:\n${testoITA}\n\n`;
-        contenuto += `${obj ? obj.name : lang.toUpperCase()}:\n${testoTradotto}\n`;
-      } else {
-        let frasiDaScrivere = [...cronologiaLezione];
-        
-        if (frasiDaScrivere.length === 0) {
-          const testoCorrenteITA = document.getElementById('testoITA').value.trim();
-          if (testoCorrenteITA) {
-            let riga = { ita: testoCorrenteITA };
-            lingueAttive.forEach(l => {
-              const el = document.getElementById('box_' + l);
-              if (el && el.innerText !== '...') riga[l] = el.innerText;
-            });
-            frasiDaScrivere.push(riga);
-          }
-        }
-
-        if (frasiDaScrivere.length === 0) {
-          alert("Nessun testo da scaricare.");
-          return;
-        }
-
-        frasiDaScrivere.forEach((item, index) => {
-          contenuto += `FRASE ${index + 1}:\n🇮🇹 ITA: ${item.ita}\n`;
-          lingueAttive.forEach(l => {
-            const obj = ELENCO_LINGUE.find(x => x.code === l);
-            contenuto += `${obj ? obj.name : l}: ${item[l] || '...'}\n`;
-          });
-          contenuto += "-------------------------\n\n";
-        });
-      }
-
-      const blob = new Blob([contenuto], { type: 'text/plain;charset=utf-8' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `Lezione_CPIA_${new Date().toISOString().slice(0,10)}.txt`;
-      link.click();
+    /* =====================================================================
+       13. ESPORTAZIONE (TXT e PDF) - un unico punto per tutti i casi
+       ===================================================================== */
+    function nomeLingua(codice, conBandiera) {
+      const o = LINGUA_PER_CODICE[codice];
+      if (!o) return codice.toUpperCase();
+      return conBandiera ? o.name : o.name.replace(/^\S+\s+/, '');
     }
 
-    function scaricaPDFSingoloDallaVistaStudente() {
-      const lang = document.getElementById('myLangSelect').value;
-      scaricaPDFSingolo(lang);
+    // Restituisce l'elenco delle frasi da esportare
+    function raccogliFrasi(codici) {
+      if (eStudente) {
+        if (!testoITARicevutoRete) return [];
+        const riga = { ita: testoITARicevutoRete };
+        codici.forEach(c => { if (traduzioniRicevuteRete[c] !== undefined) riga[c] = traduzioniRicevuteRete[c]; });
+        return [riga];
+      }
+      if (cronologiaLezione.length > 0) return [...cronologiaLezione];
+      const testo = $('testoITA').value.trim();
+      if (!testo) return [];
+      const riga = { ita: testo };
+      if (testo === testoTradotto) codici.forEach(c => { if (cacheTraduzioniDocente[c] !== undefined) riga[c] = cacheTraduzioniDocente[c]; });
+      return [riga];
+    }
+
+    function codiciDaEsportare() {
+      return eStudente ? [$('myLangSelect').value] : [...lingueAttive];
+    }
+
+    function scaricaLezione() {
+      const codici = codiciDaEsportare();
+      const frasi = raccogliFrasi(codici);
+      if (frasi.length === 0) { alert("Nessun testo da scaricare."); return; }
+
+      let contenuto = "VOCABOLARIO LEZIONE CPIA\n=========================\n\n";
+      frasi.forEach((f, i) => {
+        contenuto += `FRASE ${i + 1}:\nITA: ${f.ita}\n`;
+        codici.forEach(c => { contenuto += `${nomeLingua(c)}: ${f[c] && f[c] !== TESTO_NON_DISPONIBILE ? f[c] : '—'}\n`; });
+        contenuto += "-------------------------\n\n";
+      });
+
+      const blob = new Blob(['\uFEFF' + contenuto], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Lezione_CPIA_${new Date().toISOString().slice(0, 10)}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }
+
+    function costruisciHTMLScheda(titolo, frasi, codici, grande) {
+      const dataOggi = new Date().toLocaleDateString('it-IT');
+      const px = grande ? '12pt' : '11pt';
+      let html = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8">
+        <title>${esc(titolo)} - ${dataOggi}</title>
+        <style>
+          @page { margin: 8mm; size: A4; }
+          html, body { margin: 0; padding: 0; background: #fff; color: #1e293b; font-family: 'Segoe UI', system-ui, Arial, sans-serif; }
+          .container { padding: 4px; }
+          h1 { color: #0284c7; font-size: 16pt; margin: 0 0 2px 0; }
+          .date { color: #475569; font-size: 9pt; margin-bottom: 10px; border-bottom: 2px solid #0284c7; padding-bottom: 4px; }
+          .block { margin-bottom: 10px; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; }
+          .ita { font-weight: bold; font-size: ${px}; color: #0369a1; margin-bottom: 4px; white-space: pre-wrap; word-break: break-word; }
+          .trans { font-size: ${px}; color: #0f172a; margin-top: 4px; white-space: pre-wrap; word-break: break-word; }
+        </style></head><body><div class="container">
+        <h1>${esc(titolo)}</h1>
+        <div class="date">Data: ${dataOggi} | CPIA Centro Provinciale Istruzione Adulti</div>`;
+
+      frasi.forEach((f, i) => {
+        html += `<div class="block"><div class="ita">${i + 1}. ITA: ${esc(f.ita)}</div>`;
+        codici.forEach(c => {
+          if (f[c] && f[c] !== TESTO_NON_DISPONIBILE) {
+            const rtl = LINGUA_PER_CODICE[c] && LINGUA_PER_CODICE[c].rtl;
+            html += `<div class="trans"${rtl ? ' dir="rtl" style="text-align:right"' : ''}><strong>${esc(nomeLingua(c))}:</strong> ${esc(f[c])}</div>`;
+          }
+        });
+        html += `</div>`;
+      });
+      html += `</div><script>window.onload = function() { window.print(); }<\/script></body></html>`;
+      return html;
+    }
+
+    function apriFinestraStampa(html) {
+      const win = window.open('', '_blank');
+      if (!win) {
+        mostraAvviso('Il browser ha bloccato la finestra di stampa. Consenti i popup per questo sito e riprova.', 6000);
+        return;
+      }
+      win.document.write(html);
+      win.document.close();
     }
 
     function scaricaPDFSingolo(langCode) {
-      let frasiDaStampare = [];
+      const frasi = raccogliFrasi([langCode]);
+      if (frasi.length === 0) { alert("Nessun testo presente da esportare."); return; }
+      apriFinestraStampa(costruisciHTMLScheda('ParlaConMe - Scheda Bilingue (' + nomeLingua(langCode) + ')', frasi, [langCode], true));
+    }
 
-      if (eStudente) {
-        const testoITA = document.getElementById('studentDisplayITA').innerText;
-        const testoTradotto = document.getElementById('studentDisplayText').innerText;
-        if (testoITA && !testoITA.startsWith('In attesa')) {
-          let riga = { ita: testoITA };
-          riga[langCode] = testoTradotto;
-          frasiDaStampare.push(riga);
-        }
-      } else {
-        frasiDaStampare = [...cronologiaLezione];
-
-        if (frasiDaStampare.length === 0) {
-          const testoCorrenteITA = document.getElementById('testoITA').value.trim();
-          if (testoCorrenteITA) {
-            let rigaCorrente = { ita: testoCorrenteITA };
-            const el = document.getElementById('box_' + langCode);
-            if (el && el.innerText !== '...') rigaCorrente[langCode] = el.innerText;
-            frasiDaStampare.push(rigaCorrente);
-          }
-        }
-      }
-
-      if (frasiDaStampare.length === 0) {
-        alert("Nessun testo presente per questa lingua da esportare.");
-        return;
-      }
-
-      const objLang = ELENCO_LINGUE.find(x => x.code === langCode);
-      const nomeLingua = objLang ? objLang.name : langCode.toUpperCase();
-
-      let win = window.open('', '_blank');
-      let dataOggi = new Date().toLocaleDateString('it-IT');
-      let html = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>Scheda Bilingue (${nomeLingua}) - ${dataOggi}</title>
-          <style>
-            @page { margin: 8mm; size: A4; }
-            html, body { margin: 0; padding: 0; background: #fff; color: #1e293b; font-family: 'Segoe UI', system-ui, sans-serif; }
-            .container { padding: 4px; display: block !important; }
-            h1 { color: #0284c7; font-size: 16pt; margin: 0 0 2px 0; }
-            .date { color: #64748b; font-size: 9pt; margin-bottom: 10px; border-bottom: 2px solid #0284c7; padding-bottom: 4px; }
-            .block { margin-bottom: 10px; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; page-break-inside: auto; break-inside: auto; }
-            .ita { font-weight: bold; font-size: 11pt; color: #0284c7; margin-bottom: 6px; white-space: pre-wrap; word-break: break-word; }
-            .trans { font-size: 11pt; color: #0f172a; margin-top: 4px; white-space: pre-wrap; word-break: break-word; }
-            ${objLang && objLang.rtl ? '.trans { direction: rtl; text-align: right; }' : ''}
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <h1>ParlaConMe - Scheda Bilingue (${nomeLingua})</h1>
-            <div class="date">Data: ${dataOggi} | CPIA Centro Provinciale Istruzione Adulti</div>
-      `;
-
-      frasiDaStampare.forEach((item, index) => {
-        html += `<div class="block">
-          <div class="ita">${index + 1}. 🇮🇹 ITA: ${item.ita}</div>`;
-        if (item[langCode]) {
-          html += `<div class="trans"><strong>${nomeLingua}:</strong> ${item[langCode]}</div>`;
-        }
-        html += `</div>`;
-      });
-
-      html += `</div><script>window.onload = function() { window.print(); }<\/script></body></html>`;
-      win.document.write(html);
-      win.document.close();
+    function scaricaPDFSingoloDallaVistaStudente() {
+      scaricaPDFSingolo($('myLangSelect').value);
     }
 
     function stampaOEsportaPDF() {
-      if (eStudente) {
-        window.print();
-        return;
-      }
-
-      let frasiDaStampare = [...cronologiaLezione];
-
-      if (frasiDaStampare.length === 0) {
-        const testoCorrenteITA = document.getElementById('testoITA').value.trim();
-        if (testoCorrenteITA) {
-          let rigaCorrente = { ita: testoCorrenteITA };
-          lingueAttive.forEach(l => {
-            const el = document.getElementById('box_' + l);
-            if (el && el.innerText !== '...') rigaCorrente[l] = el.innerText;
-          });
-          frasiDaStampare.push(rigaCorrente);
-        }
-      }
-
-      if (frasiDaStampare.length === 0) {
-        alert("Scrivi o parla prima di generare la scheda PDF/Stampa.");
-        return;
-      }
-
-      let win = window.open('', '_blank');
-      let dataOggi = new Date().toLocaleDateString('it-IT');
-      let html = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>Scheda Lezione CPIA - ${dataOggi}</title>
-          <style>
-            @page { margin: 8mm; size: A4; }
-            html, body { margin: 0; padding: 0; background: #fff; color: #1e293b; font-family: 'Segoe UI', system-ui, sans-serif; }
-            .container { padding: 4px; display: block !important; }
-            h1 { color: #0284c7; font-size: 16pt; margin: 0 0 2px 0; }
-            .date { color: #64748b; font-size: 9pt; margin-bottom: 10px; border-bottom: 2px solid #0284c7; padding-bottom: 4px; }
-            .block { margin-bottom: 10px; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; page-break-inside: auto; break-inside: auto; }
-            .ita { font-weight: bold; font-size: 11pt; color: #0284c7; margin-bottom: 4px; white-space: pre-wrap; word-break: break-word; }
-            .trans { font-size: 10pt; margin-left: 6px; color: #334155; margin-top: 2px; white-space: pre-wrap; word-break: break-word; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <h1>ParlaConMe - Scheda della Lezione</h1>
-            <div class="date">Data: ${dataOggi} | CPIA Centro Provinciale Istruzione Adulti</div>
-      `;
-
-      frasiDaStampare.forEach((item, index) => {
-        html += `<div class="block"><div class="ita">${index + 1}. 🇮🇹 ITA: ${item.ita}</div>`;
-        lingueAttive.forEach(l => {
-          const obj = ELENCO_LINGUE.find(x => x.code === l);
-          if (item[l]) {
-            html += `<div class="trans"><strong>${obj ? obj.name : l}:</strong> ${item[l]}</div>`;
-          }
-        });
-        html += `</div>`;
-      });
-
-      html += `</div><script>window.onload = function() { window.print(); }<\/script></body></html>`;
-      win.document.write(html);
-      win.document.close();
+      if (eStudente) { scaricaPDFSingoloDallaVistaStudente(); return; }
+      const frasi = raccogliFrasi(lingueAttive);
+      if (frasi.length === 0) { alert("Scrivi o parla prima di generare la scheda PDF/Stampa."); return; }
+      apriFinestraStampa(costruisciHTMLScheda('ParlaConMe - Scheda della Lezione', frasi, lingueAttive, false));
     }
 
+    /* =====================================================================
+       14. MICROFONO DEL DOCENTE
+       ===================================================================== */
     function applicaPunteggiaturaAvanzata(testo) {
-      let t = testo
-        .replace(/\bvirgola\b/gi, ',')
+      const t = testo
+        // "punto e virgola" va PRIMA di "virgola" e "punto", altrimenti non verrebbe mai riconosciuto
         .replace(/\bpunto e virgola\b/gi, ';')
+        .replace(/\bvirgola\b/gi, ',')
         .replace(/\bdue punti\b/gi, ':')
         .replace(/\bpunto di domanda\b|\bpunto interrogativo\b/gi, '?')
         .replace(/\bpunto esclamativo\b/gi, '!')
@@ -1511,9 +1843,9 @@
         .replace(/\bapri virgolette\b/gi, '"')
         .replace(/\bchiudi virgolette\b/gi, '"')
         .replace(/\s+([,.?!:;])/g, '$1')
-        .replace(/\(\s+/g, '(')         .replace(/\s+\)/g, ')');
-
-      return t.replace(/(^|[.?!]\s+|\n+)([a-zàèéìòù])/g, (match, p1, p2) => p1 + p2.toUpperCase());
+        .replace(/\(\s+/g, '(')
+        .replace(/\s+\)/g, ')');
+      return t.replace(/(^|[.?!]\s+|\n+)([a-zàèéìòù])/g, (m, p1, p2) => p1 + p2.toUpperCase());
     }
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1528,28 +1860,30 @@
       recDocente.onresult = (e) => {
         clearTimeout(timerPausaSilenzio);
         let testoInterim = '';
+        let haFinale = false;
 
         for (let i = e.resultIndex; i < e.results.length; i++) {
           const transcript = e.results[i][0].transcript;
           if (e.results[i].isFinal) {
-            const fraseIncollata = transcript.trim();
-            if (fraseIncollata) {
-              if (!testoConfermatoDocente.trim().endsWith(fraseIncollata)) {
-                let serveSpazio = testoConfermatoDocente.length > 0 && !testoConfermatoDocente.endsWith('\n') && !testoConfermatoDocente.endsWith(' ');
-                testoConfermatoDocente += (serveSpazio ? ' ' : '') + fraseIncollata;
-              }
+            haFinale = true;
+            const frase = transcript.trim();
+            if (frase && !testoConfermatoDocente.trim().endsWith(frase)) {
+              const serveSpazio = testoConfermatoDocente.length > 0 && !testoConfermatoDocente.endsWith('\n') && !testoConfermatoDocente.endsWith(' ');
+              testoConfermatoDocente += (serveSpazio ? ' ' : '') + frase;
             }
           } else {
             testoInterim += transcript;
           }
         }
 
-        let testoVisualizzato = testoConfermatoDocente + (testoInterim ? (testoConfermatoDocente && !testoConfermatoDocente.endsWith('\n') ? ' ' : '') + testoInterim : '');
-        
-        const textareaITA = document.getElementById('testoITA');
+        const sep = (testoConfermatoDocente && !testoConfermatoDocente.endsWith('\n')) ? ' ' : '';
+        const testoVisualizzato = testoConfermatoDocente + (testoInterim ? sep + testoInterim : '');
+        const textareaITA = $('testoITA');
         textareaITA.value = applicaPunteggiaturaAvanzata(testoVisualizzato);
         textareaITA.scrollTop = textareaITA.scrollHeight;
-        gestisciInput();
+
+        // Si traduce a frase conclusa o dopo una breve pausa, non a ogni mezza parola
+        gestisciInput(haFinale ? 300 : 1200);
 
         if (inAscoltoDocente) {
           timerPausaSilenzio = setTimeout(() => {
@@ -1557,34 +1891,30 @@
               testoConfermatoDocente = testoConfermatoDocente.trimEnd() + '.\n';
               textareaITA.value = applicaPunteggiaturaAvanzata(testoConfermatoDocente);
               textareaITA.scrollTop = textareaITA.scrollHeight;
-              gestisciInput();
+              gestisciInput(300);
             }
-            if (isMobile) {
-              fermaAscoltoDocente();
-            }
+            if (isMobile) fermaAscoltoDocente();
           }, 1800);
         }
       };
 
       recDocente.onerror = (e) => {
+        if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+          mostraAvviso('Microfono non consentito: autorizza il microfono nelle impostazioni del browser.', 6000);
+          fermaAscoltoDocente();
+          return;
+        }
         if (inAscoltoDocente && e.error !== 'aborted') {
           setTimeout(() => {
-            if (inAscoltoDocente && !isMobile) {
-              try { recDocente.start(); } catch(err) {}
-            } else if (isMobile) {
-              fermaAscoltoDocente();
-            }
+            if (inAscoltoDocente && !isMobile) { try { recDocente.start(); } catch (err) {} }
+            else if (isMobile) fermaAscoltoDocente();
           }, 300);
         }
       };
 
-      recDocente.onend = () => { 
+      recDocente.onend = () => {
         if (inAscoltoDocente && !isMobile) {
-          setTimeout(() => {
-            if (inAscoltoDocente) {
-              try { recDocente.start(); } catch(err) {}
-            }
-          }, 200);
+          setTimeout(() => { if (inAscoltoDocente) { try { recDocente.start(); } catch (err) {} } }, 200);
         } else if (isMobile && inAscoltoDocente) {
           fermaAscoltoDocente();
         }
@@ -1599,13 +1929,12 @@
 
     function avviaAscoltoDocente() {
       if (inAscoltoStudente) fermaAscoltoStudente();
-      testoConfermatoDocente = document.getElementById('testoITA').value;
+      testoConfermatoDocente = $('testoITA').value;
       try {
         recDocente.start();
         inAscoltoDocente = true;
-        const btn = document.getElementById('btnMic');
-        btn.classList.add('recording');
-        document.getElementById('micText').innerText = 'In ascolto...';
+        $('btnMic').classList.add('recording');
+        $('micText').innerText = 'In ascolto...';
         aggiornaStato('Mic Docente');
       } catch (e) { console.error(e); }
     }
@@ -1613,14 +1942,17 @@
     function fermaAscoltoDocente() {
       clearTimeout(timerPausaSilenzio);
       inAscoltoDocente = false;
-      if (recDocente) recDocente.stop();
-      const btn = document.getElementById('btnMic');
-      btn.classList.remove('recording');
-      document.getElementById('micText').innerText = 'Attiva Mic';
+      if (recDocente) { try { recDocente.stop(); } catch (e) {} }
+      $('btnMic').classList.remove('recording');
+      $('micText').innerText = 'Attiva Mic';
       aggiornaStato('Pronto');
     }
 
-    let recStudente = null, inAscoltoStudente = false;
+    /* =====================================================================
+       15. MODALITA' "STUDENTE -> DOCENTE" (sulla pagina del docente)
+       ===================================================================== */
+    let recStudente = null, inAscoltoStudente = false, timerTradStudente = null;
+
     function toggleMicrofonoStudente() {
       if (!SpeechRecognition) return alert("Browser non supportato.");
       if (inAscoltoStudente) fermaAscoltoStudente();
@@ -1629,7 +1961,7 @@
 
     function avviaAscoltoStudente() {
       if (inAscoltoDocente) fermaAscoltoDocente();
-      const langSel = document.getElementById('studentLangSelect').value;
+      const langSel = $('studentLangSelect').value;
       recStudente = new SpeechRecognition();
       recStudente.continuous = true;
       recStudente.interimResults = true;
@@ -1638,107 +1970,53 @@
       recStudente.onresult = (e) => {
         let t = '';
         for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript;
-        traduciDaStudente(t, langSel.split('-')[0]);
+        clearTimeout(timerTradStudente);
+        timerTradStudente = setTimeout(() => traduciDaStudente(t, langSel.split('-')[0]), 600);
       };
-      recStudente.onerror = () => fermaAscoltoStudente();
-      recStudente.onend = () => { if (inAscoltoStudente) recStudente.start(); };
+      recStudente.onerror = (e) => {
+        if (e.error === 'language-not-supported') mostraAvviso('Riconoscimento vocale non disponibile per questa lingua su questo browser.', 5000);
+        else if (e.error === 'not-allowed' || e.error === 'service-not-allowed') mostraAvviso('Microfono non consentito.', 5000);
+        fermaAscoltoStudente();
+      };
+      recStudente.onend = () => {
+        if (inAscoltoStudente) { try { recStudente.start(); } catch (err) {} }
+      };
 
       try {
         recStudente.start();
         inAscoltoStudente = true;
-        const btn = document.getElementById('btnMicStudent');
+        const btn = $('btnMicStudent');
         btn.classList.add('recording');
         btn.innerText = '🔴 In ascolto...';
+        applicaTwemoji(btn);
         aggiornaStato('Mic Studente');
       } catch (e) { console.error(e); }
     }
 
     function fermaAscoltoStudente() {
       inAscoltoStudente = false;
-      if (recStudente) recStudente.stop();
-      const btn = document.getElementById('btnMicStudent');
+      if (recStudente) { try { recStudente.stop(); } catch (e) {} }
+      const btn = $('btnMicStudent');
       btn.classList.remove('recording');
-      btn.innerText = '🎙️ Parla (Studente)';
+      btn.innerText = '🎙️ Parla';
+      applicaTwemoji(btn);
       aggiornaStato('Pronto');
-    }
-
-    async function chiamaGoogleTranslate(testo, linguaDa, linguaA) {
-      const targetLang = linguaA.split('-')[0];
-      const url = `https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=${linguaDa}&tl=${targetLang}&q=${encodeURIComponent(testo)}`;
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data && Array.isArray(data) && data[0]) {
-          return Array.isArray(data[0]) ? data[0].join(' ') : data[0];
-        } else if (typeof data === 'string') {
-          return data;
-        }
-      } catch (e) {
-        console.error(e);
-      }
-      return null;
     }
 
     async function traduciDaStudente(testo, langDa) {
       if (!testo.trim()) return;
       const trad = await chiamaGoogleTranslate(testo, langDa, 'it');
       if (trad) {
-        document.getElementById('testoStudente').value = `[${langDa.toUpperCase()}]: ${testo}\n🇮🇹 [TRADUZIONE PER DOCENTE]: ${trad}`;
+        $('testoStudente').value = `[${langDa.toUpperCase()}]: ${testo}\n🇮🇹 [TRADUZIONE PER DOCENTE]: ${trad}`;
       }
     }
 
-    function gestisciInput() {
-      aggiornaStato('Digitazione...');
-      clearTimeout(timerDebounce);
-      timerDebounce = setTimeout(traduciTutto, 500);
-    }
-
-    function traduciTutto() {
-      const testo = document.getElementById('testoITA').value.trim();
-
-      if (!testo) {
-        cacheTraduzioniDocente = {};
-        ELENCO_LINGUE.forEach(l => {
-          const el = document.getElementById('box_' + l.code);
-          if (el) el.innerText = '...';
-        });
-        aggiornaStato('Pronto');
-        trasmettiDatiRete({ ita: '', traduzioni: {} });
-        return;
-      }
-
-      aggiornaStato('Traduzione...');
-
-      let promesse = ELENCO_LINGUE.map(l => {
-        return chiamaGoogleTranslate(testo, 'it', l.code).then(trad => {
-          if (trad) {
-            const el = document.getElementById('box_' + l.code);
-            if (el) {
-              el.innerText = trad;
-              el.scrollTop = el.scrollHeight;
-            }
-            if (linguaFocusCorrente === l.code) {
-              const mBody = document.getElementById('modalBody');
-              mBody.innerText = trad;
-              mBody.scrollTop = mBody.scrollHeight;
-            }
-            cacheTraduzioniDocente[l.code] = trad;
-          }
-        });
-      });
-
-      Promise.all(promesse).then(() => {
-        aggiornaStato('Tradotto');
-        trasmettiDatiRete({
-          ita: testo,
-          traduzioni: cacheTraduzioniDocente
-        });
-      });
-    }
-
-    function aggiornaStato(msg) { document.getElementById('status').innerText = msg; }
-
+    /* =====================================================================
+       16. AVVIO
+       ===================================================================== */
     window.addEventListener('DOMContentLoaded', () => {
+      costruisciIcone();
+      aggiornaContatoreCronologia();
       inizializzaGriglia();
       inizializzaRete();
       applicaTwemoji();
