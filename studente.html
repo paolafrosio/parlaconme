@@ -4,11 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ParlaConMe - Accesso Aula CPIA</title>
-  
   <link rel="icon" type="image/png" href="logo_bianco.png?v=5">
-  
-  <!-- Caricamento asincrono per non bloccare l'apertura della pagina -->
-  <script defer src="https://cdn.jsdelivr.net/npm/@twemoji/api@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
+
+  <!-- Emoji/bandiere: versione fissata alla 15.x (non più "latest") -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@twemoji/api@15/dist/twemoji.min.js" crossorigin="anonymous"></script>
 
   <style>
     :root {
@@ -19,7 +18,7 @@
       --text: #f8fafc;
     }
     body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
       background: radial-gradient(circle at 50% 30%, #0284c7 0%, transparent 60%), var(--bg);
       background-attachment: fixed;
       color: var(--text);
@@ -31,15 +30,7 @@
       justify-content: center;
       box-sizing: border-box;
     }
-
-    img.emoji {
-      height: 1.2em;
-      width: 1.2em;
-      margin: 0 .15em;
-      vertical-align: -0.2em;
-      display: inline-block;
-    }
-
+    img.emoji { height: 1.2em; width: 1.2em; margin: 0 .15em; vertical-align: -0.2em; display: inline-block; }
     .login-card {
       background: var(--card-bg);
       backdrop-filter: blur(20px);
@@ -60,11 +51,7 @@
       align-items: center;
       justify-content: center;
     }
-    p {
-      color: #94a3b8;
-      font-size: 14px;
-      margin-bottom: 18px;
-    }
+    p { color: #cbd5e1; font-size: 14px; margin-bottom: 18px; }
     .field-label {
       display: block;
       text-align: left;
@@ -87,19 +74,13 @@
       outline: none;
       font-family: inherit;
     }
-    input {
-      font-size: 22px;
-      text-align: center;
-      letter-spacing: 3px;
-    }
-    select {
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    input:focus, select:focus {
+    input { font-size: 22px; text-align: center; letter-spacing: 3px; }
+    select { font-size: 15px; font-weight: 600; cursor: pointer; }
+    input:focus, select:focus, button:focus-visible {
       border-color: var(--primary);
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
     }
     button {
       width: 100%;
@@ -115,33 +96,32 @@
       box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
       margin-top: 6px;
     }
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 24px rgba(56, 189, 248, 0.7);
-    }
+    button:hover { transform: translateY(-2px); box-shadow: 0 0 24px rgba(56, 189, 248, 0.7); }
   </style>
 </head>
 <body>
 
-  <div class="login-card">
+  <main class="login-card">
     <h1>
-      <img src="logo_bianco.png?v=5" alt="Logo" style="height: 38px; vertical-align: middle; margin-right: 8px;">
+      <img src="logo_bianco.png?v=5" alt="" style="height: 38px; vertical-align: middle; margin-right: 8px;">
       ParlaConMe
     </h1>
     <p>Inserisci il PIN dell'aula e scegli la tua lingua:</p>
-    
-    <span class="field-label">🔑 PIN Stanza LIM:</span>
-    <input type="text" id="pinInput" placeholder="Es. 1234" maxlength="15" autocomplete="off" onkeypress="gestisciInvio(event)">
 
-    <span class="field-label">🌐 La tua Lingua Madre:</span>
+    <label class="field-label" for="pinInput">🔑 PIN Stanza LIM:</label>
+    <input type="text" id="pinInput" placeholder="Es. 123456" maxlength="25" autocomplete="off" inputmode="numeric" onkeypress="gestisciInvio(event)">
+
+    <label class="field-label" for="langInput">🌐 La tua Lingua Madre:</label>
     <select id="langInput" onchange="salvaLinguaPreferita()">
-      <!-- Popolato istantaneamente da JS -->
+      <!-- Popolato da JS -->
     </select>
-    
+
     <button onclick="connettiAllaStanza()">Entra in Aula ➔</button>
-  </div>
+  </main>
 
   <script>
+    // ELENCO LINGUE
+    // NOTA: per aggiungere una lingua, modificare l'elenco qui E nel file index.html
     const ELENCO_LINGUE = [
       { code: 'sq', name: 'Albanese' },
       { code: 'ar', name: 'Arabo' },
@@ -164,17 +144,18 @@
     ];
 
     function inizializzaIstantanea() {
-      // 1. Lettura immediata del PIN dall'URL
+      // PIN dall'indirizzo (QR code)
       const urlParams = new URLSearchParams(window.location.search);
-      let stanzaDaUrl = urlParams.get('stanza') || urlParams.get('pin');
+      const stanzaDaUrl = urlParams.get('stanza') || urlParams.get('pin');
       if (stanzaDaUrl) {
         document.getElementById('pinInput').value = stanzaDaUrl.replace('cpia-aula-', '').trim();
       }
 
-      // 2. Popolamento immediato del menu a tendina
+      // Menu lingue
       const select = document.getElementById('langInput');
       select.innerHTML = '';
-      const ultimaLingua = localStorage.getItem('parlaconme_lang') || 'en';
+      let ultimaLingua = 'en';
+      try { ultimaLingua = localStorage.getItem('parlaconme_lang') || 'en'; } catch (e) {}
 
       ELENCO_LINGUE.forEach(l => {
         const opt = document.createElement('option');
@@ -184,28 +165,23 @@
         select.appendChild(opt);
       });
 
-      // 3. Rendering bandiere differito (non blocca l'interfaccia)
       setTimeout(() => {
-        if (window.twemoji) {
-          twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
-        }
+        if (window.twemoji) twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
       }, 50);
     }
 
     function salvaLinguaPreferita() {
-      const lang = document.getElementById('langInput').value;
-      localStorage.setItem('parlaconme_lang', lang);
+      try { localStorage.setItem('parlaconme_lang', document.getElementById('langInput').value); } catch (e) {}
     }
 
     function connettiAllaStanza() {
       const pin = document.getElementById('pinInput').value.trim();
       const lang = document.getElementById('langInput').value;
-      
+
       if (!pin) {
         alert("Per favore, inserisci il PIN della stanza.");
         return;
       }
-
       salvaLinguaPreferita();
       const stanzaId = pin.startsWith('cpia-aula-') ? pin : 'cpia-aula-' + pin;
       window.location.href = `index.html?stanza=${encodeURIComponent(stanzaId)}&lang=${encodeURIComponent(lang)}`;
@@ -215,7 +191,6 @@
       if (e.key === 'Enter') connettiAllaStanza();
     }
 
-    // Esecuzione immediata senza attendere il caricamento completo delle risorse esterne
     inizializzaIstantanea();
   </script>
 </body>
