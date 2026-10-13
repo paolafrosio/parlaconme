@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Non invia l'indirizzo della pagina a Google: aiuta la voce a partire -->
+  <meta name="referrer" content="no-referrer">
+  <title>Prova voci - ParlaConMe</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; margin: 0; padding: 12px; background: #f1f5f9; color: #0f172a; }
+    h1 { font-size: 20px; margin: 0 0 6px; }
+    .info { font-size: 14px; margin-bottom: 14px; line-height: 1.4; }
+    .ambiente { font-size: 14px; font-weight: 700; background: #fef9c3; border: 1px solid #facc15; border-radius: 10px; padding: 8px 12px; margin-bottom: 14px; }
+    .lang { background: #fff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 10px 12px; margin-bottom: 10px; }
+    .nome { font-weight: 700; font-size: 16px; }
+    .frase { font-size: 17px; margin: 4px 0 8px; }
+    .riga { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+    .etichetta { width: 120px; font-size: 14px; font-weight: 600; }
+    button { font-size: 15px; padding: 8px 12px; border-radius: 10px; border: 1px solid #94a3b8; background: #e0f2fe; cursor: pointer; }
+    button.ok { background: #bbf7d0; }
+    button.ko { background: #fecaca; }
+    button.scelto { outline: 3px solid #0f172a; }
+    .stato { font-size: 13px; color: #475569; flex-basis: 100%; }
+    textarea { width: 100%; height: 340px; font-size: 13px; box-sizing: border-box; margin-top: 10px; }
+    .grande { width: 100%; margin-top: 8px; padding: 12px; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <h1>Prova voci - ParlaConMe</h1>
+  <div class="ambiente" id="ambiente"></div>
+  <div class="info">
+    Per ogni lingua premi <b>▶</b>, ascolta, poi premi <b>✓</b> (si sente bene) o <b>✗</b> (non si sente o si sente male).
+    Alla fine premi <b>Crea riepilogo</b>. Tieni il volume alzato e il telefono non in silenzioso.
+    Su Windows ripeti la prova sia con Chrome sia con Edge.
+  </div>
+  <div id="elenco"></div>
+
+  <button class="grande" onclick="creaRiepilogo()">Crea riepilogo</button>
+  <button class="grande" onclick="copiaRiepilogo()">Copia riepilogo</button>
+  <textarea id="riepilogo" placeholder="Il riepilogo comparirà qui..."></textarea>
+
+  <script>
+    const LINGUE = [
+      { code: 'sq', voice: 'sq-AL', nome: 'Albanese', frase: 'Mirëmëngjes, sot mësojmë italisht.' },
+      { code: 'ar', voice: 'ar-SA', nome: 'Arabo', frase: 'صباح الخير، اليوم نتعلم اللغة الإيطالية.' },
+      { code: 'bn', voice: 'bn-BD', nome: 'Bengalese', frase: 'সুপ্রভাত, আজ আমরা ইতালীয় ভাষা শিখছি।' },
+      { code: 'zh-CN', voice: 'zh-CN', nome: 'Cinese', frase: '早上好，今天我们学习意大利语。' },
+      { code: 'fa', voice: 'fa-IR', nome: 'Farsi', frase: 'صبح بخیر، امروز ایتالیایی یاد می‌گیریم.' },
+      { code: 'fr', voice: 'fr-FR', nome: 'Francese', frase: "Bonjour, aujourd'hui nous apprenons l'italien." },
+      { code: 'hi', voice: 'hi-IN', nome: 'Hindi', frase: 'सुप्रभात, आज हम इतालवी सीख रहे हैं।' },
+      { code: 'en', voice: 'en-US', nome: 'Inglese', frase: 'Good morning, today we are learning Italian.' },
+      { code: 'ps', voice: 'ps-AF', nome: 'Pashto', frase: 'سهار مو پخير، نن ورځ موږ ایټالوي زده کوو.' },
+      { code: 'pt', voice: 'pt-PT', nome: 'Portoghese', frase: 'Bom dia, hoje estamos a aprender italiano.' },
+      { code: 'ro', voice: 'ro-RO', nome: 'Rumeno', frase: 'Bună dimineața, azi învățăm italiana.' },
+      { code: 'ru', voice: 'ru-RU', nome: 'Russo', frase: 'Доброе утро, сегодня мы учим итальянский.' },
+      { code: 'es', voice: 'es-ES', nome: 'Spagnolo', frase: 'Buenos días, hoy aprendemos italiano.' },
+      { code: 'tl', voice: 'tl-PH', nome: 'Tagalog', frase: 'Magandang umaga, ngayon ay nag-aaral tayo ng Italyano.' },
+      { code: 'de', voice: 'de-DE', nome: 'Tedesco', frase: 'Guten Morgen, heute lernen wir Italienisch.' },
+      { code: 'ti', voice: 'ti-ET', nome: 'Tigrino', frase: 'ከመይ ኣምሲኹም፣ ሎሚ ጣልያንኛ ንመሃር ኣለና።' },
+      { code: 'uk', voice: 'uk-UA', nome: 'Ucraino', frase: 'Доброго ранку, сьогодні ми вчимo італійську.'.replace('вчимo', 'вчимо') },
+      { code: 'ur', voice: 'ur-PK', nome: 'Urdu', frase: 'صبح بخیر، آج ہم اطالوی سیکھ رہے ہیں۔' }
+    ];
+
+    // risultati[code] = { google: 'ok'|'ko'|'errore'|null, dispositivo: 'ok'|'ko'|'assente'|null, voceUsata: '' }
+    const risultati = {};
+    let audioAttivo = null;
+
+    // ---- Riconoscimento di sistema e browser ----
+    function rilevaAmbiente() {
+      const ua = navigator.userAgent;
+      let sistema = 'Sistema sconosciuto';
+      if (/Windows/i.test(ua)) sistema = 'Windows';
+      else if (/Android/i.test(ua)) sistema = 'Android';
+      else if (/iPhone|iPad|iPod/i.test(ua)) sistema = 'iPhone/iPad';
+      else if (/Macintosh|Mac OS X/i.test(ua)) sistema = (navigator.maxTouchPoints > 1) ? 'iPad' : 'Mac';
+      else if (/Linux/i.test(ua)) sistema = 'Linux';
+
+      let browser = 'Browser sconosciuto';
+      if (/Edg\//i.test(ua) || /EdgA\//i.test(ua) || /EdgiOS\//i.test(ua)) browser = 'Edge';
+      else if (/OPR\//i.test(ua)) browser = 'Opera';
+      else if (/Firefox|FxiOS/i.test(ua)) browser = 'Firefox';
+      else if (/CriOS/i.test(ua)) browser = 'Chrome (iOS)';
+      else if (/Chrome\//i.test(ua)) browser = 'Chrome';
+      else if (/Safari\//i.test(ua)) browser = 'Safari';
+      return sistema + ' - ' + browser;
+    }
+    const AMBIENTE = rilevaAmbiente();
+
+    // ---- Voci del dispositivo (stesso criterio dell'app) ----
+    function vociPerLingua(voice) {
+      if (!('speechSynthesis' in window)) return [];
+      const base = voice.toLowerCase().split('-')[0];
+      return speechSynthesis.getVoices().filter(v => v.lang.toLowerCase().replace('_', '-').startsWith(base));
+    }
+    function vocePreferita(voice) {
+      const voci = vociPerLingua(voice);
+      if (!voci.length) return null;
+      return voci.find(v => /Natural|Google|Neural|Online/.test(v.name)) || voci[0];
+    }
+
+    function costruisci() {
+      document.getElementById('ambiente').textContent = 'Stai provando su: ' + AMBIENTE;
+      const el = document.getElementById('elenco');
+      LINGUE.forEach(l => {
+        risultati[l.code] = { google: null, dispositivo: null, voceUsata: '' };
+        const d = document.createElement('div');
+        d.className = 'lang';
+        d.innerHTML =
+          '<div class="nome">' + l.nome + ' (' + l.code + ')</div>' +
+          '<div class="frase" dir="auto"></div>' +
+          '<div class="riga"><span class="etichetta">Voce Google</span>' +
+            '<button onclick="provaGoogle(\'' + l.code + '\')">▶</button>' +
+            '<button class="ok" onclick="segna(\'' + l.code + '\',\'google\',\'ok\',this)">✓</button>' +
+            '<button class="ko" onclick="segna(\'' + l.code + '\',\'google\',\'ko\',this)">✗</button>' +
+            '<span class="stato" id="sg_' + l.code + '"></span></div>' +
+          '<div class="riga"><span class="etichetta">Voce dispositivo</span>' +
+            '<button onclick="provaDispositivo(\'' + l.code + '\')">▶</button>' +
+            '<button class="ok" onclick="segna(\'' + l.code + '\',\'dispositivo\',\'ok\',this)">✓</button>' +
+            '<button class="ko" onclick="segna(\'' + l.code + '\',\'dispositivo\',\'ko\',this)">✗</button>' +
+            '<span class="stato" id="sd_' + l.code + '"></span></div>';
+        d.querySelector('.frase').textContent = l.frase;
+        el.appendChild(d);
+      });
+    }
+
+    function trova(code) { return LINGUE.find(l => l.code === code); }
+
+    function fermaTutto() {
+      if (audioAttivo) { try { audioAttivo.pause(); } catch (e) {} audioAttivo = null; }
+      if ('speechSynthesis' in window) speechSynthesis.cancel();
+    }
+
+    function provaGoogle(code) {
+      const l = trova(code);
+      const st = document.getElementById('sg_' + code);
+      fermaTutto();
+      st.textContent = 'Caricamento...';
+      const url = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=' +
+                  encodeURIComponent(code) + '&q=' + encodeURIComponent(l.frase);
+      const a = new Audio(url);
+      audioAttivo = a;
+      a.onplaying = () => { st.textContent = 'In riproduzione: se senti bene premi ✓, altrimenti ✗'; };
+      a.onerror = () => {
+        st.textContent = 'Google non ha restituito audio per questa lingua.';
+        risultati[code].google = 'errore';
+      };
+      const p = a.play();
+      if (p && p.catch) p.catch(() => {
+        if (risultati[code].google !== 'errore') {
+          st.textContent = 'Riproduzione bloccata o non riuscita.';
+          risultati[code].google = 'errore';
+        }
+      });
+    }
+
+    function provaDispositivo(code) {
+      const l = trova(code);
+      const st = document.getElementById('sd_' + code);
+      fermaTutto();
+      if (!('speechSynthesis' in window)) {
+        st.textContent = 'Questo browser non ha la lettura vocale.';
+        risultati[code].dispositivo = 'assente';
+        return;
+      }
+      const voci = vociPerLingua(l.voice);
+      const voce = vocePreferita(l.voice);
+      if (!voce) {
+        st.textContent = 'Nessuna voce installata per questa lingua su questo dispositivo.';
+        risultati[code].dispositivo = 'assente';
+        return;
+      }
+      risultati[code].voceUsata = voce.name;
+      st.textContent = 'Voce usata: ' + voce.name + ' (voci disponibili: ' + voci.length + '). Se senti bene premi ✓, altrimenti ✗';
+      const u = new SpeechSynthesisUtterance(l.frase);
+      u.voice = voce;
+      u.lang = l.voice;
+      speechSynthesis.speak(u);
+    }
+
+    function segna(code, fonte, esito, bottone) {
+      const attuale = risultati[code][fonte];
+      if (attuale !== 'errore' && attuale !== 'assente') risultati[code][fonte] = esito;
+      const riga = bottone.parentElement;
+      riga.querySelectorAll('button').forEach(b => b.classList.remove('scelto'));
+      bottone.classList.add('scelto');
+    }
+
+    function testoEsito(v) {
+      return { ok: 'SI SENTE BENE', ko: 'NON FUNZIONA/MALE', errore: 'NESSUN AUDIO', assente: 'NESSUNA VOCE' }[v] || 'non provato';
+    }
+
+    function creaRiepilogo() {
+      let t = 'RIEPILOGO PROVA VOCI\n';
+      t += 'Provato su: ' + AMBIENTE + '\n';
+      t += 'Dettaglio browser: ' + navigator.userAgent + '\n\n';
+      LINGUE.forEach(l => {
+        const r = risultati[l.code];
+        const n = ('speechSynthesis' in window) ? vociPerLingua(l.voice).length : 0;
+        const nomeVoce = r.voceUsata ? ', voce: ' + r.voceUsata : '';
+        t += l.nome + ' | Google: ' + testoEsito(r.google) + ' | Dispositivo: ' + testoEsito(r.dispositivo) + ' (voci installate: ' + n + nomeVoce + ')\n';
+      });
+      document.getElementById('riepilogo').value = t;
+    }
+
+    function copiaRiepilogo() {
+      creaRiepilogo();
+      const ta = document.getElementById('riepilogo');
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      if (navigator.clipboard) navigator.clipboard.writeText(ta.value).catch(() => {});
+    }
+
+    if ('speechSynthesis' in window) { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = () => {}; }
+    costruisci();
+  </script>
+</body>
+</html>
