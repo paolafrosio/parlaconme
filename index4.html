@@ -81,33 +81,25 @@
     .btn-label { display: none; }
     @media (hover: hover) {
       [data-tooltip] { position: relative; }
-[data-tooltip] {
-  position: relative;
-}
-
-[data-tooltip]:hover {
-  z-index: 2147483647 !important;
-}
-
-[data-tooltip]:hover::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  top: 125%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(15, 23, 42, 0.98);
-  color: #38bdf8;
-  border: 1px solid var(--card-border);
-  padding: 6px 10px;
-  font-size: 11px;
-  font-weight: 600;
-  border-radius: 8px;
-  white-space: nowrap;
-  pointer-events: none;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
-  z-index: 2147483647 !important;
-  backdrop-filter: blur(8px);
-}
+      [data-tooltip]:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        background: rgba(15, 23, 42, 0.95);
+        color: #38bdf8;
+        border: 1px solid var(--card-border);
+        padding: 5px 9px;
+        font-size: 11px;
+        font-weight: 600;
+        border-radius: 8px;
+        white-space: nowrap;
+        pointer-events: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        z-index: 1000;
+        backdrop-filter: blur(8px);
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+      }
     }
     @media (hover: none) {
       .btn-svg-icon { flex-direction: column; gap: 2px; }
@@ -137,7 +129,6 @@
   border: 1px solid var(--card-border);
   position: relative;
   z-index: 100;
-  overflow: visible !important;
 }
     h1 {
       margin: 0;
@@ -629,7 +620,7 @@
 
       <div id="badgeConnessione" class="status-badge status-connecting" role="status" aria-live="polite">🟡 Avvio...</div>
 
-     <button id="btnQR" class="btn-main" onclick="mostraQRCode()" data-tooltip="Genera QR Code">📱 Trasmetti</button>
+      <button id="btnQR" class="btn-main" onclick="mostraQRCode()" data-tooltip="Genera QR Code">📱 Trasmetti</button>
 <button id="btnLangConfig" class="btn-main" onclick="apriGestioneLingue()" data-tooltip="Gestisci lingue">⚙️ Lingue</button>
       <button class="btn-tool" onclick="toggleDarkMode()" data-tooltip="Cambia tema" aria-label="Cambia tema chiaro/scuro">🌙</button>
       <div class="zoom-bar">
