@@ -80,16 +80,16 @@
     @media (hover: hover) {
       [data-tooltip] { position: relative; }
       
-      /* Quando si passa il mouse su una card o sul suo contenuto, portiamo la card sopra l'header */
+      /* Quando si passa il mouse su una card, portiamo la card in primo piano assoluto */
       .card:hover {
-        z-index: 150 !important;
+        z-index: 9999 !important;
       }
 
       [data-tooltip]:hover { 
         z-index: 2147483647 !important; 
       }
       
-      /* Etichette di default (posizionate SOTTO per la barra in alto) */
+      /* Etichette di default (posizionate SOTTO per i pulsanti nell'header della pagina) */
       [data-tooltip]:hover::after {
         content: attr(data-tooltip);
         position: absolute;
@@ -110,11 +110,16 @@
         backdrop-filter: blur(8px);
       }
 
-      /* Per i pulsanti nelle schede (sia header che footer) fa apparire le etichette SOPRA */
-      .card-footer [data-tooltip]:hover::after,
-      .card-header [data-tooltip]:hover::after {
+      /* Pulsanti nel footer della scheda (in basso): etichetta SOPRA */
+      .card-footer [data-tooltip]:hover::after {
         top: auto;
         bottom: 125%;
+      }
+
+      /* Pulsanti nell'header della scheda (icona lente ingrandisci): etichetta SOTTO */
+      .card-header [data-tooltip]:hover::after {
+        top: 125%;
+        bottom: auto;
       }
     }
     @media (hover: none) {
@@ -144,7 +149,7 @@
       box-shadow: var(--card-shadow);
       border: 1px solid var(--card-border);
       position: relative;
-      z-index: 100;
+      z-index: 10; /* Z-index abbassato per consentire il passaggio in primo piano delle schede */
       overflow: visible !important;
     }
     h1 {
@@ -259,7 +264,7 @@
       margin-bottom: 12px;
       border: 1px solid var(--card-border);
       position: relative;
-      z-index: 10;
+      z-index: 5;
     }
     .label-row {
       display: flex;
