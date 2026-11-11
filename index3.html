@@ -492,18 +492,49 @@
       word-break: break-word;
       color: var(--text-color);
     }
+ /* ==================== POPUP LINGUE INGRANDITO ==================== */
+    #modalLangConfig .modal-card {
+      max-width: 900px; /* Ingrandisce la larghezza totale del box popup */
+      width: 95%;
+    }
     .lang-grid-selector {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 8px;
-      max-height: 50vh;
+      /* Box più larghi (minimo 180px anziché 130px) */
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+      max-height: 60vh;
       overflow-y: auto;
-      padding: 12px;
+      padding: 16px;
       background: var(--card-body-bg);
       border-radius: 14px;
       border: 1px solid var(--card-border);
     }
-    .lang-item { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; cursor: pointer; }
+    .lang-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px; /* Testo più grande e ben leggibile (era 14px) */
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      transition: background 0.2s ease;
+    }
+    .lang-item:hover {
+      background: rgba(56, 189, 248, 0.15);
+    }
+    /* Dimensione specifica per le caselle di controllo (checkbox) */
+    .lang-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+    /* Bandiere più grandi all'interno del popup */
+    .lang-item img.bandiera {
+      width: 2em;
+      height: 1.4em;
+    }
     .rtl { direction: rtl; text-align: right; }
 
     .qr-box-container {
@@ -560,7 +591,7 @@
       <div id="badgeConnessione" class="status-badge status-connecting" role="status" aria-live="polite">🟡 Avvio...</div>
 
       <button id="btnQR" class="btn-main" onclick="mostraQRCode()" data-tooltip="Genera QR Code">📱 Trasmetti</button>
-      <button id="btnLangConfig" class="btn-tool" onclick="apriGestioneLingue()" data-tooltip="Gestisci lingue">⚙️ Lingue</button>
+<button id="btnLangConfig" class="btn-main" onclick="apriGestioneLingue()" data-tooltip="Gestisci lingue">⚙️ Lingue</button>
       <button class="btn-tool" onclick="toggleDarkMode()" data-tooltip="Cambia tema" aria-label="Cambia tema chiaro/scuro">🌙</button>
       <div class="zoom-bar">
         <button class="btn-tool" onclick="cambiaZoom(-2)" aria-label="Riduci testo">A-</button>
