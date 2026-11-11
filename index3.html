@@ -1607,16 +1607,19 @@
 
     function toggleDarkMode() { document.body.classList.toggle('light-mode'); }
 
-    function cambiaZoom(delta) {
-      fontSizeCorrente = Math.max(12, Math.min(32, fontSizeCorrente + delta));
-      document.querySelectorAll('.card-body, .student-display-text').forEach(el => el.style.fontSize = fontSizeCorrente + 'px');
-      aggiornaStato('Testo: ' + fontSizeCorrente + 'px');
-    }
-    function resetZoom() {
-      fontSizeCorrente = 16;
-      document.querySelectorAll('.card-body, .student-display-text').forEach(el => el.style.fontSize = '16px');
-      aggiornaStato('Zoom reset');
-    }
+function cambiaZoom(delta) {
+  fontSizeCorrente = Math.max(12, Math.min(32, fontSizeCorrente + delta));
+  document.querySelectorAll('.card-body, .student-display-text, #testoITA, #testoStudente')
+    .forEach(el => el.style.fontSize = fontSizeCorrente + 'px');
+  aggiornaStato('Testo: ' + fontSizeCorrente + 'px');
+}
+
+function resetZoom() {
+  fontSizeCorrente = 16;
+  document.querySelectorAll('.card-body, .student-display-text, #testoITA, #testoStudente')
+    .forEach(el => el.style.fontSize = '16px');
+  aggiornaStato('Zoom reset');
+}
 
     function copiaTesto(lang) {
       const el = $('box_' + lang);
