@@ -581,8 +581,9 @@
 
 .box-aula-zoom:hover {
   transform: scale(1.6) translate(15px, 15px);
-  z-index: 100;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  z-index: 99999; /* Lo porta in primissimo piano sopra tutto il resto */
+  position: relative; /* Necessario per far funzionare bene il z-index */
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
 }
   
   
