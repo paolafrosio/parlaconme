@@ -587,7 +587,15 @@
   transform: scale(1.6) translate(-15px, 15px);
   position: relative;
   z-index: 9999;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+  background: rgba(15, 23, 42, 0.95);
+  border-color: #38bdf8;
+  /* Effetto Neon: ombra scura + bagliore azzurro attorno ai bordi */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 18px rgba(56, 189, 248, 0.7);
+}
+
+/* Cambia colore al numero del PIN rendendolo giallo quando zooma */
+.box-aula-zoom:hover #codiceAulaDocente {
+  color: #facc15;
 }
   
   
