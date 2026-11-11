@@ -79,7 +79,15 @@
     .btn-label { display: none; }
     @media (hover: hover) {
       [data-tooltip] { position: relative; }
-      [data-tooltip]:hover { z-index: 2147483647 !important; }
+      
+      /* Quando si passa il mouse su una card o sul suo contenuto, portiamo la card sopra l'header */
+      .card:hover {
+        z-index: 150 !important;
+      }
+
+      [data-tooltip]:hover { 
+        z-index: 2147483647 !important; 
+      }
       
       /* Etichette di default (posizionate SOTTO per la barra in alto) */
       [data-tooltip]:hover::after {
@@ -102,7 +110,7 @@
         backdrop-filter: blur(8px);
       }
 
-      /* Per le schede delle lingue in basso: fa apparire le etichette SOPRA il pulsante */
+      /* Per i pulsanti nelle schede (sia header che footer) fa apparire le etichette SOPRA */
       .card-footer [data-tooltip]:hover::after,
       .card-header [data-tooltip]:hover::after {
         top: auto;
@@ -170,7 +178,7 @@
       align-items: center;
       gap: 6px;
       white-space: nowrap;
-      width: 140px;               /* larghezza fissa: non sposta gli altri elementi */
+      width: 140px;
       justify-content: center;
       backdrop-filter: blur(8px);
     }
@@ -250,6 +258,8 @@
       box-shadow: var(--card-shadow);
       margin-bottom: 12px;
       border: 1px solid var(--card-border);
+      position: relative;
+      z-index: 10;
     }
     .label-row {
       display: flex;
@@ -376,6 +386,8 @@
       flex-grow: 1;
       overflow-y: auto;
       overflow-x: visible !important;
+      position: relative;
+      z-index: 5;
     }
     .card {
       background: var(--card-bg);
@@ -389,10 +401,18 @@
       flex-direction: column;
       min-height: 175px;
       position: relative;
+      z-index: 1;
       overflow: visible !important;
     }
     .card.speaking-card { border-color: #ef4444 !important; box-shadow: 0 0 25px rgba(239, 68, 68, 0.6) !important; }
-    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; position: relative; overflow: visible !important; }
+    .card-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 10px; 
+      position: relative; 
+      overflow: visible !important; 
+    }
     .card-title { font-weight: 700; font-size: 16px; color: var(--primary-cyan); }
     .card-body {
       background-color: var(--card-body-bg);
