@@ -572,6 +572,21 @@
       .top-controls { width: 100%; justify-content: flex-start; }
       .student-select { width: 100%; }
     }
+.box-aula-zoom {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.box-aula-zoom:hover {
+  transform: scale(1.3); /* Ingrandisce il box del 30% */
+  z-index: 100;
+}
+  
+  
+  
+  
   </style>
 </head>
 <body>
@@ -580,7 +595,7 @@
     <h1><img src="logo_bianco.png?v=5" alt="" style="height: 38px; vertical-align: middle; margin-right: 6px;">ParlaConMe</h1>
     <div class="top-controls">
       <div style="display: flex; align-items: center; gap: 8px;">
-<span style="background: rgba(255, 255, 255, 0.1); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--primary-cyan); white-space: nowrap;">
+<span class="box-aula-zoom" style="background: rgba(255, 255, 255, 0.1); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--primary-cyan); white-space: nowrap;">
   🏫 Aula: <span id="codiceAulaDocente" style="display:inline-block; min-width:6ch; text-align:left; font-size:18px; font-weight:800;">---</span>
 </span>
         <div id="studentCounterContainer" class="student-counter-badge">
