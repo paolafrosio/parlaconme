@@ -75,36 +75,40 @@
       outline-offset: 2px;
     }
 
-    /* ==================== SUGGERIMENTI E ETICHETTE (TOOLTIP) ====================
-       Posizionamento forzato in primissimo piano per non venire coperti da nulla */
+    /* ==================== SUGGERIMENTI E ETICHETTE (TOOLTIP) ==================== */
     .btn-label { display: none; }
-   @media (hover: hover) {
-  [data-tooltip] { 
-    position: relative; 
-  }
-  [data-tooltip]:hover {
-    z-index: 2147483647 !important;
-  }
-  [data-tooltip]:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 125%; /* Fa apparire l'etichetta SOPRA il pulsante */
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(15, 23, 42, 0.98);
-    color: #38bdf8;
-    border: 1px solid var(--card-border);
-    padding: 6px 10px;
-    font-size: 11px;
-    font-weight: 600;
-    border-radius: 8px;
-    white-space: nowrap;
-    pointer-events: none;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
-    z-index: 2147483647 !important;
-    backdrop-filter: blur(8px);
-  }
-}
+    @media (hover: hover) {
+      [data-tooltip] { position: relative; }
+      [data-tooltip]:hover { z-index: 2147483647 !important; }
+      
+      /* Etichette di default (posizionate SOTTO per la barra in alto) */
+      [data-tooltip]:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        top: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(15, 23, 42, 0.98);
+        color: #38bdf8;
+        border: 1px solid var(--card-border);
+        padding: 5px 9px;
+        font-size: 11px;
+        font-weight: 600;
+        border-radius: 8px;
+        white-space: nowrap;
+        pointer-events: none;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+        z-index: 2147483647 !important;
+        backdrop-filter: blur(8px);
+      }
+
+      /* Per le schede delle lingue in basso: fa apparire le etichette SOPRA il pulsante */
+      .card-footer [data-tooltip]:hover::after,
+      .card-header [data-tooltip]:hover::after {
+        top: auto;
+        bottom: 125%;
+      }
+    }
     @media (hover: none) {
       .btn-svg-icon { flex-direction: column; gap: 2px; }
       .btn-label {
@@ -133,7 +137,7 @@
       border: 1px solid var(--card-border);
       position: relative;
       z-index: 100;
-      overflow: visible !important; /* Garantisce che i tooltip non vengano tagliati ai bordi */
+      overflow: visible !important;
     }
     h1 {
       margin: 0;
@@ -150,7 +154,7 @@
       display: flex; 
       align-items: center; 
       gap: 8px; 
-      flex-wrap: wrap;
+      flex-wrap: wrap; 
       overflow: visible !important;
     }
 
@@ -166,11 +170,12 @@
       align-items: center;
       gap: 6px;
       white-space: nowrap;
-      width: 140px;
+      width: 140px;               /* larghezza fissa: non sposta gli altri elementi */
       justify-content: center;
       backdrop-filter: blur(8px);
     }
 
+    /* Indicatore di connessione */
     .status-badge {
       font-size: 12px;
       font-weight: 600;
@@ -365,29 +370,29 @@
     }
 
     .grid-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-  gap: 14px;
-  flex-grow: 1;
-  overflow: visible !important; /* Permette ai tooltip di uscire dalla griglia */
-}
-
-.card {
-  background: var(--card-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 14px 16px;
-  box-shadow: var(--card-shadow);
-  border: 1px solid var(--card-border);
-  display: flex;
-  flex-direction: column;
-  min-height: 175px;
-  position: relative;
-  overflow: visible !important; /* Permette alle etichette dei pulsanti in basso di uscire dalla scheda */
-}
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 14px;
+      flex-grow: 1;
+      overflow-y: auto;
+      overflow-x: visible !important;
+    }
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 14px 16px;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      min-height: 175px;
+      position: relative;
+      overflow: visible !important;
+    }
     .card.speaking-card { border-color: #ef4444 !important; box-shadow: 0 0 25px rgba(239, 68, 68, 0.6) !important; }
-    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; position: relative; overflow: visible !important; }
     .card-title { font-weight: 700; font-size: 16px; color: var(--primary-cyan); }
     .card-body {
       background-color: var(--card-body-bg);
@@ -402,16 +407,25 @@
       overflow-y: auto;
       color: var(--text-color);
     }
- .card-footer { 
-  display: flex; 
-  justify-content: flex-end; 
-  align-items: center; 
-  gap: 12px; 
-  margin-top: 10px;
-  position: relative;
-  z-index: 10;
-  overflow: visible !important;
-}
+    .card-footer { 
+      display: flex; 
+      justify-content: flex-end; 
+      align-items: center; 
+      gap: 12px; 
+      margin-top: 10px; 
+      position: relative;
+      overflow: visible !important;
+    }
+    .btn-svg-icon {
+      background: transparent;
+      border: none;
+      padding: 4px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-cyan);
+    }
     .btn-svg-icon svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; }
     .btn-svg-icon.active-speaking { color: #ef4444 !important; animation: pulseNeon 1.5s infinite; }
 
@@ -436,6 +450,7 @@
       display: flex;
       flex-direction: column;
       flex-grow: 1;
+      overflow: visible !important;
     }
     .student-card-main.speaking-card { border-color: #ef4444 !important; box-shadow: 0 0 25px rgba(239, 68, 68, 0.6) !important; }
     .student-lang-bar {
@@ -1307,7 +1322,7 @@
       const voce = selezionaVoceMigliore(info.voice.split('-')[0]);
       if (!voce && vociDisponibili.length) {
         const msg = codice === 'ti'
-          ? 'Per il tigrino non esiste una voce: leggi il testo. / No voice exists for Tigrinya: please read the text.'
+          ? 'Per il tigrino non existe una voce: leggi il testo. / No voice exists for Tigrinya: please read the text.'
           : 'Voce non disponibile per questa lingua su questo dispositivo. Leggi il testo (su un PC con Edge potrebbe funzionare). / Voice not available for this language on this device.';
         mostraAvviso(msg, 6000);
         fermaTuttaLettura();
@@ -1956,7 +1971,7 @@
         let finale = '', interim = '';
         for (let i = sessioneRec.offset; i < e.results.length; i++) {
           const t = e.results[i][0].transcript.trim();
-          if (e.results[i][0] && e.results[i].isFinal) finale = unisciFrase(finale, t);
+          if (e.results[i].isFinal) finale = unisciFrase(finale, t);
           else interim = interim ? interim + ' ' + t : t;
         }
         const haFinale = finale.length > sessioneRec.finale.length;
