@@ -785,7 +785,7 @@
       || (navigator.maxTouchPoints > 1 && !/Windows/i.test(navigator.userAgent));
     let eStudente = false;
 
-    let fontSizeCorrente = 16;
+    let fontSizeCorrente = 18;
     let linguaFocusCorrente = null;
     let elementoAudioAttivo = null;
 
@@ -1615,9 +1615,9 @@ function cambiaZoom(delta) {
 }
 
 function resetZoom() {
-  fontSizeCorrente = 16;
+  fontSizeCorrente = 18;
   document.querySelectorAll('.card-body, .student-display-text, #testoITA, #testoStudente')
-    .forEach(el => el.style.fontSize = '16px');
+    .forEach(el => el.style.fontSize = '18px');
   aggiornaStato('Zoom reset');
 }
 
