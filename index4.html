@@ -81,13 +81,21 @@
     .btn-label { display: none; }
     @media (hover: hover) {
       [data-tooltip] { position: relative; }
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]:hover {
+  z-index: 2147483647 !important;
+}
+
 [data-tooltip]:hover::after {
   content: attr(data-tooltip);
   position: absolute;
-  top: 125%; /* Fa apparire l'etichetta subito SOTTO il pulsante */
+  top: 125%;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(15, 23, 42, 0.95);
+  background: rgba(15, 23, 42, 0.98);
   color: #38bdf8;
   border: 1px solid var(--card-border);
   padding: 6px 10px;
@@ -96,8 +104,8 @@
   border-radius: 8px;
   white-space: nowrap;
   pointer-events: none;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-  z-index: 999999 !important; /* Forza l'etichetta a stare sopra qualsiasi cosa */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  z-index: 2147483647 !important;
   backdrop-filter: blur(8px);
 }
     }
@@ -129,7 +137,7 @@
   border: 1px solid var(--card-border);
   position: relative;
   z-index: 100;
-  overflow: visible !important; /* Impedisce che le etichette vengano tagliate dai bordi */
+  overflow: visible !important;
 }
     h1 {
       margin: 0;
