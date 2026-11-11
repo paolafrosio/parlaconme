@@ -123,14 +123,13 @@
       }
     }
     @media (hover: none) {
-      .btn-svg-icon { flex-direction: column; gap: 2px; }
-      .btn-label {
-        display: block;
-        font-size: 10px;
-        font-weight: 600;
-        line-height: 1.1;
-        color: var(--text-muted);
-      }
+/* Effetto bagliore/glow al passaggio del mouse sulle icone */
+.btn-svg-icon:hover {
+  color: var(--text-color);
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 8px var(--primary-cyan));
+  transition: all 0.2s ease;
+}
     }
 
     /* ==================== INTESTAZIONE ==================== */
