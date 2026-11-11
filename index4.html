@@ -9,8 +9,7 @@
   <title>ParlaConMe - Traduttore Live CPIA</title>
   <link rel="icon" type="image/png" href="logo_bianco.png?v=5">
 
-  <!-- Nessun font di Google, nessun Twemoji, nessuna libreria da siti esterni:
-       PeerJS e QR code sono nella cartella lib/, le bandiere in bandiere/ -->
+  <!-- PeerJS e QR code nella cartella lib/ -->
   <script src="lib/peerjs.min.js"></script>
   <script src="lib/qrcode.min.js"></script>
 
@@ -60,7 +59,7 @@
       transition: background 0.3s, color 0.3s;
     }
 
-    /* Bandiere (immagini nella cartella bandiere/) */
+    /* Bandiere */
     img.bandiera {
       width: 1.3em;
       height: 1em;
@@ -80,16 +79,15 @@
     @media (hover: hover) {
       [data-tooltip] { position: relative; }
       
-      /* Quando si passa il mouse su una card, portiamo la card in primo piano assoluto */
       .card:hover {
-        z-index: 9999 !important;
+        z-index: 20 !important;
       }
 
       [data-tooltip]:hover { 
-        z-index: 2147483647 !important; 
+        z-index: 100 !important; 
       }
       
-      /* Etichette di default (posizionate SOTTO per i pulsanti nell'header della pagina) */
+      /* Etichette di default (posizionate SOTTO per i pulsanti nell'header) */
       [data-tooltip]:hover::after {
         content: attr(data-tooltip);
         position: absolute;
@@ -106,30 +104,31 @@
         white-space: nowrap;
         pointer-events: none;
         box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-        z-index: 2147483647 !important;
+        z-index: 100 !important;
         backdrop-filter: blur(8px);
       }
 
-      /* Pulsanti nel footer della scheda (in basso): etichetta SOPRA */
+      /* Pulsanti nel footer della scheda: etichetta SOPRA */
       .card-footer [data-tooltip]:hover::after {
         top: auto;
         bottom: 125%;
       }
 
-      /* Pulsanti nell'header della scheda (icona lente ingrandisci): etichetta SOTTO */
+      /* Pulsanti nell'header della scheda (icona lente): etichetta SOTTO */
       .card-header [data-tooltip]:hover::after {
         top: 125%;
         bottom: auto;
       }
     }
     @media (hover: none) {
-/* Effetto bagliore/glow al passaggio del mouse sulle icone */
-.btn-svg-icon:hover {
-  color: var(--text-color);
-  transform: scale(1.15);
-  filter: drop-shadow(0 0 8px var(--primary-cyan));
-  transition: all 0.2s ease;
-}
+      .btn-svg-icon { flex-direction: column; gap: 2px; }
+      .btn-label {
+        display: block;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1.1;
+        color: var(--text-muted);
+      }
     }
 
     /* ==================== INTESTAZIONE ==================== */
@@ -148,7 +147,7 @@
       box-shadow: var(--card-shadow);
       border: 1px solid var(--card-border);
       position: relative;
-      z-index: 10; /* Z-index abbassato per consentire il passaggio in primo piano delle schede */
+      z-index: 10;
       overflow: visible !important;
     }
     h1 {
@@ -187,7 +186,6 @@
       backdrop-filter: blur(8px);
     }
 
-    /* Indicatore di connessione */
     .status-badge {
       font-size: 12px;
       font-weight: 600;
@@ -440,6 +438,8 @@
       position: relative;
       overflow: visible !important;
     }
+
+    /* ==================== PULSANTI ICONA CON BAGLIORE (GLOW) ==================== */
     .btn-svg-icon {
       background: transparent;
       border: none;
@@ -449,8 +449,28 @@
       align-items: center;
       justify-content: center;
       color: var(--primary-cyan);
+      transition: transform 0.2s ease, color 0.2s ease, filter 0.2s ease;
+      outline: none;
     }
-    .btn-svg-icon svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+    .btn-svg-icon svg { 
+      width: 22px; 
+      height: 22px; 
+      stroke: currentColor; 
+      fill: none; 
+      stroke-width: 1.8;
+      transition: filter 0.2s ease;
+    }
+
+    /* Effetto Bagliore Neon al passaggio del mouse */
+    .btn-svg-icon:hover {
+      color: #ffffff !important;
+      transform: scale(1.25);
+      filter: drop-shadow(0 0 8px #38bdf8);
+    }
+    .btn-svg-icon:hover svg {
+      filter: drop-shadow(0 0 5px #38bdf8);
+    }
+
     .btn-svg-icon.active-speaking { color: #ef4444 !important; animation: pulseNeon 1.5s infinite; }
 
     /* ==================== VISTA STUDENTE ==================== */
