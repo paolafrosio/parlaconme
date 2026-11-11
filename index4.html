@@ -81,7 +81,7 @@
     .btn-label { display: none; }
     @media (hover: hover) {
       [data-tooltip] { position: relative; }
-      [data-tooltip]:hover::after {
+[data-tooltip]:hover::after {
         content: attr(data-tooltip);
         position: absolute;
         background: rgba(15, 23, 42, 0.95);
@@ -94,9 +94,9 @@
         white-space: nowrap;
         pointer-events: none;
         box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        z-index: 1000;
+        z-index: 10000;
         backdrop-filter: blur(8px);
-        bottom: 125%;
+        top: 115%; /* Mostra il suggerimento appena SOTTO il pulsante */
         left: 50%;
         transform: translateX(-50%);
       }
@@ -620,7 +620,7 @@
 
       <div id="badgeConnessione" class="status-badge status-connecting" role="status" aria-live="polite">🟡 Avvio...</div>
 
-      <button id="btnQR" class="btn-main" onclick="mostraQRCode()" data-tooltip="Genera QR Code">📱 Trasmetti</button>
+     <button id="btnQR" class="btn-main" onclick="mostraQRCode()" data-tooltip="Genera QR Code">📱 Trasmetti</button>
 <button id="btnLangConfig" class="btn-main" onclick="apriGestioneLingue()" data-tooltip="Gestisci lingue">⚙️ Lingue</button>
       <button class="btn-tool" onclick="toggleDarkMode()" data-tooltip="Cambia tema" aria-label="Cambia tema chiaro/scuro">🌙</button>
       <div class="zoom-bar">
