@@ -79,7 +79,7 @@
     @media (hover: hover) {
       [data-tooltip] { position: relative; }
       
-      /* Etichette di default (posizionate sopra e al centro) */
+      /* Etichette di default */
       [data-tooltip]:hover::after {
         content: attr(data-tooltip);
         position: absolute;
@@ -100,11 +100,12 @@
         transform: translateX(-50%);
       }
 
-      /* Etichetta pulsante ingrandisci (header della card): allineata a destra per non uscire dallo schermo */
+      /* Etichetta pulsante ingrandisci (lente): allineata a destra dentro la scheda per non finire fuori dallo schermo */
       .card-header [data-tooltip]:hover::after {
         left: auto;
         right: 0;
         transform: none;
+        bottom: 110%;
       }
     }
     @media (hover: none) {
@@ -375,9 +376,19 @@
       display: flex;
       flex-direction: column;
       min-height: 175px;
+      position: relative;
     }
     .card.speaking-card { border-color: #ef4444 !important; box-shadow: 0 0 25px rgba(239, 68, 68, 0.6) !important; }
-    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 2;
+      overflow: visible;
+    }
     .card-title { font-weight: 700; font-size: 16px; color: var(--primary-cyan); }
     .card-body {
       background-color: var(--card-body-bg);
@@ -391,10 +402,12 @@
       flex-grow: 1;
       overflow-y: auto;
       color: var(--text-color);
+      position: relative;
+      z-index: 1;
     }
-    .card-footer { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 10px; }
+    .card-footer { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 10px; position: relative; z-index: 2; }
     
-    /* ==================== PULSANTI ICONA CON ELEGANTE BAGLIORE ==================== */
+    /* ==================== PULSANTI ICONA CON BAGLIORE ==================== */
     .btn-svg-icon {
       background: transparent;
       border: none;
@@ -405,6 +418,8 @@
       justify-content: center;
       color: var(--primary-cyan);
       transition: transform 0.2s ease, color 0.2s ease, filter 0.2s ease;
+      position: relative;
+      z-index: 2;
     }
     .btn-svg-icon svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; }
     
@@ -1307,7 +1322,7 @@
       const voce = selezionaVoceMigliore(info.voice.split('-')[0]);
       if (!voce && vociDisponibili.length) {
         const msg = codice === 'ti'
-          ? 'Per il tigrino non esiste una voce: leggi il testo. / No voice exists for Tigrinya: please read the text.'
+          ? 'Per il tigrino non existe una voce: leggi il testo. / No voice exists for Tigrinya: please read the text.'
           : 'Voce non disponibile per questa lingua su questo dispositivo. Leggi il testo (su un PC con Edge potrebbe funzionare). / Voice not available for this language on this device.';
         mostraAvviso(msg, 6000);
         fermaTuttaLettura();
