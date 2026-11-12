@@ -536,15 +536,17 @@
     }
 
     /* Regola specifica per rendere il box di ingrandimento (Focus) ancora più largo e alto */
+/* Dimensione bilanciata per la finestra di ingrandimento */
     #modalFocus .modal-card {
-      max-width: 1100px; /* Più largo per sfruttare lo schermo */
-      height: 90vh;      /* Forza l'altezza al 90% della schermata */
+      max-width: 850px;  /* Larghezza ideale per la lettura */
+      height: 65vh;       /* Altezza ridotta al 65% dello schermo (anziché 90vh) */
+      max-height: 600px;  /* Limite massimo di altezza per schermi molto grandi */
     }
 
-    /* Testo del box di ingrandimento (Focus) più grande e ben spaziato */
+    /* Dimensione testo bilanciata */
     #modalFocus .modal-body {
-      font-size: 28px;   /* Portato da 22px a 28px per massima leggibilità */
-      line-height: 1.6;  /* Interlinea più ampia per facilitare la lettura */
+      font-size: 22px;    /* Testo ben leggibile senza essere gigante */
+      line-height: 1.5;
     }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 6px; }
     .modal-title { font-size: 20px; font-weight: 700; color: var(--primary-cyan); }
@@ -1727,8 +1729,8 @@ function apriFocus(lang) {
       modalBody.innerText = el ? el.innerText : '...';
       modalBody.setAttribute('lang', lang);
       
-      // Mantiene la dimensione grande del testo anche all'apertura
-      modalBody.style.fontSize = Math.max(28, fontSizeCorrente + 6) + 'px';
+      // Imposta la dimensione fissa ideale a 22px
+      modalBody.style.fontSize = '22px';
       
       modalBody.scrollTop = modalBody.scrollHeight;
       modalBody.classList.toggle('rtl', !!(obj && obj.rtl));
