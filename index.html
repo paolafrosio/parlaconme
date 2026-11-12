@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="it">
-<head>
+<head> 
   <meta charset="UTF-8">
-  <!-- Zoom con due dita ora consentito (accessibilità) -->
+  <!-- Zoom con due dita consentito (accessibilità) -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Non invia l'indirizzo della pagina a Google: aiuta la voce a partire -->
   <meta name="referrer" content="no-referrer">
   <title>ParlaConMe - Traduttore Live CPIA</title>
   <link rel="icon" type="image/png" href="logo_piccolo.png?v=5">
 
-  <!-- Nessun font di Google, nessun Twemoji, nessuna libreria da siti esterni:
-       PeerJS e QR code sono nella cartella lib/, le bandiere in bandiere/ -->
+  <!-- PeerJS e QR code nella cartella lib/ -->
   <script src="lib/peerjs.min.js"></script>
   <script src="lib/qrcode.min.js"></script>
 
@@ -60,7 +59,7 @@
       transition: background 0.3s, color 0.3s;
     }
 
-    /* Bandiere (immagini nella cartella bandiere/) */
+    /* Bandiere */
     img.bandiera {
       width: 1.3em;
       height: 1em;
@@ -75,12 +74,13 @@
       outline-offset: 2px;
     }
 
-    /* ==================== SUGGERIMENTI E ETICHETTE ====================
-       PC (mouse): scritta al passaggio del mouse.
-       Smartphone/tablet (touch): piccola scritta sempre visibile sotto l'icona. */
+    /* ==================== SUGGERIMENTI E ETICHETTE (TOOLTIP) ==================== */
     .btn-label { display: none; }
     @media (hover: hover) {
       [data-tooltip] { position: relative; }
+      
+      /* Etichette di default: SOPRA il pulsante, centrate
+         (usate dai pulsanti nel piede delle schede lingua, dove sopra c'è sempre il testo della scheda) */
       [data-tooltip]:hover::after {
         content: attr(data-tooltip);
         position: absolute;
@@ -99,6 +99,40 @@
         bottom: 125%;
         left: 50%;
         transform: translateX(-50%);
+      }
+
+      /* 1) Pulsanti in alto (Trasmetti, Lingue, Tema): etichetta SOTTO,
+            altrimenti uscirebbe dal bordo superiore dello schermo */
+      .header [data-tooltip]:hover::after {
+        bottom: auto;
+        top: 125%;
+      }
+
+      /* 2) Lente nelle schede lingua: etichetta SOTTO e allineata a destra,
+            così resta dentro la scheda e non viene ritagliata dalla griglia (overflow) */
+      .card-header [data-tooltip]:hover::after {
+        left: auto;
+        right: 0;
+        transform: none;
+        bottom: auto;
+        top: 110%;
+      }
+
+      /* 3) Vista studente, pulsanti in basso a sinistra: etichetta allineata a sinistra,
+            così le etichette lunghe non escono dallo schermo */
+      .student-card-main .card-footer > div:first-child [data-tooltip]:hover::after {
+        left: 0;
+        transform: none;
+      }
+
+      /* 4) Cestino nella lista delle frasi salvate: etichetta A SINISTRA del pulsante,
+            così non viene ritagliata in alto dal riquadro scorrevole */
+      .modal-body [data-tooltip]:hover::after {
+        bottom: auto;
+        left: auto;
+        top: 50%;
+        right: 115%;
+        transform: translateY(-50%);
       }
     }
     @media (hover: none) {
@@ -127,6 +161,9 @@
       border-radius: 20px;
       box-shadow: var(--card-shadow);
       border: 1px solid var(--card-border);
+      /* L'intestazione sta sopra le altre sezioni: le etichette non vengono coperte */
+      position: relative;
+      z-index: 50;
     }
     h1 {
       margin: 0;
@@ -153,13 +190,11 @@
       align-items: center;
       gap: 6px;
       white-space: nowrap;
-      width: 140px;               /* larghezza fissa: non sposta gli altri elementi */
+      width: 140px;
       justify-content: center;
       backdrop-filter: blur(8px);
     }
 
-    /* Indicatore di connessione: LARGHEZZA FISSA, così cambiando testo
-       ("Avvio aula...", "Aula attiva"...) la riga non si sposta */
     .status-badge {
       font-size: 12px;
       font-weight: 600;
@@ -173,7 +208,6 @@
       text-overflow: ellipsis;
       flex-shrink: 0;
     }
-    /* Nella vista studente i messaggi sono più lunghi: possono andare a capo */
     body.vista-studente .status-badge {
       width: auto;
       max-width: 100%;
@@ -208,7 +242,6 @@
     }
     .btn-tool:hover { background: rgba(255, 255, 255, 0.12); color: var(--primary-cyan); }
 
-    /* Indicatore di stato (Pronto, Traduzione...): larghezza fissa */
     .status {
       font-size: 12px;
       color: var(--text-muted);
@@ -322,7 +355,9 @@
       color: var(--text-color);
       box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
     }
-
+    #testoITA {
+      font-size: 18px;
+    }
     .avviso-privacy {
       font-size: 12px;
       color: var(--text-muted);
@@ -371,9 +406,19 @@
       display: flex;
       flex-direction: column;
       min-height: 175px;
+      position: relative;
     }
     .card.speaking-card { border-color: #ef4444 !important; box-shadow: 0 0 25px rgba(239, 68, 68, 0.6) !important; }
-    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 2;
+      overflow: visible;
+    }
     .card-title { font-weight: 700; font-size: 16px; color: var(--primary-cyan); }
     .card-body {
       background-color: var(--card-body-bg);
@@ -387,8 +432,12 @@
       flex-grow: 1;
       overflow-y: auto;
       color: var(--text-color);
+      position: relative;
+      z-index: 1;
     }
-    .card-footer { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 10px; }
+    .card-footer { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 10px; position: relative; z-index: 2; }
+    
+    /* ==================== PULSANTI ICONA CON BAGLIORE ==================== */
     .btn-svg-icon {
       background: transparent;
       border: none;
@@ -398,8 +447,17 @@
       align-items: center;
       justify-content: center;
       color: var(--primary-cyan);
+      transition: transform 0.2s ease, color 0.2s ease, filter 0.2s ease;
+      position: relative;
+      z-index: 2;
     }
     .btn-svg-icon svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+    
+    .btn-svg-icon:hover {
+      color: #ffffff;
+      transform: scale(1.15);
+      filter: drop-shadow(0 0 5px var(--primary-cyan));
+    }
     .btn-svg-icon.active-speaking { color: #ef4444 !important; animation: pulseNeon 1.5s infinite; }
 
     /* ==================== VISTA STUDENTE ==================== */
@@ -490,18 +548,46 @@
       word-break: break-word;
       color: var(--text-color);
     }
+
+    #modalLangConfig .modal-card {
+      max-width: 900px;
+      width: 95%;
+    }
     .lang-grid-selector {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 8px;
-      max-height: 50vh;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+      max-height: 60vh;
       overflow-y: auto;
-      padding: 12px;
+      padding: 16px;
       background: var(--card-body-bg);
       border-radius: 14px;
       border: 1px solid var(--card-border);
     }
-    .lang-item { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; cursor: pointer; }
+    .lang-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      transition: background 0.2s ease;
+    }
+    .lang-item:hover {
+      background: rgba(56, 189, 248, 0.15);
+    }
+    .lang-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+    .lang-item img.bandiera {
+      width: 2em;
+      height: 1.4em;
+    }
     .rtl { direction: rtl; text-align: right; }
 
     .qr-box-container {
@@ -512,7 +598,6 @@
       margin: 12px auto !important;
     }
 
-    /* Avviso a comparsa (messaggi brevi) */
     #toast {
       position: fixed;
       bottom: 24px;
@@ -539,6 +624,33 @@
       .top-controls { width: 100%; justify-content: flex-start; }
       .student-select { width: 100%; }
     }
+
+    /* ==================== BADGE AULA (ZOOM E NEON) ==================== */
+    .box-aula-zoom {
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      position: relative;
+      z-index: 10;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .box-aula-zoom:hover,
+    .box-aula-zoom:active {
+      transform: scale(1.6) translate(-15px, 15px);
+      position: relative;
+      z-index: 9999;
+      background: rgba(15, 23, 42, 0.95);
+      border-color: #38bdf8;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 18px rgba(56, 189, 248, 0.7);
+    }
+
+    .box-aula-zoom:hover #codiceAulaDocente,
+    .box-aula-zoom:active #codiceAulaDocente {
+      color: #facc15 !important;
+      font-size: 24px;
+    }
   </style>
 </head>
 <body>
@@ -547,8 +659,8 @@
     <h1><img src="logo_piccolo.png?v=5" alt="" style="height: 38px; vertical-align: middle; margin-right: 6px;">ParlaConMe</h1>
     <div class="top-controls">
       <div style="display: flex; align-items: center; gap: 8px;">
-        <span style="background: rgba(255, 255, 255, 0.1); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--primary-cyan); white-space: nowrap;">
-          🏫 Aula: <span id="codiceAulaDocente" style="display:inline-block; min-width:6ch; text-align:left;">---</span>
+        <span class="box-aula-zoom" style="background: rgba(255, 255, 255, 0.1); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--primary-cyan); white-space: nowrap;">
+          Aula: <span id="codiceAulaDocente" style="display:inline-block; min-width:6ch; text-align:left; font-size:18px; font-weight:800;">---</span>
         </span>
         <div id="studentCounterContainer" class="student-counter-badge">
           👥 Studenti: <span id="studentCount">0</span>
@@ -558,7 +670,7 @@
       <div id="badgeConnessione" class="status-badge status-connecting" role="status" aria-live="polite">🟡 Avvio...</div>
 
       <button id="btnQR" class="btn-main" onclick="mostraQRCode()" data-tooltip="Genera QR Code">📱 Trasmetti</button>
-      <button id="btnLangConfig" class="btn-tool" onclick="apriGestioneLingue()" data-tooltip="Gestisci lingue">⚙️ Lingue</button>
+      <button id="btnLangConfig" class="btn-main" onclick="apriGestioneLingue()" data-tooltip="Gestisci lingue">⚙️ Lingue</button>
       <button class="btn-tool" onclick="toggleDarkMode()" data-tooltip="Cambia tema" aria-label="Cambia tema chiaro/scuro">🌙</button>
       <div class="zoom-bar">
         <button class="btn-tool" onclick="cambiaZoom(-2)" aria-label="Riduci testo">A-</button>
@@ -682,7 +794,8 @@
       <div style="background: rgba(14, 165, 233, 0.15); border: 1px solid var(--card-border); border-radius: 14px; padding: 12px; width: 100%; margin-top: 4px;">
         <p style="margin: 0; font-size: 14px; color: var(--primary-cyan);"><strong>Da PC / Browser:</strong></p>
         <p id="urlStudenteDisplay" style="margin: 2px 0; font-size: 13px; color: var(--text-muted); word-break: break-all;">studente.html</p>
-        <p style="margin: 4px 0 0 0; font-weight: bold; font-size: 20px; color: #f87171;">PIN Stanza: <span id="roomCodeDisplay">...</span></p>
+        <p style="margin: 8px 0 0 0; font-weight: 700; font-size: 16px; color: var(--text-muted);">PIN Stanza</p>
+        <p id="roomCodeDisplay" style="margin: 0; font-weight: 800; font-size: 64px; line-height: 1.1; letter-spacing: 8px; color: #f87171;">...</p>
       </div>
       <button class="btn-main" style="margin-top: 14px;" onclick="chiudiQRCode()">Chiudi</button>
     </div>
@@ -707,20 +820,9 @@
     /* =====================================================================
        1. CONFIGURAZIONE
        ===================================================================== */
-
-    // ---- OPZIONALE: server "ponte" (TURN) per le connessioni difficili ----
-    // Lasciare null se non lo si usa. Se un giorno si ottengono i dati di un
-    // servizio TURN, sostituire null con:
-    //   { urls: 'turn:indirizzo.del.servizio:443', username: 'NOME', credential: 'CHIAVE' }
     const TURN_SERVER = null;
-
     const PREFISSO_STANZA = 'cpia-aula-';
     const LUNGHEZZA_PIN = 6;
-
-    // ---- TRADUZIONE IN DIRETTA ----
-    // Mentre il docente parla, la traduzione viene aggiornata al massimo ogni
-    // tot millisecondi. Più basso = più "simultaneo" ma più richieste a Google.
-    // Se Google dovesse rallentare o bloccare, aumentare (per esempio 1200).
     const INTERVALLO_TRADUZIONE_LIVE = 700;
 
     const TESTO_NON_DISPONIBILE = 'Traduzione non disponibile';
@@ -729,9 +831,6 @@
     const TESTO_TRAD_IN_ARRIVO = 'Traduzione in arrivo...';
     const TESTI_SEGNAPOSTO = [TESTO_NON_DISPONIBILE, TESTO_ATTESA_DOCENTE, TESTO_ATTESA_TRAD, TESTO_TRAD_IN_ARRIVO, '...'];
 
-    // ELENCO LINGUE
-    // NOTA: per aggiungere una lingua, modificare l'elenco qui E nel file studente.html
-    // "flag" è il nome del file in bandiere/ (senza .svg)
     const ELENCO_LINGUE = [
       { code: 'sq', voice: 'sq-AL', flag: 'al', name: 'Albanese' },
       { code: 'ar', voice: 'ar-SA', flag: 'sa', name: 'Arabo', rtl: true },
@@ -757,16 +856,10 @@
 
     const LINGUE_PREDEFINITE = ['sq', 'ar', 'bn', 'zh-CN', 'fr', 'en', 'es', 'uk'];
 
-    // ---- LETTURA AD ALTA VOCE ----
-    // Lingue per cui la voce online di Google ha funzionato nelle prove
-    // (Mac, Android, iPhone, Windows). Per le altre (farsi, pashto, tigrino)
-    // si usa solo la voce del dispositivo. L'italiano ('it') non è stato
-    // provato, ma in caso di problemi l'app passa da sola alla voce del dispositivo.
     const LINGUE_CON_GOOGLE = ['sq', 'ar', 'bn', 'zh-CN', 'fr', 'hi', 'en', 'pt', 'ro', 'ru', 'es', 'tl', 'de', 'uk', 'ur', 'it'];
-    const MAX_CARATTERI_PEZZO = 180;   // Google legge bene solo pezzi brevi
-    const VELOCITA_LENTA_GOOGLE = 0.7; // rallentamento della voce Google nella lettura "lenta"
+    const MAX_CARATTERI_PEZZO = 180;
+    const VELOCITA_LENTA_GOOGLE = 0.7;
 
-    // Icone (disegni) usate dai pulsanti
     const ICONE = {
       lento: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>',
       audio: '<svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>',
@@ -779,14 +872,14 @@
     /* =====================================================================
        2. STATO DELL'APPLICAZIONE
        ===================================================================== */
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      || (navigator.maxTouchPoints > 1 && !/Windows/i.test(navigator.userAgent));
     let eStudente = false;
 
-    let fontSizeCorrente = 16;
+    let fontSizeCorrente = 18;
     let linguaFocusCorrente = null;
     let elementoAudioAttivo = null;
 
-    // Docente: testo, traduzioni, cronologia
     let lingueAttive = leggiLS('parlaconme_lingue_attive', LINGUE_PREDEFINITE)
       .filter(c => LINGUA_PER_CODICE[c]);
     if (!lingueAttive.length) lingueAttive = [...LINGUE_PREDEFINITE];
@@ -794,29 +887,27 @@
     let ID_PROGRESSIVO_CRONOLOGIA = cronologiaLezione.reduce((m, r) => Math.max(m, r.id_univoco || 0), 0);
 
     let testoConfermatoDocente = '';
-    let cacheTraduzioniDocente = {};   // traduzioni valide per "testoTradotto"
+    let cacheTraduzioniDocente = {};
     let testoTradotto = '';
-    let generazioneTraduzione = 0;     // serve a ignorare le risposte arrivate dopo una cancellazione
+    let generazioneTraduzione = 0;
     let controllerTraduzione = null;
     let traduzionePendente = false;
-    let traduzioneInCorso = false;     // una richiesta a Google è in viaggio
-    let richiestaDopo = false;         // il testo è cambiato mentre si traduceva: rifare dopo
+    let traduzioneInCorso = false;
+    let richiestaDopo = false;
     let ultimoAvvioTraduzione = 0;
     let timerDebounce = null;
     let timerPausaSilenzio = null;
 
-    // Studente: dati ricevuti
     let traduzioniRicevuteRete = {};
     let testoITARicevutoRete = '';
 
-    // Rete
     let peer = null;
-    let connessioniStudenti = [];       // lato docente
+    let connessioniStudenti = [];
     let pinDocente = generaPin();
     let tentativiPin = 0;
     let timerRiconnessioneDocente = null;
 
-    let stanzaTarget = null;            // lato studente
+    let stanzaTarget = null;
     let connStudente = null;
     let tentativoConn = 0;
     let timerRiconnessione = null;
@@ -827,7 +918,6 @@
        ===================================================================== */
     const $ = id => document.getElementById(id);
 
-    // Rende "innocuo" qualunque testo prima di inserirlo in una pagina HTML
     function esc(s) {
       return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     }
@@ -850,7 +940,6 @@
       return String(min + (a[0] % max));
     }
 
-    // Disegna la bandiera (immagine nella cartella bandiere/)
     function bandiera(codice) {
       return '<img class="bandiera" src="bandiere/' + codice + '.svg" alt="" width="20" height="15">';
     }
@@ -870,7 +959,6 @@
       $('toast').style.display = 'none';
     }
 
-    // Riempie i pulsanti-icona (icona + etichetta per touch + suggerimento per mouse)
     function costruisciIcone(radice) {
       (radice || document).querySelectorAll('[data-icona]').forEach(b => {
         const etichetta = b.dataset.label || '';
@@ -889,7 +977,7 @@
       badge.className = 'status-badge status-' + stato;
       const icona = stato === 'connected' ? '🟢' : (stato === 'connecting' ? '🟡' : '🔴');
       badge.textContent = icona + ' ' + testo;
-      badge.title = testo;   // se il testo è lungo, si legge passando il mouse
+      badge.title = testo;
     }
 
     function configPeer() {
@@ -914,7 +1002,6 @@
         impostaVistaStudente(urlParams.get('lang'));
         $('codiceAulaDocente').innerText = stanza.replace(PREFISSO_STANZA, '');
         statoConnessione('connecting', 'Connessione...');
-        // Ingresso scaglionato: ogni studente attende un tempo casuale (0,2 - 3,5 secondi)
         const ritardo = 200 + Math.random() * 3300;
         setTimeout(creaPeerStudente, ritardo);
       } else {
@@ -953,7 +1040,6 @@
       questoPeer.on('error', err => {
         if (peer !== questoPeer) return;
         if (err.type === 'unavailable-id') {
-          // PIN già occupato: ne generiamo uno nuovo
           try { questoPeer.destroy(); } catch (e) {}
           tentativiPin++;
           if (tentativiPin <= 10) {
@@ -995,7 +1081,6 @@
     setInterval(aggiornaContatoreStudenti, 4000);
 
     function gestisciMessaggioStudente(conn, dati) {
-      // Controllo di sicurezza: accettiamo solo la richiesta prevista
       if (!dati || typeof dati !== 'object' || dati.tipo !== 'RICHIESTA_SINCRONIZZAZIONE') return;
       const lang = (typeof dati.lang === 'string' && LINGUA_PER_CODICE[dati.lang]) ? dati.lang : null;
       if (lang) conn.studentLang = lang;
@@ -1014,7 +1099,6 @@
       connessioniStudenti.forEach(conn => { if (conn.open) conn.send(dati); });
     }
 
-    // Quando entra uno studente con una lingua non ancora tradotta
     function assicuraTraduzione(lang) {
       const testo = $('testoITA').value.trim();
       if (!testo) return;
@@ -1026,7 +1110,7 @@
     }
 
     /* =====================================================================
-       6. RETE - LATO STUDENTE (con ritentativi ordinati)
+       6. RETE - LATO STUDENTE
        ===================================================================== */
     function creaPeerStudente() {
       if (peer) { try { peer.destroy(); } catch (e) {} }
@@ -1045,7 +1129,7 @@
       clearTimeout(timerTimeoutConn);
       if (connStudente) {
         const vecchia = connStudente;
-        connStudente = null;   // i suoi eventi verranno ignorati
+        connStudente = null;
         try { vecchia.close(); } catch (e) {}
       }
     }
@@ -1055,7 +1139,6 @@
       const conn = peer.connect(stanzaTarget, { reliable: true });
       connStudente = conn;
 
-      // Se dopo 15 secondi non è partita, si chiude e si riprova
       timerTimeoutConn = setTimeout(() => {
         if (connStudente === conn && !conn.open) {
           chiudiConnessioneStudente();
@@ -1078,7 +1161,6 @@
       conn.on('error', () => { if (connStudente === conn) pianificaRitentativo('Non riesco a collegarmi.'); });
     }
 
-    // Un solo tentativo alla volta, con pause sempre più lunghe
     function pianificaRitentativo(messaggio) {
       if (timerRiconnessione) return;
       clearTimeout(timerTimeoutConn);
@@ -1095,7 +1177,6 @@
     }
 
     function applicaDatiRicevuti(dati) {
-      // Solo la vista studente riceve dati. Controlli di sicurezza sul contenuto.
       if (!eStudente || !dati || typeof dati !== 'object' || typeof dati.ita !== 'string') return;
       const trad = {};
       if (dati.traduzioni && typeof dati.traduzioni === 'object') {
@@ -1105,7 +1186,7 @@
       }
       fermaTuttaLettura();
       testoITARicevutoRete = dati.ita.slice(0, 5000);
-      traduzioniRicevuteRete = trad;   // sostituisce sempre: niente traduzioni vecchie
+      traduzioniRicevuteRete = trad;
 
       const displayITA = $('studentDisplayITA');
       displayITA.innerText = testoITARicevutoRete || TESTO_ATTESA_DOCENTE;
@@ -1152,7 +1233,6 @@
       const lang = $('myLangSelect').value;
       try { localStorage.setItem('parlaconme_lang', lang); } catch (e) {}
       aggiornaTraduzioneStudente();
-      // Se la lingua non è ancora arrivata, la chiede al docente
       if (testoITARicevutoRete && traduzioniRicevuteRete[lang] === undefined && connStudente && connStudente.open) {
         connStudente.send({ tipo: 'RICHIESTA_SINCRONIZZAZIONE', lang: lang });
       }
@@ -1173,10 +1253,6 @@
 
     /* =====================================================================
        8. LETTURA AD ALTA VOCE
-          Ordine: 1) voce online di Google (parte subito, uguale su tutti i
-          dispositivi) -> 2) voce del dispositivo come riserva.
-          Farsi e pashto: solo voce del dispositivo (su Windows con Edge c'è).
-          Tigrino: nessuna voce disponibile.
        ===================================================================== */
     let vociDisponibili = [];
     function caricaVoci() {
@@ -1194,16 +1270,13 @@
       return scelta || compatibili[0];
     }
 
-    // Informazioni su una lingua (compreso l'italiano, che non è nell'elenco)
     function infoLingua(codice) {
       if (codice === 'it') return { code: 'it', voice: 'it-IT' };
       return LINGUA_PER_CODICE[codice] || { code: codice, voice: codice };
     }
 
-    // Ogni nuova lettura (o stop) incrementa questo numero: le operazioni
-    // della lettura precedente, arrivate in ritardo, vengono ignorate.
     let sessioneLettura = 0;
-    let audioGoogle = null;   // un solo elemento audio, riutilizzato (necessario su iPhone)
+    let audioGoogle = null;
 
     function ottieniAudioGoogle() {
       if (!audioGoogle) {
@@ -1228,7 +1301,6 @@
       elementoAudioAttivo = null;
     }
 
-    // Spezza il testo in pezzi brevi, a fine frase
     function dividiTesto(testo, max) {
       max = max || MAX_CARATTERI_PEZZO;
       const pulito = testo.replace(/\s+/g, ' ').trim();
@@ -1241,7 +1313,6 @@
         frase = frase.trim();
         if (!frase) return;
         if (frase.length > max) {
-          // Frase troppo lunga: si spezza per parole (o per caratteri se non ci sono spazi)
           chiudi();
           let blocco = '';
           frase.split(' ').forEach(parola => {
@@ -1270,7 +1341,6 @@
              encodeURIComponent(codice) + '&q=' + encodeURIComponent(pezzo);
     }
 
-    // Voce del dispositivo (riserva, oppure unica scelta per farsi e pashto)
     function leggiConDispositivo(testo, codice, velocita, sessione) {
       if (sessione !== sessioneLettura) return;
       if (!('speechSynthesis' in window)) {
@@ -1303,7 +1373,6 @@
       window.speechSynthesis.speak(u);
     }
 
-    // Voce online di Google, pezzo per pezzo
     function leggiConGoogle(testo, codice, velocita, sessione) {
       const pezzi = dividiTesto(testo);
       const a = ottieniAudioGoogle();
@@ -1312,7 +1381,6 @@
       let tentativi = 0;
 
       function riserva() {
-        // Se Google non risponde, si continua (dal pezzo rimasto) con la voce del dispositivo
         if (sessione !== sessioneLettura) return;
         leggiConDispositivo(pezzi.slice(i).join(' '), codice, velocita, sessione);
       }
@@ -1326,7 +1394,7 @@
           if (concluso || sessione !== sessioneLettura) return;
           concluso = true;
           tentativi++;
-          if (tentativi < 2) prossimo();   // un secondo tentativo
+          if (tentativi < 2) prossimo();
           else riserva();
         };
 
@@ -1348,7 +1416,6 @@
       prossimo();
     }
 
-    // Punto d'ingresso unico per tutte le letture
     function avviaLetturaGenerica(idElementoTesto, codice, velocita, btnIcon, cardElement) {
       fermaTuttaLettura();
       const elText = $(idElementoTesto);
@@ -1384,11 +1451,6 @@
 
     /* =====================================================================
        9. TRADUZIONE
-          - si traducono solo le lingue necessarie
-          - durante il parlato la traduzione si aggiorna a intervalli regolari
-            (INTERVALLO_TRADUZIONE_LIVE), senza aspettare la fine della frase
-          - una sola richiesta alla volta: se il testo cambia nel frattempo,
-            se ne fa subito un'altra appena finisce la precedente
        ===================================================================== */
     async function chiamaGoogleTranslate(testo, linguaDa, linguaA, signal) {
       const targetLang = linguaA.split('-')[0];
@@ -1409,21 +1471,17 @@
       return null;
     }
 
-    // Lingue da tradurre: quelle della classe + quelle degli studenti collegati
     function linguePerTradurre() {
       const set = new Set(lingueAttive);
       connessioniStudenti.forEach(c => { if (c.open && c.studentLang) set.add(c.studentLang); });
       return [...set];
     }
 
-    // Richiede una traduzione.
-    //  - live = true  (mentre si parla): cadenza regolare, il timer NON viene azzerato
-    //  - live = false (scrittura, fine frase): parte dopo "ritardo" millisecondi
     function gestisciInput(ritardo, live) {
       traduzionePendente = true;
       aggiornaStato('In attesa...');
       if (live) {
-        if (timerDebounce) return;   // già programmata: non rinviare
+        if (timerDebounce) return;
         const trascorso = Date.now() - ultimoAvvioTraduzione;
         const attesa = Math.max(0, INTERVALLO_TRADUZIONE_LIVE - trascorso);
         timerDebounce = setTimeout(traduciTutto, attesa);
@@ -1451,7 +1509,6 @@
         return;
       }
 
-      // Una richiesta è già in viaggio: si rifà appena finisce
       if (traduzioneInCorso) { richiestaDopo = true; return; }
 
       traduzioneInCorso = true;
@@ -1468,7 +1525,6 @@
       );
       traduzioneInCorso = false;
 
-      // Nel frattempo il testo è stato cancellato: risultati scartati
       if (gen !== generazioneTraduzione) {
         if (richiestaDopo) { richiestaDopo = false; gestisciInput(0, true); }
         return;
@@ -1484,7 +1540,6 @@
       trasmettiDatiRete({ ita: testo, traduzioni: nuova });
 
       if (richiestaDopo) {
-        // Il testo è cambiato mentre si traduceva: nuovo giro
         richiestaDopo = false;
         gestisciInput(0, true);
       } else {
@@ -1492,7 +1547,6 @@
         aggiornaStato(fallite ? 'Tradotto (alcune lingue no)' : 'Tradotto');
       }
 
-      // Se nel frattempo è entrato uno studente con una lingua nuova
       linguePerTradurre().filter(l => cacheTraduzioniDocente[l] === undefined).forEach(traduciSoloLingua);
     }
 
@@ -1507,7 +1561,6 @@
       trasmettiDatiRete({ ita: testo, traduzioni: cacheTraduzioniDocente });
     }
 
-    // Mostra le traduzioni nelle schede (e nella finestra ingrandita)
     function aggiornaBox() {
       lingueAttive.forEach(l => {
         const el = $('box_' + l);
@@ -1540,7 +1593,7 @@
         card.innerHTML = `
           <div class="card-header">
             <span class="card-title">${bandiera(l.flag)}${esc(l.name)}</span>
-            <button class="btn-svg-icon" data-icona="lente" data-label="Ingrandisci ${esc(l.name)}" data-corta="Ingrandisci" onclick="apriFocus('${l.code}')"></button>
+            <button class="btn-svg-icon" data-icona="lente" data-label="Ingrandisci" data-corta="Ingrandisci" onclick="apriFocus('${l.code}')"></button>
           </div>
           <div id="box_${l.code}" lang="${l.code}" class="card-body ${l.rtl ? 'rtl' : ''}">...</div>
           <div class="card-footer">
@@ -1606,12 +1659,15 @@
 
     function cambiaZoom(delta) {
       fontSizeCorrente = Math.max(12, Math.min(32, fontSizeCorrente + delta));
-      document.querySelectorAll('.card-body, .student-display-text').forEach(el => el.style.fontSize = fontSizeCorrente + 'px');
+      document.querySelectorAll('.card-body, .student-display-text, #testoITA, #testoStudente')
+        .forEach(el => el.style.fontSize = fontSizeCorrente + 'px');
       aggiornaStato('Testo: ' + fontSizeCorrente + 'px');
     }
+
     function resetZoom() {
-      fontSizeCorrente = 16;
-      document.querySelectorAll('.card-body, .student-display-text').forEach(el => el.style.fontSize = '16px');
+      fontSizeCorrente = 18;
+      document.querySelectorAll('.card-body, .student-display-text, #testoITA, #testoStudente')
+        .forEach(el => el.style.fontSize = '18px');
       aggiornaStato('Zoom reset');
     }
 
@@ -1675,7 +1731,6 @@
       container.innerHTML = '';
       $('roomCodeDisplay').innerText = pinDocente;
 
-      // Indirizzo della cartella in cui si trova questa pagina (funziona con qualsiasi nome di file)
       const baseURL = window.location.href.split('?')[0].split('#')[0].replace(/[^\/]*$/, '');
       const urlStudente = baseURL + 'studente.html';
       $('urlStudenteDisplay').innerText = urlStudente;
@@ -1693,7 +1748,7 @@
     function chiudiQRCode() { $('modalQR').style.display = 'none'; }
 
     /* =====================================================================
-       12. FRASI SALVATE (cronologia, conservata nel browser)
+       12. FRASI SALVATE
        ===================================================================== */
     function salvaInCronologia() {
       const testo = $('testoITA').value.trim();
@@ -1744,7 +1799,7 @@
         forte.style.color = 'var(--primary-cyan)';
         forte.textContent = (index + 1) + '. ITA: ';
         testo.appendChild(forte);
-        testo.appendChild(document.createTextNode(item.ita));   // testo sempre "innocuo"
+        testo.appendChild(document.createTextNode(item.ita));
 
         const btn = document.createElement('button');
         btn.className = 'btn-svg-icon';
@@ -1781,14 +1836,13 @@
     }
 
     /* =====================================================================
-       13. ESPORTAZIONE (TXT e PDF) - un unico punto per tutti i casi
+       13. ESPORTAZIONE (TXT e PDF)
        ===================================================================== */
     function nomeLingua(codice) {
       const o = LINGUA_PER_CODICE[codice];
       return o ? o.name : codice.toUpperCase();
     }
 
-    // Restituisce l'elenco delle frasi da esportare
     function raccogliFrasi(codici) {
       if (eStudente) {
         if (!testoITARicevutoRete) return [];
@@ -1895,7 +1949,6 @@
        ===================================================================== */
     function applicaPunteggiaturaAvanzata(testo) {
       const t = testo
-        // "punto e virgola" va PRIMA di "virgola" e "punto", altrimenti non verrebbe mai riconosciuto
         .replace(/\bpunto e virgola\b/gi, ';')
         .replace(/\bvirgola\b/gi, ',')
         .replace(/\bdue punti\b/gi, ':')
@@ -1913,6 +1966,27 @@
       return t.replace(/(^|[.?!]\s+|\n+)([a-zàèéìòù])/g, (m, p1, p2) => p1 + p2.toUpperCase());
     }
 
+    let sessioneRec = { offset: 0, finale: '', lunghezza: 0 };
+
+    function unisciFrase(acc, t) {
+      if (!t) return acc;
+      if (!acc) return t;
+      const a = acc.toLowerCase(), b = t.toLowerCase();
+      if (b.startsWith(a)) return t;
+      if (a.endsWith(b)) return acc;
+      return acc + ' ' + t;
+    }
+
+    function confermaSessione() {
+      const f = sessioneRec.finale;
+      if (f) {
+        const serveSpazio = testoConfermatoDocente.length > 0 && !testoConfermatoDocente.endsWith('\n') && !testoConfermatoDocente.endsWith(' ');
+        testoConfermatoDocente += (serveSpazio ? ' ' : '') + f;
+      }
+      sessioneRec.finale = '';
+      sessioneRec.offset = sessioneRec.lunghezza;
+    }
+
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recDocente = null, inAscoltoDocente = false;
 
@@ -1924,36 +1998,28 @@
 
       recDocente.onresult = (e) => {
         clearTimeout(timerPausaSilenzio);
-        let testoInterim = '';
-        let haFinale = false;
-
-        for (let i = e.resultIndex; i < e.results.length; i++) {
-          const transcript = e.results[i][0].transcript;
-          if (e.results[i].isFinal) {
-            haFinale = true;
-            const frase = transcript.trim();
-            if (frase && !testoConfermatoDocente.trim().endsWith(frase)) {
-              const serveSpazio = testoConfermatoDocente.length > 0 && !testoConfermatoDocente.endsWith('\n') && !testoConfermatoDocente.endsWith(' ');
-              testoConfermatoDocente += (serveSpazio ? ' ' : '') + frase;
-            }
-          } else {
-            testoInterim += transcript;
-          }
+        let finale = '', interim = '';
+        for (let i = sessioneRec.offset; i < e.results.length; i++) {
+          const t = e.results[i][0].transcript.trim();
+          if (e.results[i].isFinal) finale = unisciFrase(finale, t);
+          else interim = interim ? interim + ' ' + t : t;
         }
+        const haFinale = finale.length > sessioneRec.finale.length;
+        sessioneRec.finale = finale;
+        sessioneRec.lunghezza = e.results.length;
 
-        const sep = (testoConfermatoDocente && !testoConfermatoDocente.endsWith('\n')) ? ' ' : '';
-        const testoVisualizzato = testoConfermatoDocente + (testoInterim ? sep + testoInterim : '');
+        const parlato = [finale, interim].filter(Boolean).join(' ');
+        const sep = (parlato && testoConfermatoDocente && !testoConfermatoDocente.endsWith('\n') && !testoConfermatoDocente.endsWith(' ')) ? ' ' : '';
         const textareaITA = $('testoITA');
-        textareaITA.value = applicaPunteggiaturaAvanzata(testoVisualizzato);
+        textareaITA.value = applicaPunteggiaturaAvanzata(testoConfermatoDocente + sep + parlato);
         textareaITA.scrollTop = textareaITA.scrollHeight;
 
-        // Traduzione in diretta: a fine frase parte quasi subito,
-        // mentre si parla si aggiorna a intervalli regolari
         if (haFinale) gestisciInput(150, false);
         else gestisciInput(0, true);
 
         if (inAscoltoDocente) {
           timerPausaSilenzio = setTimeout(() => {
+            confermaSessione();
             if (testoConfermatoDocente.trim() && !/[.?!]\s*$/.test(testoConfermatoDocente.trim())) {
               testoConfermatoDocente = testoConfermatoDocente.trimEnd() + '.\n';
               textareaITA.value = applicaPunteggiaturaAvanzata(testoConfermatoDocente);
@@ -1980,6 +2046,8 @@
       };
 
       recDocente.onend = () => {
+        confermaSessione();
+        sessioneRec = { offset: 0, finale: '', lunghezza: 0 };
         if (inAscoltoDocente && !isMobile) {
           setTimeout(() => { if (inAscoltoDocente) { try { recDocente.start(); } catch (err) {} } }, 200);
         } else if (isMobile && inAscoltoDocente) {
@@ -1997,6 +2065,7 @@
     function avviaAscoltoDocente() {
       if (inAscoltoStudente) fermaAscoltoStudente();
       testoConfermatoDocente = $('testoITA').value;
+      sessioneRec = { offset: 0, finale: '', lunghezza: 0 };
       try {
         recDocente.start();
         inAscoltoDocente = true;
@@ -2016,7 +2085,7 @@
     }
 
     /* =====================================================================
-       15. MODALITA' "STUDENTE -> DOCENTE" (sulla pagina del docente)
+       15. MODALITA' "STUDENTE -> DOCENTE"
        ===================================================================== */
     let recStudente = null, inAscoltoStudente = false, timerTradStudente = null;
 
