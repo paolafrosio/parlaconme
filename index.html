@@ -10,8 +10,8 @@
   <link rel="icon" type="image/png" href="logo_piccolo.png?v=5">
 
   <!-- PeerJS e QR code nella cartella lib/ -->
-  <script src="lib/peerjs.min.js"></script>
-  <script src="lib/qrcode.min.js"></script>
+<script src="lib/peerjs.min.js" defer></script>
+<script src="lib/qrcode.min.js" defer></script>
 
   <style>
     /* ==================== TEMI ==================== */
@@ -520,6 +520,7 @@
       align-items: center;
       padding: 14px;
     }
+/* Rende tutte le modal-card più alte (85vh -> 92vh) */
     .modal-card {
       background: var(--card-bg);
       backdrop-filter: blur(20px);
@@ -527,11 +528,25 @@
       padding: 22px;
       width: 100%;
       max-width: 800px;
-      max-height: 85vh;
+      max-height: 92vh; /* Aumentata l'altezza massima dal 85% al 92% della schermata */
       display: flex;
       flex-direction: column;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
       border: 1px solid var(--card-border);
+    }
+
+    /* Regola specifica per rendere il box di ingrandimento (Focus) ancora più largo e alto */
+/* Dimensione bilanciata per la finestra di ingrandimento */
+    #modalFocus .modal-card {
+      max-width: 850px;  /* Larghezza ideale per la lettura */
+      height: 65vh;       /* Altezza ridotta al 65% dello schermo (anziché 90vh) */
+      max-height: 600px;  /* Limite massimo di altezza per schermi molto grandi */
+    }
+
+    /* Dimensione testo bilanciata */
+    #modalFocus .modal-body {
+      font-size: 26px;    /* Testo ben leggibile senza essere gigante */
+      line-height: 1.5;
     }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 6px; }
     .modal-title { font-size: 20px; font-weight: 700; color: var(--primary-cyan); }
@@ -1705,7 +1720,7 @@
       if (inAscoltoStudente) fermaAscoltoStudente();
     }
 
-    function apriFocus(lang) {
+function apriFocus(lang) {
       linguaFocusCorrente = lang;
       const obj = LINGUA_PER_CODICE[lang];
       const el = $('box_' + lang);
@@ -1713,6 +1728,10 @@
       const modalBody = $('modalBody');
       modalBody.innerText = el ? el.innerText : '...';
       modalBody.setAttribute('lang', lang);
+      
+      // Imposta la dimensione fissa ideale a 22px
+      modalBody.style.fontSize = '26px';
+      
       modalBody.scrollTop = modalBody.scrollHeight;
       modalBody.classList.toggle('rtl', !!(obj && obj.rtl));
       $('modalFocus').style.display = 'flex';
