@@ -618,9 +618,12 @@
     .lang-item:hover {
       background: rgba(56, 189, 248, 0.15);
     }
-    .lang-item input[type="checkbox"] {
+.lang-item input[type="checkbox"] {
       width: 20px;
       height: 20px;
+      min-width: 20px;   /* Forzatura larghezza minima */
+      min-height: 20px;  /* Forzatura altezza minima */
+      flex-shrink: 0;    /* Impedisce al testo lungo di schiacciare il quadratino */
       cursor: pointer;
     }
     .lang-item img.bandiera {
