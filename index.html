@@ -60,9 +60,12 @@
     }
 
     /* Bandiere */
+/* Bandiere (Versione corretta e uniforme) */
     img.bandiera {
-      width: 1.3em;
+      width: 1.35em;
       height: 1em;
+      object-fit: cover;         /* Taglia leggermente i bordi in eccesso per riempire esattamente il rettangolo */
+      object-position: center;    /* Centra la bandiera all'interno del riquadro */
       vertical-align: -0.12em;
       margin-right: 0.3em;
       border-radius: 2px;
@@ -615,9 +618,12 @@
     .lang-item:hover {
       background: rgba(56, 189, 248, 0.15);
     }
-    .lang-item input[type="checkbox"] {
+.lang-item input[type="checkbox"] {
       width: 20px;
       height: 20px;
+      min-width: 20px;   /* Forzatura larghezza minima */
+      min-height: 20px;  /* Forzatura altezza minima */
+      flex-shrink: 0;    /* Impedisce al testo lungo di schiacciare il quadratino */
       cursor: pointer;
     }
     .lang-item img.bandiera {
