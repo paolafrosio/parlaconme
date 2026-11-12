@@ -545,7 +545,7 @@
 
     /* Dimensione testo bilanciata */
     #modalFocus .modal-body {
-      font-size: 22px;    /* Testo ben leggibile senza essere gigante */
+      font-size: 24px;    /* Testo ben leggibile senza essere gigante */
       line-height: 1.5;
     }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 6px; }
@@ -1730,7 +1730,7 @@ function apriFocus(lang) {
       modalBody.setAttribute('lang', lang);
       
       // Imposta la dimensione fissa ideale a 22px
-      modalBody.style.fontSize = '22px';
+      modalBody.style.fontSize = '24px';
       
       modalBody.scrollTop = modalBody.scrollHeight;
       modalBody.classList.toggle('rtl', !!(obj && obj.rtl));
