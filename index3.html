@@ -2,15 +2,14 @@
 <html lang="it">
 <head> 
   <meta charset="UTF-8">
-  <!-- Zoom con due dita ora consentito (accessibilità) -->
+  <!-- Zoom con due dita consentito (accessibilità) -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Non invia l'indirizzo della pagina a Google: aiuta la voce a partire -->
   <meta name="referrer" content="no-referrer">
   <title>ParlaConMe - Traduttore Live CPIA</title>
-  <link rel="icon" type="image/png" href="logo_bianco.png?v=5">
+  <link rel="icon" type="image/png" href="logo_piccolo.png?v=5">
 
-  <!-- Nessun font di Google, nessun Twemoji, nessuna libreria da siti esterni:
-       PeerJS e QR code sono nella cartella lib/, le bandiere in bandiere/ -->
+  <!-- PeerJS e QR code nella cartella lib/ -->
   <script src="lib/peerjs.min.js"></script>
   <script src="lib/qrcode.min.js"></script>
 
@@ -60,7 +59,7 @@
       transition: background 0.3s, color 0.3s;
     }
 
-    /* Bandiere (immagini nella cartella bandiere/) */
+    /* Bandiere */
     img.bandiera {
       width: 1.3em;
       height: 1em;
@@ -80,23 +79,12 @@
     @media (hover: hover) {
       [data-tooltip] { position: relative; }
       
-      /* Quando si passa il mouse su una card, portiamo la card in primo piano assoluto */
-      .card:hover {
-        z-index: 9999 !important;
-      }
-
-      [data-tooltip]:hover { 
-        z-index: 2147483647 !important; 
-      }
-      
-      /* Etichette di default (posizionate SOTTO per i pulsanti nell'header della pagina) */
+      /* Etichette di default: SOPRA il pulsante, centrate
+         (usate dai pulsanti nel piede delle schede lingua, dove sopra c'è sempre il testo della scheda) */
       [data-tooltip]:hover::after {
         content: attr(data-tooltip);
         position: absolute;
-        top: 125%;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(15, 23, 42, 0.98);
+        background: rgba(15, 23, 42, 0.95);
         color: #38bdf8;
         border: 1px solid var(--card-border);
         padding: 5px 9px;
@@ -105,21 +93,46 @@
         border-radius: 8px;
         white-space: nowrap;
         pointer-events: none;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-        z-index: 2147483647 !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        z-index: 1000;
         backdrop-filter: blur(8px);
-      }
-
-      /* Pulsanti nel footer della scheda (in basso): etichetta SOPRA */
-      .card-footer [data-tooltip]:hover::after {
-        top: auto;
         bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
       }
 
-      /* Pulsanti nell'header della scheda (icona lente ingrandisci): etichetta SOTTO */
-      .card-header [data-tooltip]:hover::after {
-        top: 125%;
+      /* 1) Pulsanti in alto (Trasmetti, Lingue, Tema): etichetta SOTTO,
+            altrimenti uscirebbe dal bordo superiore dello schermo */
+      .header [data-tooltip]:hover::after {
         bottom: auto;
+        top: 125%;
+      }
+
+      /* 2) Lente nelle schede lingua: etichetta SOTTO e allineata a destra,
+            così resta dentro la scheda e non viene ritagliata dalla griglia (overflow) */
+      .card-header [data-tooltip]:hover::after {
+        left: auto;
+        right: 0;
+        transform: none;
+        bottom: auto;
+        top: 110%;
+      }
+
+      /* 3) Vista studente, pulsanti in basso a sinistra: etichetta allineata a sinistra,
+            così le etichette lunghe non escono dallo schermo */
+      .student-card-main .card-footer > div:first-child [data-tooltip]:hover::after {
+        left: 0;
+        transform: none;
+      }
+
+      /* 4) Cestino nella lista delle frasi salvate: etichetta A SINISTRA del pulsante,
+            così non viene ritagliata in alto dal riquadro scorrevole */
+      .modal-body [data-tooltip]:hover::after {
+        bottom: auto;
+        left: auto;
+        top: 50%;
+        right: 115%;
+        transform: translateY(-50%);
       }
     }
     @media (hover: none) {
@@ -148,9 +161,9 @@
       border-radius: 20px;
       box-shadow: var(--card-shadow);
       border: 1px solid var(--card-border);
+      /* L'intestazione sta sopra le altre sezioni: le etichette non vengono coperte */
       position: relative;
-      z-index: 10; /* Z-index abbassato per consentire il passaggio in primo piano delle schede */
-      overflow: visible !important;
+      z-index: 50;
     }
     h1 {
       margin: 0;
@@ -163,13 +176,7 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
-    .top-controls { 
-      display: flex; 
-      align-items: center; 
-      gap: 8px; 
-      flex-wrap: wrap; 
-      overflow: visible !important;
-    }
+    .top-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
     .student-counter-badge {
       font-size: 13px;
@@ -188,7 +195,6 @@
       backdrop-filter: blur(8px);
     }
 
-    /* Indicatore di connessione */
     .status-badge {
       font-size: 12px;
       font-weight: 600;
@@ -263,8 +269,6 @@
       box-shadow: var(--card-shadow);
       margin-bottom: 12px;
       border: 1px solid var(--card-border);
-      position: relative;
-      z-index: 5;
     }
     .label-row {
       display: flex;
@@ -390,9 +394,6 @@
       gap: 14px;
       flex-grow: 1;
       overflow-y: auto;
-      overflow-x: visible !important;
-      position: relative;
-      z-index: 5;
     }
     .card {
       background: var(--card-bg);
@@ -406,17 +407,17 @@
       flex-direction: column;
       min-height: 175px;
       position: relative;
-      z-index: 1;
-      overflow: visible !important;
     }
     .card.speaking-card { border-color: #ef4444 !important; box-shadow: 0 0 25px rgba(239, 68, 68, 0.6) !important; }
-    .card-header { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-bottom: 10px; 
-      position: relative; 
-      overflow: visible !important; 
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 2;
+      overflow: visible;
     }
     .card-title { font-weight: 700; font-size: 16px; color: var(--primary-cyan); }
     .card-body {
@@ -431,16 +432,12 @@
       flex-grow: 1;
       overflow-y: auto;
       color: var(--text-color);
-    }
-    .card-footer { 
-      display: flex; 
-      justify-content: flex-end; 
-      align-items: center; 
-      gap: 12px; 
-      margin-top: 10px; 
       position: relative;
-      overflow: visible !important;
+      z-index: 1;
     }
+    .card-footer { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 10px; position: relative; z-index: 2; }
+    
+    /* ==================== PULSANTI ICONA CON BAGLIORE ==================== */
     .btn-svg-icon {
       background: transparent;
       border: none;
@@ -450,8 +447,17 @@
       align-items: center;
       justify-content: center;
       color: var(--primary-cyan);
+      transition: transform 0.2s ease, color 0.2s ease, filter 0.2s ease;
+      position: relative;
+      z-index: 2;
     }
     .btn-svg-icon svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+    
+    .btn-svg-icon:hover {
+      color: #ffffff;
+      transform: scale(1.15);
+      filter: drop-shadow(0 0 5px var(--primary-cyan));
+    }
     .btn-svg-icon.active-speaking { color: #ef4444 !important; animation: pulseNeon 1.5s infinite; }
 
     /* ==================== VISTA STUDENTE ==================== */
@@ -475,7 +481,6 @@
       display: flex;
       flex-direction: column;
       flex-grow: 1;
-      overflow: visible !important;
     }
     .student-card-main.speaking-card { border-color: #ef4444 !important; box-shadow: 0 0 25px rgba(239, 68, 68, 0.6) !important; }
     .student-lang-bar {
@@ -651,7 +656,7 @@
 <body>
 
   <header class="header">
-    <h1><img src="logo_bianco.png?v=5" alt="" style="height: 38px; vertical-align: middle; margin-right: 6px;">ParlaConMe</h1>
+    <h1><img src="logo_piccolo.png?v=5" alt="" style="height: 38px; vertical-align: middle; margin-right: 6px;">ParlaConMe</h1>
     <div class="top-controls">
       <div style="display: flex; align-items: center; gap: 8px;">
         <span class="box-aula-zoom" style="background: rgba(255, 255, 255, 0.1); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--primary-cyan); white-space: nowrap;">
@@ -1347,7 +1352,7 @@
       const voce = selezionaVoceMigliore(info.voice.split('-')[0]);
       if (!voce && vociDisponibili.length) {
         const msg = codice === 'ti'
-          ? 'Per il tigrino non existe una voce: leggi il testo. / No voice exists for Tigrinya: please read the text.'
+          ? 'Per il tigrino non esiste una voce: leggi il testo. / No voice exists for Tigrinya: please read the text.'
           : 'Voce non disponibile per questa lingua su questo dispositivo. Leggi il testo (su un PC con Edge potrebbe funzionare). / Voice not available for this language on this device.';
         mostraAvviso(msg, 6000);
         fermaTuttaLettura();
@@ -1588,7 +1593,7 @@
         card.innerHTML = `
           <div class="card-header">
             <span class="card-title">${bandiera(l.flag)}${esc(l.name)}</span>
-            <button class="btn-svg-icon" data-icona="lente" data-label="Ingrandisci ${esc(l.name)}" data-corta="Ingrandisci" onclick="apriFocus('${l.code}')"></button>
+            <button class="btn-svg-icon" data-icona="lente" data-label="Ingrandisci" data-corta="Ingrandisci" onclick="apriFocus('${l.code}')"></button>
           </div>
           <div id="box_${l.code}" lang="${l.code}" class="card-body ${l.rtl ? 'rtl' : ''}">...</div>
           <div class="card-footer">
