@@ -52,8 +52,9 @@
     /* =====================================================================
        2. STATO DELL'APPLICAZIONE
        ===================================================================== */
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-      || (navigator.maxTouchPoints > 1 && !/Windows/i.test(navigator.userAgent));
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(navigator.userAgent)
+      || (navigator.maxTouchPoints > 0 && !/Windows|Macintosh|Linux x86_64/i.test(navigator.userAgent))
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     let eStudente = false;
 
     let fontSizeCorrente = 18;
