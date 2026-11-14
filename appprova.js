@@ -1,0 +1,1440 @@
+/* =====================================================================
+       1. CONFIGURAZIONE
+       ===================================================================== */
+    const PREFISSO_STANZA = 'cpia-aula-';
+    const LUNGHEZZA_PIN = 6;
+    const INTERVALLO_TRADUZIONE_LIVE = 700;
+
+    const TESTO_NON_DISPONIBILE = 'Traduzione non disponibile';
+    const TESTO_ATTESA_DOCENTE = "In attesa dell'insegnante...";
+    const TESTO_ATTESA_TRAD = 'In attesa della traduzione...';
+    const TESTO_TRAD_IN_ARRIVO = 'Traduzione in arrivo...';
+    const TESTI_SEGNAPOSTO = [TESTO_NON_DISPONIBILE, TESTO_ATTESA_DOCENTE, TESTO_ATTESA_TRAD, TESTO_TRAD_IN_ARRIVO, '...'];
+
+    const ELENCO_LINGUE = [
+      { code: 'sq', voice: 'sq-AL', flag: 'al', name: 'Albanese' },
+      { code: 'ar', voice: 'ar-SA', flag: 'sa', name: 'Arabo', rtl: true },
+      { code: 'bn', voice: 'bn-BD', flag: 'bd', name: 'Bengalese' },
+      { code: 'zh-CN', voice: 'zh-CN', flag: 'cn', name: 'Cinese' },
+      { code: 'fa', voice: 'fa-IR', flag: 'ir', name: 'Farsi', rtl: true },
+      { code: 'fr', voice: 'fr-FR', flag: 'fr', name: 'Francese' },
+      { code: 'hi', voice: 'hi-IN', flag: 'in', name: 'Hindi' },
+      { code: 'en', voice: 'en-US', flag: 'gb', name: 'Inglese' },
+      { code: 'ps', voice: 'ps-AF', flag: 'af', name: 'Pashto', rtl: true },
+      { code: 'pt', voice: 'pt-PT', flag: 'pt', name: 'Portoghese' },
+      { code: 'ro', voice: 'ro-RO', flag: 'ro', name: 'Rumeno' },
+      { code: 'ru', voice: 'ru-RU', flag: 'ru', name: 'Russo' },
+      { code: 'es', voice: 'es-ES', flag: 'es', name: 'Spagnolo' },
+      { code: 'tl', voice: 'tl-PH', flag: 'ph', name: 'Tagalog' },
+      { code: 'de', voice: 'de-DE', flag: 'de', name: 'Tedesco' },
+      { code: 'ti', voice: 'ti-ET', flag: 'er', name: 'Tigrino' },
+      { code: 'uk', voice: 'uk-UA', flag: 'ua', name: 'Ucraino' },
+      { code: 'ur', voice: 'ur-PK', flag: 'pk', name: 'Urdu', rtl: true }
+    ];
+    const LINGUA_PER_CODICE = {};
+    ELENCO_LINGUE.forEach(l => { LINGUA_PER_CODICE[l.code] = l; });
+
+    const LINGUE_PREDEFINITE = ['sq', 'ar', 'bn', 'zh-CN', 'fr', 'en', 'es', 'uk'];
+
+    const LINGUE_CON_GOOGLE = ['sq', 'ar', 'bn', 'zh-CN', 'fr', 'hi', 'en', 'pt', 'ro', 'ru', 'es', 'tl', 'de', 'uk', 'ur', 'it'];
+    const MAX_CARATTERI_PEZZO = 180;
+    const VELOCITA_LENTA_GOOGLE = 0.7;
+
+    const ICONE = {
+      lento: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14l-4-4"></path><path d="M3.34 19a10 10 0 1 1 17.32 0"></path><circle cx="12" cy="14" r="2"></circle></svg>',
+      audio: '<svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>',
+      scarica: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>',
+      copia: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>',
+      lente: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>',
+      cestino: '<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>'
+    };
+
+    /* =====================================================================
+       2. STATO DELL'APPLICAZIONE
+       ===================================================================== */
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      || (navigator.maxTouchPoints > 1 && !/Windows/i.test(navigator.userAgent));
+    let eStudente = false;
+
+    let fontSizeCorrente = 18;
+    let linguaFocusCorrente = null;
+    let elementoAudioAttivo = null;
+
+    let lingueAttive = leggiLS('parlaconme_lingue_attive', LINGUE_PREDEFINITE)
+      .filter(c => LINGUA_PER_CODICE[c]);
+    if (!lingueAttive.length) lingueAttive = [...LINGUE_PREDEFINITE];
+    let cronologiaLezione = leggiLS('parlaconme_cronologia', []);
+    let ID_PROGRESSIVO_CRONOLOGIA = cronologiaLezione.reduce((m, r) => Math.max(m, r.id_univoco || 0), 0);
+
+    let testoConfermatoDocente = '';
+    let cacheTraduzioniDocente = {};
+    let testoTradotto = '';
+    let generazioneTraduzione = 0;
+    let controllerTraduzione = null;
+    let traduzionePendente = false;
+    let traduzioneInCorso = false;
+    let richiestaDopo = false;
+    let ultimoAvvioTraduzione = 0;
+    let timerDebounce = null;
+    let timerPausaSilenzio = null;
+
+    let traduzioniRicevuteRete = {};
+    let testoITARicevutoRete = '';
+
+    let peer = null;
+    let connessioniStudenti = [];
+    let pinDocente = generaPin();
+    let tentativiPin = 0;
+    let timerRiconnessioneDocente = null;
+
+    let stanzaTarget = null;
+    let connStudente = null;
+    let connStudenteAperta = false;
+    let ingressoStudenteConfermato = false;
+    let sincroRicevuta = false;
+
+    /* =====================================================================
+       3. FUNZIONI DI SERVIZIO
+       ===================================================================== */
+    const $ = id => document.getElementById(id);
+
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function leggiLS(chiave, predefinito) {
+      try {
+        const v = localStorage.getItem(chiave);
+        return v ? JSON.parse(v) : predefinito;
+      } catch (e) { return predefinito; }
+    }
+    function scriviLS(chiave, valore) {
+      try { localStorage.setItem(chiave, JSON.stringify(valore)); } catch (e) {}
+    }
+
+    function generaPin() {
+      const a = new Uint32Array(1);
+      crypto.getRandomValues(a);
+      const min = Math.pow(10, LUNGHEZZA_PIN - 1);
+      const max = Math.pow(10, LUNGHEZZA_PIN) - min;
+      return String(min + (a[0] % max));
+    }
+
+    function bandiera(codice) {
+      return '<img class="bandiera" src="bandiere/' + codice + '.svg" alt="" width="20" height="15">';
+    }
+
+    function aggiornaStato(msg) { $('status').innerText = msg; }
+
+    let timerToast = null;
+    function mostraAvviso(msg, durata) {
+      const t = $('toast');
+      t.innerText = msg;
+      t.style.display = 'block';
+      clearTimeout(timerToast);
+      timerToast = setTimeout(() => { t.style.display = 'none'; }, durata || 3500);
+    }
+    function nascondiAvviso() {
+      clearTimeout(timerToast);
+      $('toast').style.display = 'none';
+    }
+
+    function costruisciIcone(radice) {
+      (radice || document).querySelectorAll('[data-icona]').forEach(b => {
+        const etichetta = b.dataset.label || '';
+        const corta = b.dataset.corta || etichetta;
+        b.type = 'button';
+        b.setAttribute('aria-label', etichetta);
+        b.setAttribute('data-tooltip', etichetta);
+        b.innerHTML = (ICONE[b.dataset.icona] || '') + '<span class="btn-label">' + esc(corta) + '</span>';
+        b.removeAttribute('data-icona');
+      });
+    }
+
+    function statoConnessione(stato, testo) {
+      const badge = $('badgeConnessione');
+      if (!badge) return;
+      badge.className = 'status-badge status-' + stato;
+      const icona = stato === 'connected' ? '🟢' : (stato === 'connecting' ? '🟡' : '🔴');
+      badge.textContent = icona + ' ' + testo;
+      badge.title = testo;
+    }
+
+    function idDispositivoStudente() {
+      let id = sessionStorage.getItem('parlaconme_device_id');
+      if (!id) {
+        id = 'studente-' + Math.floor(Math.random() * 10000000);
+        sessionStorage.setItem('parlaconme_device_id', id);
+      }
+      return id;
+    }
+
+    /* =====================================================================
+       4. RETE - AVVIO
+       ===================================================================== */
+    function inizializzaRete() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const stanzaParam = urlParams.get('stanza');
+      if (stanzaParam) {
+        eStudente = true;
+        const pinPulito = stanzaParam.replace(PREFISSO_STANZA, '');
+        stanzaTarget = PREFISSO_STANZA + pinPulito;
+        impostaVistaStudente(urlParams.get('lang'));
+        $('codiceAulaDocente').innerText = pinPulito;
+        statoConnessione('connecting', 'Preparazione...');
+        // Pre-crea il Peer subito in background senza bussare ancora al docente (come Colpo d'occhio)
+        creaPeerStudente();
+        if (urlParams.get('lang')) {
+          confermaIngressoStudente();
+        }
+      } else {
+        avviaReteDocente();
+      }
+    }
+
+    /* =====================================================================
+       5. RETE - LATO DOCENTE
+       ===================================================================== */
+    function avviaReteDocente() {
+      $('codiceAulaDocente').innerText = pinDocente;
+      statoConnessione('connecting', 'Avvio aula...');
+      const questoPeer = new Peer(PREFISSO_STANZA + pinDocente);
+      peer = questoPeer;
+
+      questoPeer.on('open', () => {
+        if (peer !== questoPeer) return;
+        statoConnessione('connected', 'Aula attiva');
+        $('codiceAulaDocente').innerText = pinDocente;
+      });
+
+      questoPeer.on('connection', gestisciNuovoStudente);
+
+      questoPeer.on('disconnected', () => {
+        if (peer !== questoPeer) return;
+        statoConnessione('connecting', 'Riconnessione...');
+        clearTimeout(timerRiconnessioneDocente);
+        timerRiconnessioneDocente = setTimeout(() => {
+          if (peer === questoPeer && !questoPeer.destroyed) {
+            try { questoPeer.reconnect(); } catch (e) {}
+          }
+        }, 3000);
+      });
+
+      questoPeer.on('error', err => {
+        if (peer !== questoPeer) return;
+        if (err.type === 'unavailable-id') {
+          try { questoPeer.destroy(); } catch (e) {}
+          tentativiPin++;
+          if (tentativiPin <= 10) {
+            pinDocente = generaPin();
+            avviaReteDocente();
+          } else {
+            statoConnessione('disconnected', 'Impossibile creare l\'aula');
+          }
+          return;
+        }
+        statoConnessione('disconnected', 'Server non raggiungibile');
+        if (questoPeer.destroyed) {
+          clearTimeout(timerRiconnessioneDocente);
+          timerRiconnessioneDocente = setTimeout(avviaReteDocente, 5000);
+        }
+      });
+    }
+
+    function gestisciNuovoStudente(conn) {
+      conn.studentLang = null;
+      connessioniStudenti.push(conn);
+      conn.on('open', () => { conn._eraAperta = true; aggiornaContatoreStudenti(); });
+      conn.on('data', dati => gestisciMessaggioStudente(conn, dati));
+      const rimuovi = () => {
+        connessioniStudenti = connessioniStudenti.filter(c => c !== conn);
+        aggiornaContatoreStudenti();
+      };
+      conn.on('close', rimuovi);
+      conn.on('error', rimuovi);
+      aggiornaContatoreStudenti();
+    }
+
+    function aggiornaContatoreStudenti() {
+      connessioniStudenti = connessioniStudenti.filter(c => !(c._eraAperta && !c.open));
+      const n = connessioniStudenti.filter(c => c.open).length;
+      const el = $('studentCount');
+      if (el) el.innerText = n;
+    }
+    setInterval(aggiornaContatoreStudenti, 4000);
+
+    function gestisciMessaggioStudente(conn, dati) {
+      if (!dati || typeof dati !== 'object' || dati.tipo !== 'RICHIESTA_SINCRONIZZAZIONE') return;
+      const lang = (typeof dati.lang === 'string' && LINGUA_PER_CODICE[dati.lang]) ? dati.lang : null;
+      if (lang) conn.studentLang = lang;
+      inviaStatoA(conn);
+      if (lang) assicuraTraduzione(lang);
+    }
+
+    function inviaStatoA(conn) {
+      if (!conn.open) return;
+      const testo = $('testoITA').value.trim();
+      const valide = testo && testo === testoTradotto;
+      conn.send({ ita: testo, traduzioni: valide ? cacheTraduzioniDocente : {} });
+    }
+
+    function trasmettiDatiRete(dati) {
+      connessioniStudenti.forEach(conn => { if (conn.open) conn.send(dati); });
+    }
+
+    function assicuraTraduzione(lang) {
+      const testo = $('testoITA').value.trim();
+      if (!testo) return;
+      if (testo !== testoTradotto) {
+        if (!traduzionePendente) gestisciInput(0);
+      } else if (cacheTraduzioniDocente[lang] === undefined) {
+        traduciSoloLingua(lang);
+      }
+    }
+
+    /* =====================================================================
+       6. RETE - LATO STUDENTE (Metodo ottimizzato senza reset del Peer)
+       ===================================================================== */
+    function creaPeerStudente() {
+      connStudente = null;
+      connStudenteAperta = false;
+      if (peer) { try { peer.destroy(); } catch (e) {} }
+
+      const questoPeer = new Peer(idDispositivoStudente());
+      peer = questoPeer;
+
+      questoPeer.on('open', () => {
+        if (peer !== questoPeer) return;
+        statoConnessione('connecting', 'Pronto per entrare');
+        apriConnessioneStudente();
+      });
+
+      questoPeer.on('disconnected', () => {
+        if (peer === questoPeer && !questoPeer.destroyed) {
+          try { questoPeer.reconnect(); } catch (e) {}
+        }
+      });
+
+      questoPeer.on('error', err => {
+        if (peer !== questoPeer) return;
+        if (err.type === 'unavailable-id') {
+          sessionStorage.setItem('parlaconme_device_id', 'studente-' + Math.floor(Math.random() * 10000000));
+          creaPeerStudente();
+
+        } else if (err.type === 'peer-unavailable') {
+          statoConnessione('disconnected', 'Aula non trovata');
+          if (ingressoStudenteConfermato) {
+            setTimeout(apriConnessioneStudente, 2500);
+          }
+        } else {
+          statoConnessione('disconnected', 'Errore di rete');
+        }
+      });
+    }
+
+    function apriConnessioneStudente() {
+      if (!peer || peer.destroyed) return;
+      if (connStudente) {
+        const vecchia = connStudente;
+        connStudente = null;
+        try { vecchia.close(); } catch (e) {}
+      }
+
+      const conn = peer.connect(stanzaTarget, { reliable: true });
+      connStudente = conn;
+      connStudenteAperta = false;
+      sincroRicevuta = false;
+
+      conn.on('open', () => {
+        if (connStudente !== conn) return;
+        connStudenteAperta = true;
+        statoConnessione('connected', 'Connesso');
+        aggiornaStato('Connesso');
+        if (ingressoStudenteConfermato) inviaRichiestaSincro();
+      });
+
+      conn.on('data', dati => {
+        sincroRicevuta = true;
+        applicaDatiRicevuti(dati);
+      });
+
+      conn.on('close', () => {
+        if (connStudente !== conn) return;
+        connStudenteAperta = false;
+        statoConnessione('disconnected', 'Riconnessione...');
+        setTimeout(() => {
+          if (peer && !peer.destroyed && (!connStudente || !connStudente.open)) {
+            apriConnessioneStudente();
+          }
+        }, 1500);
+      });
+
+      conn.on('error', () => {
+        if (connStudente !== conn) return;
+        connStudenteAperta = false;
+        statoConnessione('disconnected', 'Riprovo...');
+      });
+    }
+
+    function inviaRichiestaSincro() {
+      const conn = connStudente;
+      if (!conn || !conn.open) return;
+      let tentativi = 0;
+      const invia = () => {
+        if (sincroRicevuta || !conn.open || connStudente !== conn) return;
+        if (tentativi++ >= 6) return;
+        conn.send({ tipo: 'RICHIESTA_SINCRONIZZAZIONE', lang: $('myLangSelect').value });
+        setTimeout(invia, 1200);
+      };
+      invia();
+    }
+
+    let wakeLockStudente = null;
+    async function attivaWakeLockStudente() {
+      if (!('wakeLock' in navigator)) return;
+      try {
+        if (!wakeLockStudente || wakeLockStudente.released) {
+          wakeLockStudente = await navigator.wakeLock.request('screen');
+        }
+      } catch (e) {}
+    }
+
+    function confermaIngressoStudente() {
+      attivaWakeLockStudente();
+      const langScelta = $('gateLangSelect').value;
+      $('myLangSelect').value = langScelta;
+      try { localStorage.setItem('parlaconme_lang', langScelta); } catch (e) {}
+
+      $('studentJoinGate').style.display = 'none';
+      $('mainStudentCard').style.display = 'flex';
+      ingressoStudenteConfermato = true;
+      aggiornaTraduzioneStudente();
+
+      if (!peer || peer.destroyed) {
+        creaPeerStudente();
+
+      } else if (connStudenteAperta && connStudente && connStudente.open) {
+        inviaRichiestaSincro();
+      } else {
+        apriConnessioneStudente();
+      }
+    }
+
+    function applicaDatiRicevuti(dati) {
+      if (!eStudente || !dati || typeof dati !== 'object' || typeof dati.ita !== 'string') return;
+      const trad = {};
+      if (dati.traduzioni && typeof dati.traduzioni === 'object') {
+        Object.entries(dati.traduzioni).forEach(([k, v]) => {
+          if (LINGUA_PER_CODICE[k] && typeof v === 'string') trad[k] = v.slice(0, 5000);
+        });
+      }
+      fermaTuttaLettura();
+      testoITARicevutoRete = dati.ita.slice(0, 5000);
+      traduzioniRicevuteRete = trad;
+
+      const displayITA = $('studentDisplayITA');
+      displayITA.innerText = testoITARicevutoRete || TESTO_ATTESA_DOCENTE;
+      displayITA.scrollTop = displayITA.scrollHeight;
+      aggiornaTraduzioneStudente();
+    }
+
+    /* =====================================================================
+       7. VISTA STUDENTE
+       ===================================================================== */
+    function impostaVistaStudente(linguaIniziale) {
+      document.body.classList.add('vista-studente');
+      $('docenteContainer').style.display = 'none';
+      $('btnQR').style.display = 'none';
+      $('btnLangConfig').style.display = 'none';
+      $('studentCounterContainer').style.display = 'none';
+      $('studentViewContainer').style.display = 'flex';
+
+      const salvata = linguaIniziale || localStorage.getItem('parlaconme_lang') || 'en';
+      ['myLangSelect', 'gateLangSelect'].forEach(id => {
+        const select = $(id);
+        if (!select) return;
+        select.innerHTML = '';
+        ELENCO_LINGUE.forEach(l => {
+          const opt = document.createElement('option');
+          opt.value = l.code;
+          opt.innerText = l.name;
+          if (l.code === salvata) opt.selected = true;
+          select.appendChild(opt);
+        });
+      });
+    }
+
+    function aggiornaTraduzioneStudente() {
+      const lang = $('myLangSelect').value;
+      const display = $('studentDisplayText');
+      const obj = LINGUA_PER_CODICE[lang];
+      display.classList.toggle('rtl', !!(obj && obj.rtl));
+      display.setAttribute('lang', lang);
+
+      if (traduzioniRicevuteRete[lang] !== undefined) display.innerText = traduzioniRicevuteRete[lang];
+      else display.innerText = testoITARicevutoRete ? TESTO_TRAD_IN_ARRIVO : TESTO_ATTESA_TRAD;
+      display.scrollTop = display.scrollHeight;
+    }
+
+    function cambiaLinguaStudente() {
+      fermaTuttaLettura();
+      const lang = $('myLangSelect').value;
+      try { localStorage.setItem('parlaconme_lang', lang); } catch (e) {}
+      aggiornaTraduzioneStudente();
+      if (testoITARicevutoRete && traduzioniRicevuteRete[lang] === undefined && connStudente && connStudente.open) {
+        connStudente.send({ tipo: 'RICHIESTA_SINCRONIZZAZIONE', lang: lang });
+      }
+    }
+
+    function copiaTestoStudente() {
+      const testo = $('studentDisplayText').innerText.trim();
+      copiaNegliAppunti(testo);
+    }
+
+    function copiaNegliAppunti(testo) {
+      if (!testo || TESTI_SEGNAPOSTO.includes(testo)) return;
+      if (!navigator.clipboard) { mostraAvviso('Copia non supportata da questo browser'); return; }
+      navigator.clipboard.writeText(testo)
+        .then(() => mostraAvviso('✓ Copiato', 1800))
+        .catch(() => mostraAvviso('Impossibile copiare'));
+    }
+
+    /* =====================================================================
+       8. LETTURA AD ALTA VOCE
+       ===================================================================== */
+    let vociDisponibili = [];
+    function caricaVoci() {
+      if ('speechSynthesis' in window) vociDisponibili = window.speechSynthesis.getVoices();
+    }
+    caricaVoci();
+    if ('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = caricaVoci;
+
+    function selezionaVoceMigliore(langCode) {
+      if (!vociDisponibili.length) caricaVoci();
+      const base = langCode.toLowerCase().split('-')[0];
+      const compatibili = vociDisponibili.filter(v => v.lang.toLowerCase().replace('_', '-').startsWith(base));
+      if (!compatibili.length) return null;
+      const scelta = compatibili.find(v => /Natural|Google|Neural|Online/.test(v.name));
+      return scelta || compatibili[0];
+    }
+
+    function infoLingua(codice) {
+      if (codice === 'it') return { code: 'it', voice: 'it-IT' };
+      return LINGUA_PER_CODICE[codice] || { code: codice, voice: codice };
+    }
+
+    let sessioneLettura = 0;
+    let audioGoogle = null;
+
+    function ottieniAudioGoogle() {
+      if (!audioGoogle) {
+        audioGoogle = new Audio();
+        audioGoogle.preload = 'auto';
+        audioGoogle.preservesPitch = true;
+        audioGoogle.webkitPreservesPitch = true;
+      }
+      return audioGoogle;
+    }
+
+    function fermaTuttaLettura() {
+      sessioneLettura++;
+      if (audioGoogle) {
+        audioGoogle.onended = null;
+        audioGoogle.onerror = null;
+        try { audioGoogle.pause(); } catch (e) {}
+      }
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      document.querySelectorAll('.btn-svg-icon').forEach(b => b.classList.remove('active-speaking'));
+      document.querySelectorAll('.card, .student-card-main').forEach(c => c.classList.remove('speaking-card'));
+      elementoAudioAttivo = null;
+    }
+
+    function dividiTesto(testo, max) {
+      max = max || MAX_CARATTERI_PEZZO;
+      const pulito = testo.replace(/\s+/g, ' ').trim();
+      const frasi = pulito.match(/.+?(?:[。！？؟۔]+|[.!?]+(?=\s|$)|$)/g) || [pulito];
+      const pezzi = [];
+      let corrente = '';
+      const chiudi = () => { if (corrente) pezzi.push(corrente); corrente = ''; };
+
+      frasi.forEach(frase => {
+        frase = frase.trim();
+        if (!frase) return;
+        if (frase.length > max) {
+          chiudi();
+          let blocco = '';
+          frase.split(' ').forEach(parola => {
+            while (parola.length > max) {
+              if (blocco) { pezzi.push(blocco); blocco = ''; }
+              pezzi.push(parola.slice(0, max));
+              parola = parola.slice(max);
+            }
+            if ((blocco + ' ' + parola).trim().length > max) { pezzi.push(blocco); blocco = parola; }
+            else blocco = (blocco + ' ' + parola).trim();
+          });
+          if (blocco) pezzi.push(blocco);
+        } else if ((corrente + ' ' + frase).trim().length <= max) {
+          corrente = (corrente + ' ' + frase).trim();
+        } else {
+          chiudi();
+          corrente = frase;
+        }
+      });
+      chiudi();
+      return pezzi;
+    }
+
+    function urlVoceGoogle(pezzo, codice) {
+      return 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=' +
+             encodeURIComponent(codice) + '&q=' + encodeURIComponent(pezzo);
+    }
+
+    function leggiConDispositivo(testo, codice, velocita, sessione) {
+      if (sessione !== sessioneLettura) return;
+      if (!('speechSynthesis' in window)) {
+        mostraAvviso('Lettura vocale non supportata da questo browser');
+        fermaTuttaLettura();
+        return;
+      }
+      caricaVoci();
+      const info = infoLingua(codice);
+      const voce = selezionaVoceMigliore(info.voice.split('-')[0]);
+      if (!voce && vociDisponibili.length) {
+        const msg = codice === 'ti'
+          ? 'Per il tigrino non esiste una voce: leggi il testo. / No voice exists for Tigrinya: please read the text.'
+          : 'Voce non disponibile per questa lingua su questo dispositivo. Leggi il testo (su un PC con Edge potrebbe funzionare). / Voice not available for this language on this device.';
+        mostraAvviso(msg, 6000);
+        fermaTuttaLettura();
+        return;
+      }
+      mostraAvviso('Sto preparando la voce...', 8000);
+      const u = new SpeechSynthesisUtterance(testo);
+      if (voce) u.voice = voce;
+      u.lang = info.voice;
+      u.rate = velocita;
+      u.onstart = () => { if (sessione === sessioneLettura) nascondiAvviso(); };
+      u.onend = () => { if (sessione === sessioneLettura) fermaTuttaLettura(); };
+      u.onerror = () => {
+        if (sessione !== sessioneLettura) return;
+        mostraAvviso('Errore audio');
+        fermaTuttaLettura();
+      };
+      window.speechSynthesis.speak(u);
+    }
+
+    function leggiConGoogle(testo, codice, velocita, sessione) {
+      const pezzi = dividiTesto(testo);
+      const a = ottieniAudioGoogle();
+      const rate = velocita <= 0.5 ? VELOCITA_LENTA_GOOGLE : 1;
+      let i = 0;
+      let tentativi = 0;
+
+      function riserva() {
+        if (sessione !== sessioneLettura) return;
+        leggiConDispositivo(pezzi.slice(i).join(' '), codice, velocita, sessione);
+      }
+
+      function prossimo() {
+        if (sessione !== sessioneLettura) return;
+        if (i >= pezzi.length) { fermaTuttaLettura(); return; }
+
+        let concluso = false;
+        const errore = () => {
+          if (concluso || sessione !== sessioneLettura) return;
+          concluso = true;
+          tentativi++;
+          if (tentativi < 2) prossimo();
+          else riserva();
+        };
+
+        a.onended = () => {
+          if (concluso || sessione !== sessioneLettura) return;
+          concluso = true;
+          i++;
+          tentativi = 0;
+          prossimo();
+        };
+        a.onerror = errore;
+
+        a.src = urlVoceGoogle(pezzi[i], codice);
+        a.defaultPlaybackRate = rate;
+        a.playbackRate = rate;
+        const p = a.play();
+        if (p && p.catch) p.catch(errore);
+      }
+      prossimo();
+    }
+
+    function avviaLetturaGenerica(idElementoTesto, codice, velocita, btnIcon, cardElement) {
+      fermaTuttaLettura();
+      const elText = $(idElementoTesto);
+      const testo = elText ? elText.innerText.trim() : '';
+      if (!testo || TESTI_SEGNAPOSTO.includes(testo)) return;
+
+      const sessione = sessioneLettura;
+      elementoAudioAttivo = btnIcon;
+      if (btnIcon) btnIcon.classList.add('active-speaking');
+      if (cardElement) cardElement.classList.add('speaking-card');
+
+      if (LINGUE_CON_GOOGLE.includes(codice)) leggiConGoogle(testo, codice, velocita, sessione);
+      else leggiConDispositivo(testo, codice, velocita, sessione);
+    }
+
+    function toggleLetturaItalianoStudente(velocita, btn) {
+      if (elementoAudioAttivo === btn) { fermaTuttaLettura(); return; }
+      avviaLetturaGenerica('studentDisplayITA', 'it', velocita, btn, $('mainStudentCard'));
+    }
+    function toggleLetturaStudente(velocita, btn) {
+      if (elementoAudioAttivo === btn) { fermaTuttaLettura(); return; }
+      avviaLetturaGenerica('studentDisplayText', $('myLangSelect').value, velocita, btn, $('mainStudentCard'));
+    }
+    function leggiTestoScheda(lang, velocita, btn, card) {
+      if (elementoAudioAttivo === btn) { fermaTuttaLettura(); return; }
+      avviaLetturaGenerica('box_' + lang, lang, velocita, btn, card);
+    }
+    function leggiTestoFocus(velocita, btn) {
+      if (!linguaFocusCorrente) return;
+      if (elementoAudioAttivo === btn) { fermaTuttaLettura(); return; }
+      avviaLetturaGenerica('modalBody', linguaFocusCorrente, velocita, btn, null);
+    }
+
+    /* =====================================================================
+       9. TRADUZIONE
+       ===================================================================== */
+    async function chiamaGoogleTranslate(testo, linguaDa, linguaA, signal) {
+      const targetLang = linguaA.split('-')[0];
+      const url = `https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=${linguaDa}&tl=${targetLang}&q=${encodeURIComponent(testo)}`;
+      try {
+        const res = await fetch(url, signal ? { signal } : undefined);
+        const data = await res.json();
+        if (data && Array.isArray(data) && data[0]) {
+          return Array.isArray(data[0]) ? data[0].join(' ') : data[0];
+        } else if (data && Array.isArray(data.sentences)) {
+          return data.sentences.map(s => s.trans || '').join('');
+        } else if (typeof data === 'string') {
+          return data;
+        }
+      } catch (e) {
+        if (e.name !== 'AbortError') console.error(e);
+      }
+      return null;
+    }
+
+    function linguePerTradurre() {
+      const set = new Set(lingueAttive);
+      connessioniStudenti.forEach(c => { if (c.open && c.studentLang) set.add(c.studentLang); });
+      return [...set];
+    }
+
+    function gestisciInput(ritardo, live) {
+      traduzionePendente = true;
+      aggiornaStato('In attesa...');
+      if (live) {
+        if (timerDebounce) return;
+        const trascorso = Date.now() - ultimoAvvioTraduzione;
+        const attesa = Math.max(0, INTERVALLO_TRADUZIONE_LIVE - trascorso);
+        timerDebounce = setTimeout(traduciTutto, attesa);
+      } else {
+        clearTimeout(timerDebounce);
+        timerDebounce = setTimeout(traduciTutto, ritardo === undefined ? 500 : ritardo);
+      }
+    }
+
+    async function traduciTutto() {
+      clearTimeout(timerDebounce);
+      timerDebounce = null;
+      const testo = $('testoITA').value.trim();
+
+      if (!testo) {
+        generazioneTraduzione++;
+        if (controllerTraduzione) controllerTraduzione.abort();
+        richiestaDopo = false;
+        cacheTraduzioniDocente = {};
+        testoTradotto = '';
+        traduzionePendente = false;
+        aggiornaBox();
+        aggiornaStato('Pronto');
+        trasmettiDatiRete({ ita: '', traduzioni: {} });
+        return;
+      }
+
+      if (traduzioneInCorso) { richiestaDopo = true; return; }
+
+      traduzioneInCorso = true;
+      richiestaDopo = false;
+      ultimoAvvioTraduzione = Date.now();
+      const gen = ++generazioneTraduzione;
+      controllerTraduzione = new AbortController();
+      const signal = controllerTraduzione.signal;
+      aggiornaStato('Traduzione...');
+
+      const langs = linguePerTradurre();
+      const risultati = await Promise.all(
+        langs.map(l => chiamaGoogleTranslate(testo, 'it', l, signal).then(t => [l, t]))
+      );
+      traduzioneInCorso = false;
+
+      if (gen !== generazioneTraduzione) {
+        if (richiestaDopo) { richiestaDopo = false; gestisciInput(0, true); }
+        return;
+      }
+
+      const nuova = {};
+      risultati.forEach(([l, t]) => { nuova[l] = t || TESTO_NON_DISPONIBILE; });
+      cacheTraduzioniDocente = nuova;
+      testoTradotto = testo;
+      aggiornaBox();
+
+      const fallite = langs.some(l => nuova[l] === TESTO_NON_DISPONIBILE);
+      trasmettiDatiRete({ ita: testo, traduzioni: nuova });
+
+      if (richiestaDopo) {
+        richiestaDopo = false;
+        gestisciInput(0, true);
+      } else {
+        traduzionePendente = timerDebounce !== null;
+        aggiornaStato(fallite ? 'Tradotto (alcune lingue no)' : 'Tradotto');
+      }
+
+      linguePerTradurre().filter(l => cacheTraduzioniDocente[l] === undefined).forEach(traduciSoloLingua);
+    }
+
+    async function traduciSoloLingua(lang) {
+      const testo = $('testoITA').value.trim();
+      const gen = generazioneTraduzione;
+      if (!testo || testo !== testoTradotto) return;
+      const trad = await chiamaGoogleTranslate(testo, 'it', lang);
+      if (gen !== generazioneTraduzione || testo !== testoTradotto) return;
+      cacheTraduzioniDocente[lang] = trad || TESTO_NON_DISPONIBILE;
+      aggiornaBox();
+      trasmettiDatiRete({ ita: testo, traduzioni: cacheTraduzioniDocente });
+    }
+
+    function aggiornaBox() {
+      lingueAttive.forEach(l => {
+        const el = $('box_' + l);
+        if (!el) return;
+        const t = cacheTraduzioniDocente[l];
+        el.innerText = (t === undefined) ? '...' : t;
+        el.scrollTop = el.scrollHeight;
+      });
+      if (linguaFocusCorrente) {
+        const t = cacheTraduzioniDocente[linguaFocusCorrente];
+        const mBody = $('modalBody');
+        mBody.innerText = (t === undefined) ? '...' : t;
+        mBody.scrollTop = mBody.scrollHeight;
+      }
+    }
+
+    /* =====================================================================
+       10. GRIGLIA DELLE LINGUE E IMPOSTAZIONI
+       ===================================================================== */
+    function inizializzaGriglia() {
+      const container = $('gridContainer');
+      const studentSelect = $('studentLangSelect');
+      container.innerHTML = '';
+      studentSelect.innerHTML = '';
+
+      ELENCO_LINGUE.filter(l => lingueAttive.includes(l.code)).forEach(l => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.id = 'card_' + l.code;
+        card.innerHTML = `
+          <div class="card-header">
+            <span class="card-title">${bandiera(l.flag)}${esc(l.name)}</span>
+            <button class="btn-svg-icon" data-icona="lente" data-label="Ingrandisci" data-corta="Ingrandisci" onclick="apriFocus('${l.code}')"></button>
+          </div>
+          <div id="box_${l.code}" lang="${l.code}" class="card-body ${l.rtl ? 'rtl' : ''}">...</div>
+          <div class="card-footer">
+            <button class="btn-svg-icon" data-icona="scarica" data-label="Scarica PDF" data-corta="PDF" onclick="scaricaPDFSingolo('${l.code}')"></button>
+            <button class="btn-svg-icon" data-icona="copia" data-label="Copia testo" data-corta="Copia" onclick="copiaTesto('${l.code}')"></button>
+            <button class="btn-svg-icon" data-icona="lento" data-label="Ascolta lento" data-corta="Lento" onclick="leggiTestoScheda('${l.code}', 0.5, this, document.getElementById('card_${l.code}'))"></button>
+            <button class="btn-svg-icon" data-icona="audio" data-label="Ascolta" data-corta="Ascolta" onclick="leggiTestoScheda('${l.code}', 0.9, this, document.getElementById('card_${l.code}'))"></button>
+          </div>
+        `;
+        container.appendChild(card);
+        costruisciIcone(card);
+        const body = $('box_' + l.code);
+        body.style.fontSize = fontSizeCorrente + 'px';
+        if (cacheTraduzioniDocente[l.code] !== undefined) body.innerText = cacheTraduzioniDocente[l.code];
+
+        const opt = document.createElement('option');
+        opt.value = l.voice;
+        opt.innerText = l.name;
+        studentSelect.appendChild(opt);
+      });
+
+      if ($('testoITA').value.trim()) gestisciInput(0);
+    }
+
+    function apriGestioneLingue() {
+      const list = $('langSelectorList');
+      list.innerHTML = '';
+      ELENCO_LINGUE.forEach(l => {
+        const item = document.createElement('label');
+        item.className = 'lang-item';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.value = l.code;
+        cb.checked = lingueAttive.includes(l.code);
+        cb.onchange = () => toggleLingua(l.code, cb);
+        item.appendChild(cb);
+        item.insertAdjacentHTML('beforeend', ' ' + bandiera(l.flag) + esc(l.name));
+        list.appendChild(item);
+      });
+      $('modalLangConfig').style.display = 'flex';
+    }
+
+    function toggleLingua(code, checkbox) {
+      if (lingueAttive.includes(code)) {
+        if (lingueAttive.length <= 1) {
+          alert("Devi mantenere almeno una lingua attiva.");
+          checkbox.checked = true;
+          return;
+        }
+        lingueAttive = lingueAttive.filter(c => c !== code);
+      } else {
+        lingueAttive.push(code);
+      }
+    }
+
+    function chiudiGestioneLingue() {
+      $('modalLangConfig').style.display = 'none';
+      scriviLS('parlaconme_lingue_attive', lingueAttive);
+      inizializzaGriglia();
+    }
+
+    function toggleDarkMode() { document.body.classList.toggle('light-mode'); }
+
+    function cambiaZoom(delta) {
+      fontSizeCorrente = Math.max(12, Math.min(32, fontSizeCorrente + delta));
+      document.querySelectorAll('.card-body, .student-display-text, #testoITA, #testoStudente')
+        .forEach(el => el.style.fontSize = fontSizeCorrente + 'px');
+      aggiornaStato('Testo: ' + fontSizeCorrente + 'px');
+    }
+
+    function resetZoom() {
+      fontSizeCorrente = 18;
+      document.querySelectorAll('.card-body, .student-display-text, #testoITA, #testoStudente')
+        .forEach(el => el.style.fontSize = '18px');
+      aggiornaStato('Zoom reset');
+    }
+
+    function copiaTesto(lang) {
+      const el = $('box_' + lang);
+      if (el) copiaNegliAppunti(el.innerText.trim());
+    }
+
+    function cancellaTutto() {
+      clearTimeout(timerPausaSilenzio);
+      clearTimeout(timerDebounce);
+      timerDebounce = null;
+      generazioneTraduzione++;
+      if (controllerTraduzione) controllerTraduzione.abort();
+      richiestaDopo = false;
+      traduzionePendente = false;
+      testoConfermatoDocente = '';
+      cacheTraduzioniDocente = {};
+      testoTradotto = '';
+      $('testoITA').value = '';
+      $('testoStudente').value = '';
+      aggiornaBox();
+      aggiornaStato('Pulito');
+      trasmettiDatiRete({ ita: '', traduzioni: {} });
+    }
+
+    function registraModificaManuale() {
+      testoConfermatoDocente = $('testoITA').value;
+      gestisciInput();
+    }
+
+    function apriModalitaStudente() { $('studentPanel').style.display = 'block'; }
+    function chiudiModalitaStudente() {
+      $('studentPanel').style.display = 'none';
+      if (inAscoltoStudente) fermaAscoltoStudente();
+    }
+
+function apriFocus(lang) {
+      linguaFocusCorrente = lang;
+      const obj = LINGUA_PER_CODICE[lang];
+      const el = $('box_' + lang);
+      $('modalTitle').innerHTML = obj ? bandiera(obj.flag) + esc(obj.name) : esc(lang);
+      const modalBody = $('modalBody');
+      modalBody.innerText = el ? el.innerText : '...';
+      modalBody.setAttribute('lang', lang);
+      
+      // Imposta la dimensione fissa ideale a 22px
+      modalBody.style.fontSize = '26px';
+      
+      modalBody.scrollTop = modalBody.scrollHeight;
+      modalBody.classList.toggle('rtl', !!(obj && obj.rtl));
+      $('modalFocus').style.display = 'flex';
+    }
+    function chiudiFocus() {
+      fermaTuttaLettura();
+      $('modalFocus').style.display = 'none';
+      linguaFocusCorrente = null;
+    }
+
+    /* =====================================================================
+       11. QR CODE
+       ===================================================================== */
+    function mostraQRCode() {
+      const container = $('qrcode');
+      container.innerHTML = '';
+      $('roomCodeDisplay').innerText = pinDocente;
+
+      const urlPaginaCorrente = window.location.href.split('?')[0].split('#')[0];
+      const baseCartella = urlPaginaCorrente.substring(0, urlPaginaCorrente.lastIndexOf('/') + 1);
+      $('urlStudenteDisplay').innerText = baseCartella + 'studenteprova.html';
+
+      new QRCode(container, {
+        text: urlPaginaCorrente + '?stanza=' + pinDocente,
+        width: 210,
+        height: 210,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+      $('modalQR').style.display = 'flex';
+    }
+    function copiaLinkAula() {
+      const urlPaginaCorrente = window.location.href.split('?')[0].split('#')[0];
+      const linkCompleto = urlPaginaCorrente + '?stanza=' + pinDocente;
+      copiaNegliAppunti(linkCompleto);
+    }
+    function chiudiQRCode() { $('modalQR').style.display = 'none'; }
+
+    /* =====================================================================
+       12. FRASI SALVATE
+       ===================================================================== */
+    function salvaInCronologia() {
+      const testo = $('testoITA').value.trim();
+      if (!testo) return;
+      if (testo !== testoTradotto) {
+        mostraAvviso('Attendi la fine della traduzione, poi salva la frase.');
+        return;
+      }
+      ID_PROGRESSIVO_CRONOLOGIA++;
+      const riga = { id_univoco: ID_PROGRESSIVO_CRONOLOGIA, ita: testo };
+      Object.entries(cacheTraduzioniDocente).forEach(([c, t]) => {
+        if (t !== TESTO_NON_DISPONIBILE) riga[c] = t;
+      });
+      cronologiaLezione.push(riga);
+      scriviLS('parlaconme_cronologia', cronologiaLezione);
+      aggiornaContatoreCronologia();
+      aggiornaStato('Salvato (' + cronologiaLezione.length + ')');
+    }
+
+    function aggiornaContatoreCronologia() {
+      const el = $('countCronologia');
+      if (el) el.innerText = cronologiaLezione.length;
+    }
+
+    function apriModalCronologia() {
+      renderizzaListaCronologia();
+      $('modalCronologia').style.display = 'flex';
+    }
+    function chiudiModalCronologia() { $('modalCronologia').style.display = 'none'; }
+
+    function renderizzaListaCronologia() {
+      const container = $('listaCronologiaBody');
+      container.innerHTML = '';
+      if (cronologiaLezione.length === 0) {
+        const vuoto = document.createElement('div');
+        vuoto.style.cssText = 'text-align:center; color:var(--text-muted); padding:20px;';
+        vuoto.textContent = 'Nessuna frase salvata finora.';
+        container.appendChild(vuoto);
+        return;
+      }
+      cronologiaLezione.forEach((item, index) => {
+        const box = document.createElement('div');
+        box.style.cssText = 'background: var(--card-body-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;';
+
+        const testo = document.createElement('div');
+        testo.style.cssText = 'flex-grow:1; word-break:break-word;';
+        const forte = document.createElement('strong');
+        forte.style.color = 'var(--primary-cyan)';
+        forte.textContent = (index + 1) + '. ITA: ';
+        testo.appendChild(forte);
+        testo.appendChild(document.createTextNode(item.ita));
+
+        const btn = document.createElement('button');
+        btn.className = 'btn-svg-icon';
+        btn.style.cssText = 'color:#f87171; flex-shrink:0;';
+        btn.dataset.icona = 'cestino';
+        btn.dataset.label = 'Elimina frase';
+        btn.dataset.corta = 'Elimina';
+        btn.onclick = () => eliminaSingolaFrase(item.id_univoco);
+
+        box.appendChild(testo);
+        box.appendChild(btn);
+        container.appendChild(box);
+        costruisciIcone(box);
+      });
+    }
+
+    function eliminaSingolaFrase(id) {
+      cronologiaLezione = cronologiaLezione.filter(i => i.id_univoco !== id);
+      scriviLS('parlaconme_cronologia', cronologiaLezione);
+      aggiornaContatoreCronologia();
+      renderizzaListaCronologia();
+      aggiornaStato('Frase rimossa (' + cronologiaLezione.length + ')');
+    }
+
+    function svuotaInteraCronologia() {
+      if (cronologiaLezione.length === 0) return;
+      if (confirm("Sei sicuro di voler cancellare tutte le frasi salvate nella cronologia?")) {
+        cronologiaLezione = [];
+        scriviLS('parlaconme_cronologia', cronologiaLezione);
+        aggiornaContatoreCronologia();
+        renderizzaListaCronologia();
+        aggiornaStato('Cronologia svuotata');
+      }
+    }
+
+    /* =====================================================================
+       13. ESPORTAZIONE (TXT e PDF)
+       ===================================================================== */
+    function nomeLingua(codice) {
+      const o = LINGUA_PER_CODICE[codice];
+      return o ? o.name : codice.toUpperCase();
+    }
+
+    function raccogliFrasi(codici) {
+      if (eStudente) {
+        if (!testoITARicevutoRete) return [];
+        const riga = { ita: testoITARicevutoRete };
+        codici.forEach(c => { if (traduzioniRicevuteRete[c] !== undefined) riga[c] = traduzioniRicevuteRete[c]; });
+        return [riga];
+      }
+      if (cronologiaLezione.length > 0) return [...cronologiaLezione];
+      const testo = $('testoITA').value.trim();
+      if (!testo) return [];
+      const riga = { ita: testo };
+      if (testo === testoTradotto) codici.forEach(c => { if (cacheTraduzioniDocente[c] !== undefined) riga[c] = cacheTraduzioniDocente[c]; });
+      return [riga];
+    }
+
+    function codiciDaEsportare() {
+      return eStudente ? [$('myLangSelect').value] : [...lingueAttive];
+    }
+
+    function scaricaLezione() {
+      const codici = codiciDaEsportare();
+      const frasi = raccogliFrasi(codici);
+      if (frasi.length === 0) { alert("Nessun testo da scaricare."); return; }
+
+      let contenuto = "VOCABOLARIO LEZIONE CPIA\n=========================\n\n";
+      frasi.forEach((f, i) => {
+        contenuto += `FRASE ${i + 1}:\nITA: ${f.ita}\n`;
+        codici.forEach(c => { contenuto += `${nomeLingua(c)}: ${f[c] && f[c] !== TESTO_NON_DISPONIBILE ? f[c] : '—'}\n`; });
+        contenuto += "-------------------------\n\n";
+      });
+
+      const blob = new Blob(['\uFEFF' + contenuto], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Lezione_CPIA_${new Date().toISOString().slice(0, 10)}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }
+
+    function costruisciHTMLScheda(titolo, frasi, codici, grande) {
+      const dataOggi = new Date().toLocaleDateString('it-IT');
+      const px = grande ? '12pt' : '11pt';
+      let html = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8">
+        <title>${esc(titolo)} - ${dataOggi}</title>
+        <style>
+          @page { margin: 8mm; size: A4; }
+          html, body { margin: 0; padding: 0; background: #fff; color: #1e293b; font-family: 'Segoe UI', system-ui, Arial, sans-serif; }
+          .container { padding: 4px; }
+          h1 { color: #0284c7; font-size: 16pt; margin: 0 0 2px 0; }
+          .date { color: #475569; font-size: 9pt; margin-bottom: 10px; border-bottom: 2px solid #0284c7; padding-bottom: 4px; }
+          .block { margin-bottom: 10px; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; }
+          .ita { font-weight: bold; font-size: ${px}; color: #0369a1; margin-bottom: 4px; white-space: pre-wrap; word-break: break-word; }
+          .trans { font-size: ${px}; color: #0f172a; margin-top: 4px; white-space: pre-wrap; word-break: break-word; }
+        </style></head><body><div class="container">
+        <h1>${esc(titolo)}</h1>
+        <div class="date">Data: ${dataOggi} | CPIA Centro Provinciale Istruzione Adulti</div>`;
+
+      frasi.forEach((f, i) => {
+        html += `<div class="block"><div class="ita">${i + 1}. ITA: ${esc(f.ita)}</div>`;
+        codici.forEach(c => {
+          if (f[c] && f[c] !== TESTO_NON_DISPONIBILE) {
+            const rtl = LINGUA_PER_CODICE[c] && LINGUA_PER_CODICE[c].rtl;
+            html += `<div class="trans"${rtl ? ' dir="rtl" style="text-align:right"' : ''}><strong>${esc(nomeLingua(c))}:</strong> ${esc(f[c])}</div>`;
+          }
+        });
+        html += `</div>`;
+      });
+      html += `</div><script>window.onload = function() { window.print(); }<\/script></body></html>`;
+      return html;
+    }
+
+    function apriFinestraStampa(html) {
+      const win = window.open('', '_blank');
+      if (!win) {
+        mostraAvviso('Il browser ha bloccato la finestra di stampa. Consenti i popup per questo sito e riprova.', 6000);
+        return;
+      }
+      win.document.write(html);
+      win.document.close();
+    }
+
+    function scaricaPDFSingolo(langCode) {
+      const frasi = raccogliFrasi([langCode]);
+      if (frasi.length === 0) { alert("Nessun testo presente da esportare."); return; }
+      apriFinestraStampa(costruisciHTMLScheda('ParlaConMe - Scheda Bilingue (' + nomeLingua(langCode) + ')', frasi, [langCode], true));
+    }
+
+    function scaricaPDFSingoloDallaVistaStudente() {
+      scaricaPDFSingolo($('myLangSelect').value);
+    }
+
+    function stampaOEsportaPDF() {
+      if (eStudente) { scaricaPDFSingoloDallaVistaStudente(); return; }
+      const frasi = raccogliFrasi(lingueAttive);
+      if (frasi.length === 0) { alert("Scrivi o parla prima di generare la scheda PDF/Stampa."); return; }
+      apriFinestraStampa(costruisciHTMLScheda('ParlaConMe - Scheda della Lezione', frasi, lingueAttive, false));
+    }
+
+    /* =====================================================================
+       14. MICROFONO DEL DOCENTE
+       ===================================================================== */
+    function applicaPunteggiaturaAvanzata(testo) {
+      const t = testo
+        .replace(/\bpunto e virgola\b/gi, ';')
+        .replace(/\bvirgola\b/gi, ',')
+        .replace(/\bdue punti\b/gi, ':')
+        .replace(/\bpunto di domanda\b|\bpunto interrogativo\b/gi, '?')
+        .replace(/\bpunto esclamativo\b/gi, '!')
+        .replace(/\bpunto\b/gi, '.')
+        .replace(/\bnuova linea\b|\ba capo\b|\bvada a capo\b/gi, '\n')
+        .replace(/\bapri parentesi\b/gi, '(')
+        .replace(/\bchiudi parentesi\b/gi, ')')
+        .replace(/\bapri virgolette\b/gi, '"')
+        .replace(/\bchiudi virgolette\b/gi, '"')
+        .replace(/\s+([,.?!:;])/g, '$1')
+        .replace(/\(\s+/g, '(')
+        .replace(/\s+\)/g, ')');
+      return t.replace(/(^|[.?!]\s+|\n+)([a-zàèéìòù])/g, (m, p1, p2) => p1 + p2.toUpperCase());
+    }
+
+    let sessioneRec = { offset: 0, finale: '', lunghezza: 0 };
+
+    function unisciFrase(acc, t) {
+      if (!t) return acc;
+      if (!acc) return t;
+      const a = acc.toLowerCase(), b = t.toLowerCase();
+      if (b.startsWith(a)) return t;
+      if (a.endsWith(b)) return acc;
+      return acc + ' ' + t;
+    }
+
+    function confermaSessione() {
+      const f = sessioneRec.finale;
+      if (f) {
+        const serveSpazio = testoConfermatoDocente.length > 0 && !testoConfermatoDocente.endsWith('\n') && !testoConfermatoDocente.endsWith(' ');
+        testoConfermatoDocente += (serveSpazio ? ' ' : '') + f;
+      }
+      sessioneRec.finale = '';
+      sessioneRec.offset = sessioneRec.lunghezza;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recDocente = null, inAscoltoDocente = false;
+
+    if (SpeechRecognition) {
+      recDocente = new SpeechRecognition();
+      recDocente.continuous = !isMobile;
+      recDocente.interimResults = true;
+      recDocente.lang = 'it-IT';
+
+      recDocente.onresult = (e) => {
+        clearTimeout(timerPausaSilenzio);
+        let finale = '', interim = '';
+        for (let i = sessioneRec.offset; i < e.results.length; i++) {
+          const t = e.results[i][0].transcript.trim();
+          if (e.results[i].isFinal) finale = unisciFrase(finale, t);
+          else interim = interim ? interim + ' ' + t : t;
+        }
+        const haFinale = finale.length > sessioneRec.finale.length;
+        sessioneRec.finale = finale;
+        sessioneRec.lunghezza = e.results.length;
+
+        const parlato = [finale, interim].filter(Boolean).join(' ');
+        const sep = (parlato && testoConfermatoDocente && !testoConfermatoDocente.endsWith('\n') && !testoConfermatoDocente.endsWith(' ')) ? ' ' : '';
+        const textareaITA = $('testoITA');
+        textareaITA.value = applicaPunteggiaturaAvanzata(testoConfermatoDocente + sep + parlato);
+        textareaITA.scrollTop = textareaITA.scrollHeight;
+
+        if (haFinale) gestisciInput(150, false);
+        else gestisciInput(0, true);
+
+        if (inAscoltoDocente) {
+          timerPausaSilenzio = setTimeout(() => {
+            confermaSessione();
+            if (testoConfermatoDocente.trim() && !/[.?!]\s*$/.test(testoConfermatoDocente.trim())) {
+              testoConfermatoDocente = testoConfermatoDocente.trimEnd() + '.\n';
+              textareaITA.value = applicaPunteggiaturaAvanzata(testoConfermatoDocente);
+              textareaITA.scrollTop = textareaITA.scrollHeight;
+              gestisciInput(300, false);
+            }
+            if (isMobile) fermaAscoltoDocente();
+          }, 1800);
+        }
+      };
+
+      recDocente.onerror = (e) => {
+        if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+          mostraAvviso('Microfono non consentito: autorizza il microfono nelle impostazioni del browser.', 6000);
+          fermaAscoltoDocente();
+          return;
+        }
+        if (inAscoltoDocente && e.error !== 'aborted') {
+          setTimeout(() => {
+            if (inAscoltoDocente && !isMobile) { try { recDocente.start(); } catch (err) {} }
+            else if (isMobile) fermaAscoltoDocente();
+          }, 300);
+        }
+      };
+
+      recDocente.onend = () => {
+        confermaSessione();
+        sessioneRec = { offset: 0, finale: '', lunghezza: 0 };
+        if (inAscoltoDocente && !isMobile) {
+          setTimeout(() => { if (inAscoltoDocente) { try { recDocente.start(); } catch (err) {} } }, 200);
+        } else if (isMobile && inAscoltoDocente) {
+          fermaAscoltoDocente();
+        }
+      };
+    }
+
+    function toggleMicrofonoDocente() {
+      if (!recDocente) return alert("Browser non supportato. Usa Chrome o Edge.");
+      if (inAscoltoDocente) fermaAscoltoDocente();
+      else avviaAscoltoDocente();
+    }
+
+    function avviaAscoltoDocente() {
+      if (inAscoltoStudente) fermaAscoltoStudente();
+      testoConfermatoDocente = $('testoITA').value;
+      sessioneRec = { offset: 0, finale: '', lunghezza: 0 };
+      try {
+        recDocente.start();
+        inAscoltoDocente = true;
+        $('btnMic').classList.add('recording');
+        $('micText').innerText = 'In ascolto...';
+        aggiornaStato('Mic Docente');
+      } catch (e) { console.error(e); }
+    }
+
+    function fermaAscoltoDocente() {
+      clearTimeout(timerPausaSilenzio);
+      inAscoltoDocente = false;
+      if (recDocente) { try { recDocente.stop(); } catch (e) {} }
+      $('btnMic').classList.remove('recording');
+      $('micText').innerText = 'Attiva Mic';
+      aggiornaStato('Pronto');
+    }
+
+    /* =====================================================================
+       15. MODALITA' "STUDENTE -> DOCENTE"
+       ===================================================================== */
+    let recStudente = null, inAscoltoStudente = false, timerTradStudente = null;
+
+    function toggleMicrofonoStudente() {
+      if (!SpeechRecognition) return alert("Browser non supportato.");
+      if (inAscoltoStudente) fermaAscoltoStudente();
+      else avviaAscoltoStudente();
+    }
+
+    function avviaAscoltoStudente() {
+      if (inAscoltoDocente) fermaAscoltoDocente();
+      const langSel = $('studentLangSelect').value;
+      recStudente = new SpeechRecognition();
+      recStudente.continuous = true;
+      recStudente.interimResults = true;
+      recStudente.lang = langSel;
+
+      recStudente.onresult = (e) => {
+        let t = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript;
+        clearTimeout(timerTradStudente);
+        timerTradStudente = setTimeout(() => traduciDaStudente(t, langSel.split('-')[0]), 600);
+      };
+      recStudente.onerror = (e) => {
+        if (e.error === 'language-not-supported') mostraAvviso('Riconoscimento vocale non disponibile per questa lingua su questo browser.', 5000);
+        else if (e.error === 'not-allowed' || e.error === 'service-not-allowed') mostraAvviso('Microfono non consentito.', 5000);
+        fermaAscoltoStudente();
+      };
+      recStudente.onend = () => {
+        if (inAscoltoStudente) { try { recStudente.start(); } catch (err) {} }
+      };
+
+      try {
+        recStudente.start();
+        inAscoltoStudente = true;
+        const btn = $('btnMicStudent');
+        btn.classList.add('recording');
+        btn.innerText = '🔴 In ascolto...';
+        aggiornaStato('Mic Studente');
+      } catch (e) { console.error(e); }
+    }
+
+    function fermaAscoltoStudente() {
+      inAscoltoStudente = false;
+      if (recStudente) { try { recStudente.stop(); } catch (e) {} }
+      const btn = $('btnMicStudent');
+      btn.classList.remove('recording');
+      btn.innerText = '🎙️ Parla';
+      aggiornaStato('Pronto');
+    }
+
+    async function traduciDaStudente(testo, langDa) {
+      if (!testo.trim()) return;
+      const trad = await chiamaGoogleTranslate(testo, langDa, 'it');
+      if (trad) {
+        $('testoStudente').value = `[${langDa.toUpperCase()}]: ${testo}\n[ITALIANO - TRADUZIONE PER DOCENTE]: ${trad}`;
+      }
+    }
+
+    /* =====================================================================
+       16. PROTEZIONE CHIUSURA DOCENTE E RISVEGLIO STUDENTE
+       ===================================================================== */
+    window.addEventListener('beforeunload', (e) => {
+      if (eStudente) return;
+      const haStudenti = connessioniStudenti.some(c => c.open);
+      const haTesto = $('testoITA') && $('testoITA').value.trim().length > 0;
+      if (haStudenti || haTesto || cronologiaLezione.length > 0) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible' || !eStudente || !ingressoStudenteConfermato) return;
+      attivaWakeLockStudente();
+      if (!peer || peer.destroyed) {
+        creaPeerStudente();
+      } else if (connStudente && connStudente.open) {
+        sincroRicevuta = false;
+        inviaRichiestaSincro();
+      } else {
+        apriConnessioneStudente();
+      }
+    });
+
+    /* =====================================================================
+       17. AVVIO
+       ===================================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      costruisciIcone();
+      aggiornaContatoreCronologia();
+      inizializzaGriglia();
+      inizializzaRete();
+    });

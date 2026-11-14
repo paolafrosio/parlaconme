@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="it">
+<head> 
+  <meta charset="UTF-8">
+  <!-- Zoom con due dita consentito (accessibilità) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Non invia l'indirizzo della pagina a Google: aiuta la voce a partire -->
+  <meta name="referrer" content="no-referrer">
+  <title>Parla con me - Traduttore Live CPIA</title>
+  <link rel="icon" type="image/png" href="logo_piccolo.png?v=5">
+
+  <!-- PeerJS e QR code nella cartella lib/ -->
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js" defer></script>
+<script src="lib/qrcode.min.js" defer></script>
+
+  <link rel="stylesheet" href="styleprova.css">
+</head>
+<body>
+
+  <header class="header">
+    <h1><img src="logo_piccolo.png?v=5" alt="" style="height: 38px; vertical-align: middle; margin-right: 6px;">Parla con me</h1>
+    <div class="top-controls">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="box-aula-zoom" style="background: rgba(255, 255, 255, 0.1); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--primary-cyan); white-space: nowrap;">
+          Aula: <span id="codiceAulaDocente" style="display:inline-block; min-width:6ch; text-align:left; font-size:18px; font-weight:800;">---</span>
+        </span>
+        <div id="studentCounterContainer" class="student-counter-badge">
+          👥 Studenti: <span id="studentCount">0</span>
+        </div>
+      </div>
+
+      <div id="badgeConnessione" class="status-badge status-connecting" role="status" aria-live="polite">🟡 Avvio...</div>
+
+      <button id="btnQR" class="btn-main" onclick="mostraQRCode()" data-tooltip="Genera QR Code">📱 Trasmetti</button>
+      <button id="btnLangConfig" class="btn-main" onclick="apriGestioneLingue()" data-tooltip="Gestisci lingue">⚙️ Lingue</button>
+      <button class="btn-tool" onclick="toggleDarkMode()" data-tooltip="Cambia tema" aria-label="Cambia tema chiaro/scuro">🌙</button>
+      <div class="zoom-bar">
+        <button class="btn-tool" onclick="cambiaZoom(-2)" aria-label="Riduci testo">A-</button>
+        <button class="btn-tool" onclick="resetZoom()" aria-label="Dimensione testo normale">A</button>
+        <button class="btn-tool" onclick="cambiaZoom(2)" aria-label="Ingrandisci testo">A+</button>
+      </div>
+      <button id="btnTopPDF" class="btn-main" onclick="stampaOEsportaPDF()">🖨️ PDF</button>
+      <button id="btnTopTXT" class="btn-main" onclick="scaricaLezione()">📥 TXT</button>
+      <span id="status" class="status" role="status">Pronto</span>
+    </div>
+  </header>
+
+  <!-- ==================== VISTA DOCENTE ==================== -->
+  <div id="docenteContainer">
+    <div id="studentPanel" class="student-panel">
+      <div class="student-header">
+        <label for="studentLangSelect">🗣️ <strong>Modalità Studente:</strong> Parla nella tua lingua ➔ Traduzione al docente</label>
+        <div style="display: flex; gap: 6px; flex-wrap: wrap; width: 100%; margin-top: 4px;">
+          <select id="studentLangSelect" class="student-select" style="flex-grow: 1;"></select>
+          <button id="btnMicStudent" class="btn-main" onclick="toggleMicrofonoStudente()">🎙️ Parla</button>
+          <button class="btn-tool" style="color: #f87171; font-size: 18px; font-weight: bold;" onclick="chiudiModalitaStudente()" aria-label="Chiudi modalità studente">✕</button>
+        </div>
+      </div>
+      <textarea id="testoStudente" aria-label="Trascrizione e traduzione dello studente" placeholder="Trascrizione e traduzione..." style="height: 60px;"></textarea>
+    </div>
+
+    <div class="source-box">
+      <div class="label-row">
+        <label for="testoITA"><img class="bandiera" src="bandiere/it.svg" alt="" width="20" height="15">Parla o Scrivi in Italiano (Docente):</label>
+        <div class="action-btns">
+          <button class="btn-main" onclick="apriModalitaStudente()">🔄 Studente ➔ Docente</button>
+          <button class="btn-main" onclick="cancellaTutto()">🗑️ Cancella</button>
+          <button class="btn-main" onclick="salvaInCronologia()">📌 Salva Frase</button>
+          <button class="btn-main" onclick="apriModalCronologia()">📜 Lista (<span id="countCronologia">0</span>)</button>
+
+          <button id="btnMic" class="btn-mic-container" onclick="toggleMicrofonoDocente()" aria-label="Attiva o ferma il microfono">
+            <div class="btn-mic-circle">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                <line x1="12" y1="19" x2="12" y2="22"></line>
+                <line x1="8" y1="22" x2="16" y2="22"></line>
+              </svg>
+            </div>
+            <span id="micText" class="btn-mic-label">Attiva Mic</span>
+          </button>
+        </div>
+      </div>
+      <textarea id="testoITA" placeholder="Scrivi o premi il pulsante per parlare..." oninput="registraModificaManuale()"></textarea>
+    </div>
+
+    <p class="avviso-privacy">ℹ️ Le frasi vengono tradotte e lette da servizi online (Google). Non dire né scrivere dati personali (nome completo, indirizzo, documenti).</p>
+
+    <div id="gridContainer" class="grid-container"></div>
+  </div>
+
+  <!-- ==================== VISTA STUDENTE ==================== -->
+  <div id="studentViewContainer" class="student-view-container">
+    <!-- Schermata pre-ingresso (diluisce le connessioni e imposta subito la lingua) -->
+    <div id="studentJoinGate" class="student-card-main" style="max-width: 480px; margin: 20px auto; justify-content: center; text-align: center; gap: 18px;">
+      <div style="font-size: 42px;">🌐</div>
+      <h2 style="margin: 0; color: var(--primary-cyan); font-size: 22px;">Benvenuto in Aula</h2>
+      <p style="margin: 0; color: var(--text-muted); font-size: 14px;">Scegli la tua lingua e premi il pulsante per collegarti.<br>Choose your language and tap Enter.</p>
+      <div class="student-lang-bar" style="margin-bottom: 0; text-align: left;">
+        <label for="gateLangSelect"><strong>Lingua / Language:</strong></label>
+        <select id="gateLangSelect" class="student-select" style="font-size: 16px; width: 100%; padding: 12px;"></select>
+      </div>
+      <button id="btnEntraAula" class="btn-main" style="width: 100%; padding: 14px; font-size: 18px; background: #06b6d4; color: #0f172a; font-weight: 800; border: none;" onclick="confermaIngressoStudente()">
+        ENTRA IN AULA ➔
+      </button>
+    </div>
+
+    <div id="mainStudentCard" class="student-card-main" style="display: none;">
+
+      <div class="student-lang-bar">
+        <label for="myLangSelect"><strong>🌐 Scegli la tua lingua / Choose language:</strong></label>
+        <select id="myLangSelect" class="student-select" style="font-size: 15px; width: 100%;" onchange="cambiaLinguaStudente()"></select>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 4px;">
+        <div style="font-weight: 700; font-size: 14px; color: var(--primary-cyan);"><img class="bandiera" src="bandiere/it.svg" alt="" width="20" height="15">Italiano (Docente):</div>
+        <div style="display: flex; gap: 8px;">
+          <button id="btnItaSlow" class="btn-svg-icon" data-icona="lento" data-label="Ascolta italiano lento" data-corta="Lento" onclick="toggleLetturaItalianoStudente(0.5, this)"></button>
+          <button id="btnItaNormal" class="btn-svg-icon" data-icona="audio" data-label="Ascolta italiano" data-corta="Ascolta" onclick="toggleLetturaItalianoStudente(0.9, this)"></button>
+        </div>
+      </div>
+      <div id="studentDisplayITA" class="student-display-text student-display-ita-box" lang="it" aria-live="polite" style="flex-grow: 0; min-height: 60px; max-height: 140px; margin-bottom: 14px;">In attesa dell'insegnante...</div>
+
+      <div style="font-weight: 700; font-size: 14px; margin-bottom: 6px; color: var(--primary-cyan);">🌐 Traduzione nella tua lingua / Translation:</div>
+      <div id="studentDisplayText" class="student-display-text" aria-live="polite">In attesa della traduzione...</div>
+
+      <div class="card-footer" style="justify-content: space-between; margin-top: 14px; gap: 6px;">
+        <div style="display: flex; gap: 12px; flex-wrap: nowrap;">
+          <button id="btnTransSlow" class="btn-svg-icon" data-icona="lento" data-label="Ascolta traduzione lenta" data-corta="Lento" onclick="toggleLetturaStudente(0.5, this)"></button>
+          <button id="btnTransNormal" class="btn-svg-icon" data-icona="audio" data-label="Ascolta traduzione" data-corta="Ascolta" onclick="toggleLetturaStudente(0.9, this)"></button>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-svg-icon" data-icona="scarica" data-label="Scarica PDF" data-corta="PDF" onclick="scaricaPDFSingoloDallaVistaStudente()"></button>
+          <button class="btn-svg-icon" data-icona="copia" data-label="Copia testo" data-corta="Copia" onclick="copiaTestoStudente()"></button>
+        </div>
+      </div>
+      <p class="avviso-privacy" style="margin: 12px 0 0 0;">ℹ️ Traduzione automatica: può contenere errori. Non scrivere dati personali. / Automatic translation: it may contain errors. Do not share personal data.</p>
+    </div>
+  </div>
+
+  <!-- ==================== FINESTRE ==================== -->
+  <div id="modalFocus" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span id="modalTitle" class="modal-title">Lingua</span>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-svg-icon" data-icona="lento" data-label="Ascolta lento" data-corta="Lento" onclick="leggiTestoFocus(0.5, this)"></button>
+          <button class="btn-svg-icon" data-icona="audio" data-label="Ascolta" data-corta="Ascolta" onclick="leggiTestoFocus(0.9, this)"></button>
+          <button class="btn-tool" onclick="chiudiFocus()" aria-label="Chiudi">✖️</button>
+        </div>
+      </div>
+      <div id="modalBody" class="modal-body">...</div>
+    </div>
+  </div>
+
+  <div id="modalLangConfig" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-title">⚙️ Lingue della Classe</span>
+        <button class="btn-main" onclick="chiudiGestioneLingue()">✖️ Salva</button>
+      </div>
+      <div id="langSelectorList" class="lang-grid-selector"></div>
+    </div>
+  </div>
+
+  <div id="modalQR" class="modal-overlay">
+    <div class="modal-card" style="align-items: center; text-align: center; max-width: 440px;">
+      <h2 style="margin-top:0; color: var(--primary-cyan); font-size: 22px;">📱 Connetti gli Studenti</h2>
+      <div class="qr-box-container"><div id="qrcode"></div></div>
+      <div style="background: rgba(14, 165, 233, 0.15); border: 1px solid var(--card-border); border-radius: 14px; padding: 12px; width: 100%; margin-top: 4px;">
+        <p style="margin: 0; font-size: 14px; color: var(--primary-cyan);"><strong>Da PC / Browser:</strong></p>
+        <p id="urlStudenteDisplay" style="margin: 2px 0; font-size: 13px; color: var(--text-muted); word-break: break-all;">studente.html</p>
+        <p style="margin: 8px 0 0 0; font-weight: 700; font-size: 16px; color: var(--text-muted);">PIN Stanza</p>
+        <p id="roomCodeDisplay" style="margin: 0; font-weight: 800; font-size: 64px; line-height: 1.1; letter-spacing: 8px; color: #f87171;">...</p>
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: center; margin-top: 14px; flex-wrap: wrap;">
+        <button class="btn-main" onclick="copiaLinkAula()">📋 Copia link aula</button>
+        <button class="btn-main" onclick="chiudiQRCode()">Chiudi</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalCronologia" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-title">📜 Frasi Salvate</span>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-main" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: rgba(248, 113, 113, 0.3);" onclick="svuotaInteraCronologia()">🗑️ Svuota Tutto</button>
+          <button class="btn-tool" onclick="chiudiModalCronologia()" aria-label="Chiudi">✖️</button>
+        </div>
+      </div>
+      <div id="listaCronologiaBody" class="modal-body" style="display: flex; flex-direction: column; gap: 10px; font-size: 15px;"></div>
+    </div>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script src="appprova.js" defer></script>
+</body>
+</html>
