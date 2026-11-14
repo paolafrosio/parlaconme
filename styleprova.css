@@ -1,0 +1,679 @@
+/* ==================== TEMI ==================== */
+    :root {
+      --bg-gradient: radial-gradient(circle at 15% 15%, #06b6d4 0%, transparent 35%),
+                     radial-gradient(circle at 85% 25%, #a855f7 0%, transparent 40%),
+                     radial-gradient(circle at 50% 85%, #2563eb 0%, transparent 45%),
+                     #070b14;
+      --card-bg: rgba(15, 23, 42, 0.65);
+      --card-border: rgba(56, 189, 248, 0.3);
+      --card-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+      --text-color: #f8fafc;
+      --text-muted: #cbd5e1;
+      --primary-cyan: #38bdf8;
+      --card-body-bg: rgba(10, 15, 29, 0.6);
+      --box-ita-bg: rgba(15, 23, 42, 0.7);
+    }
+    body.light-mode {
+      --bg-gradient: radial-gradient(circle at 15% 15%, #bae6fd 0%, transparent 40%),
+                     radial-gradient(circle at 85% 25%, #e9d5ff 0%, transparent 40%),
+                     radial-gradient(circle at 50% 85%, #93c5fd 0%, transparent 45%),
+                     #e2e8f0;
+      --card-bg: rgba(255, 255, 255, 0.75);
+      --card-border: rgba(2, 132, 199, 0.25);
+      --card-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+      --text-color: #0f172a;
+      --text-muted: #334155;
+      --primary-cyan: #0369a1;
+      --card-body-bg: rgba(248, 250, 252, 0.85);
+      --box-ita-bg: rgba(241, 245, 249, 0.9);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; overflow-x: hidden; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
+      background: var(--bg-gradient);
+      background-attachment: fixed;
+      margin: 0;
+      padding: 12px;
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* Bandiere */
+/* Bandiere (Versione corretta e uniforme) */
+    img.bandiera {
+      width: 1.35em;
+      height: 1em;
+      object-fit: cover;         /* Taglia leggermente i bordi in eccesso per riempire esattamente il rettangolo */
+      object-position: center;    /* Centra la bandiera all'interno del riquadro */
+      vertical-align: -0.12em;
+      margin-right: 0.3em;
+      border-radius: 2px;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.25);
+    }
+
+    button:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-visible {
+      outline: 2px solid var(--primary-cyan);
+      outline-offset: 2px;
+    }
+
+    /* ==================== SUGGERIMENTI E ETICHETTE (TOOLTIP) ==================== */
+    .btn-label { display: none; }
+    @media (hover: hover) {
+      [data-tooltip] { position: relative; }
+      
+      /* Etichette di default: SOPRA il pulsante, centrate
+         (usate dai pulsanti nel piede delle schede lingua, dove sopra c'è sempre il testo della scheda) */
+      [data-tooltip]:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        background: rgba(15, 23, 42, 0.95);
+        color: #38bdf8;
+        border: 1px solid var(--card-border);
+        padding: 5px 9px;
+        font-size: 11px;
+        font-weight: 600;
+        border-radius: 8px;
+        white-space: nowrap;
+        pointer-events: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        z-index: 1000;
+        backdrop-filter: blur(8px);
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      /* 1) Pulsanti in alto (Trasmetti, Lingue, Tema): etichetta SOTTO,
+            altrimenti uscirebbe dal bordo superiore dello schermo */
+      .header [data-tooltip]:hover::after {
+        bottom: auto;
+        top: 125%;
+      }
+
+      /* 2) Lente nelle schede lingua: etichetta SOTTO e allineata a destra,
+            così resta dentro la scheda e non viene ritagliata dalla griglia (overflow) */
+      .card-header [data-tooltip]:hover::after {
+        left: auto;
+        right: 0;
+        transform: none;
+        bottom: auto;
+        top: 110%;
+      }
+
+      /* 3) Vista studente, pulsanti in basso a sinistra: etichetta allineata a sinistra,
+            così le etichette lunghe non escono dallo schermo */
+      .student-card-main .card-footer > div:first-child [data-tooltip]:hover::after {
+        left: 0;
+        transform: none;
+      }
+
+      /* 4) Cestino nella lista delle frasi salvate: etichetta A SINISTRA del pulsante,
+            così non viene ritagliata in alto dal riquadro scorrevole */
+      .modal-body [data-tooltip]:hover::after {
+        bottom: auto;
+        left: auto;
+        top: 50%;
+        right: 115%;
+        transform: translateY(-50%);
+      }
+    }
+    @media (hover: none) {
+      .btn-svg-icon { flex-direction: column; gap: 2px; }
+      .btn-label {
+        display: block;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1.1;
+        color: var(--text-muted);
+      }
+    }
+
+    /* ==================== INTESTAZIONE ==================== */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 10px 18px;
+      border-radius: 20px;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--card-border);
+      /* L'intestazione sta sopra le altre sezioni: le etichette non vengono coperte */
+      position: relative;
+      z-index: 50;
+    }
+    h1 {
+      margin: 0;
+      color: var(--text-color);
+      font-size: 22px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .top-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    .student-counter-badge {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--primary-cyan);
+      background: rgba(14, 165, 233, 0.15);
+      border: 1px solid var(--card-border);
+      padding: 6px 14px;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      width: 140px;
+      justify-content: center;
+      backdrop-filter: blur(8px);
+    }
+
+    .status-badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 20px;
+      display: inline-block;
+      width: 190px;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-shrink: 0;
+    }
+    body.vista-studente .status-badge {
+      width: auto;
+      max-width: 100%;
+      white-space: normal;
+    }
+    .status-connected { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
+    .status-connecting { background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.3); }
+    .status-disconnected { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); }
+    body.light-mode .status-connected { color: #166534; }
+    body.light-mode .status-connecting { color: #854d0e; }
+    body.light-mode .status-disconnected { color: #991b1b; }
+
+    .zoom-bar {
+      display: flex;
+      align-items: center;
+      background: var(--card-body-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 2px 8px;
+      flex-shrink: 0;
+    }
+    .btn-tool {
+      background: none;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-color);
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+    .btn-tool:hover { background: rgba(255, 255, 255, 0.12); color: var(--primary-cyan); }
+
+    .status {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 6px 12px;
+      background: var(--card-body-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      text-align: center;
+      display: inline-block;
+      flex-shrink: 0;
+      width: 190px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ==================== AREA DOCENTE ==================== */
+    .source-box {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 18px;
+      border-radius: 24px;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 12px;
+      border: 1px solid var(--card-border);
+    }
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    label { font-weight: 700; color: var(--text-color); font-size: 16px; }
+    .action-btns { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+    .btn-main {
+      background: rgba(14, 165, 233, 0.15);
+      color: var(--primary-cyan);
+      border: 1px solid var(--card-border);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.25s ease;
+      white-space: nowrap;
+      backdrop-filter: blur(8px);
+    }
+    .btn-main:hover {
+      transform: translateY(-2px);
+      background: rgba(14, 165, 233, 0.3);
+      color: var(--text-color);
+      border-color: var(--primary-cyan);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+    }
+
+    .btn-mic-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      min-width: 80px;
+    }
+    .btn-mic-circle {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: #06b6d4;
+      border: 2px solid #38bdf8;
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s ease;
+    }
+
+/* Effetto passaggio mouse sul pulsante microfono */
+    .btn-mic-container:hover .btn-mic-circle {
+      transform: scale(1.1);                  /* Ingrandisce leggermente il cerchio */
+      background: #0891b2;                   /* Scurisce leggermente l'azzurro */
+      border-color: #7dd3fc;                 /* Illumina il bordo */
+      box-shadow: 0 0 30px rgba(6, 182, 212, 0.95); /* Aumenta il bagliore neon */
+    }
+
+    .btn-mic-container:hover .btn-mic-label {
+      color: var(--primary-cyan);             /* Cambia colore al testo sotto il mic */
+      transition: color 0.25s ease;
+    }
+
+    /* Effetto hover speciale quando sta già registrando (rosso) */
+    .btn-mic-container.recording:hover .btn-mic-circle {
+      background: #dc2626 !important;
+      border-color: #fca5a5 !important;
+      box-shadow: 0 0 32px rgba(239, 68, 68, 1) !important;
+    }
+    
+    .btn-mic-label { font-size: 12px; font-weight: 700; color: var(--text-color); margin-top: 4px; text-align: center; }
+    .btn-mic-container.recording .btn-mic-circle {
+      background: #ef4444 !important;
+      border-color: #f87171 !important;
+      box-shadow: 0 0 24px rgba(239, 68, 68, 0.8) !important;
+      animation: pulseNeon 1.5s infinite;
+    }
+    @keyframes pulseNeon {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+      70% { box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    textarea {
+      width: 100%;
+      height: 95px;
+      padding: 14px;
+      font-size: 16px;
+      font-family: inherit;
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      resize: vertical;
+      background: var(--card-body-bg);
+      color: var(--text-color);
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+    #testoITA {
+      font-size: 18px;
+    }
+    .avviso-privacy {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      margin: 0 0 12px 0;
+      padding: 0 8px;
+      line-height: 1.4;
+    }
+
+    .student-panel {
+      display: none;
+      background: rgba(14, 165, 233, 0.12);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 14px;
+      backdrop-filter: blur(12px);
+    }
+    .student-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px; }
+    .student-select {
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      border: 1px solid var(--card-border);
+      background: var(--card-body-bg);
+      color: var(--text-color);
+      max-width: 100%;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 14px;
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 14px 16px;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      min-height: 175px;
+      position: relative;
+    }
+    .card.speaking-card { border-color: #ef4444 !important; box-shadow: 0 0 25px rgba(239, 68, 68, 0.6) !important; }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 2;
+      overflow: visible;
+    }
+    .card-title { font-weight: 700; font-size: 16px; color: var(--primary-cyan); }
+    .card-body {
+      background-color: var(--card-body-bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 15px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+      flex-grow: 1;
+      overflow-y: auto;
+      color: var(--text-color);
+      position: relative;
+      z-index: 1;
+    }
+    .card-footer { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 10px; position: relative; z-index: 2; }
+    
+    /* ==================== PULSANTI ICONA CON BAGLIORE ==================== */
+    .btn-svg-icon {
+      background: transparent;
+      border: none;
+      padding: 4px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-cyan);
+      transition: transform 0.2s ease, color 0.2s ease, filter 0.2s ease;
+      position: relative;
+      z-index: 2;
+    }
+    .btn-svg-icon svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+    
+    .btn-svg-icon:hover {
+      color: #ffffff;
+      transform: scale(1.15);
+      filter: drop-shadow(0 0 5px var(--primary-cyan));
+    }
+    .btn-svg-icon.active-speaking { color: #ef4444 !important; animation: pulseNeon 1.5s infinite; }
+
+    /* ==================== VISTA STUDENTE ==================== */
+    .student-view-container {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      flex-grow: 1;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .student-card-main {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+    .student-card-main.speaking-card { border-color: #ef4444 !important; box-shadow: 0 0 25px rgba(239, 68, 68, 0.6) !important; }
+    .student-lang-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+      background: var(--card-body-bg);
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+    }
+    .student-display-text {
+      background: var(--card-body-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 18px;
+      line-height: 1.5;
+      flex-grow: 1;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text-color);
+    }
+    .student-display-ita-box { background: var(--box-ita-bg) !important; }
+
+    /* ==================== FINESTRE (MODAL) ==================== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(5, 9, 20, 0.75);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 14px;
+    }
+/* Rende tutte le modal-card più alte (85vh -> 92vh) */
+    .modal-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 22px;
+      width: 100%;
+      max-width: 800px;
+      max-height: 92vh; /* Aumentata l'altezza massima dal 85% al 92% della schermata */
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      border: 1px solid var(--card-border);
+    }
+
+    /* Regola specifica per rendere il box di ingrandimento (Focus) ancora più largo e alto */
+/* Dimensione bilanciata per la finestra di ingrandimento */
+    #modalFocus .modal-card {
+      max-width: 850px;  /* Larghezza ideale per la lettura */
+      height: 65vh;       /* Altezza ridotta al 65% dello schermo (anziché 90vh) */
+      max-height: 600px;  /* Limite massimo di altezza per schermi molto grandi */
+    }
+
+    /* Dimensione testo bilanciata */
+    #modalFocus .modal-body {
+      font-size: 26px;    /* Testo ben leggibile senza essere gigante */
+      line-height: 1.5;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 6px; }
+    .modal-title { font-size: 20px; font-weight: 700; color: var(--primary-cyan); }
+    .modal-body {
+      font-size: 22px;
+      line-height: 1.45;
+      background: var(--card-body-bg);
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid var(--card-border);
+      flex-grow: 1;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text-color);
+    }
+
+    #modalLangConfig .modal-card {
+      max-width: 900px;
+      width: 95%;
+    }
+    .lang-grid-selector {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+      max-height: 60vh;
+      overflow-y: auto;
+      padding: 16px;
+      background: var(--card-body-bg);
+      border-radius: 14px;
+      border: 1px solid var(--card-border);
+    }
+    .lang-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      transition: background 0.2s ease;
+    }
+    .lang-item:hover {
+      background: rgba(56, 189, 248, 0.15);
+    }
+.lang-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      min-width: 20px;   /* Forzatura larghezza minima */
+      min-height: 20px;  /* Forzatura altezza minima */
+      flex-shrink: 0;    /* Impedisce al testo lungo di schiacciare il quadratino */
+      cursor: pointer;
+    }
+    .lang-item img.bandiera {
+      width: 2em;
+      height: 1.4em;
+    }
+    .rtl { direction: rtl; text-align: right; }
+
+    .qr-box-container {
+      background: #ffffff !important;
+      padding: 20px !important;
+      border-radius: 20px !important;
+      display: inline-block !important;
+      margin: 12px auto !important;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.95);
+      color: #f8fafc;
+      border: 1px solid var(--card-border);
+      padding: 10px 18px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      max-width: 90vw;
+      text-align: center;
+      z-index: 2000;
+      display: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 6px; }
+      h1 { font-size: 18px; }
+      .header { flex-direction: column; align-items: flex-start; }
+      .top-controls { width: 100%; justify-content: flex-start; }
+      .student-select { width: 100%; }
+    }
+
+    /* ==================== BADGE AULA (ZOOM E NEON) ==================== */
+    .box-aula-zoom {
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      position: relative;
+      z-index: 10;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .box-aula-zoom:hover,
+    .box-aula-zoom:active {
+      transform: scale(1.6) translate(-15px, 15px);
+      position: relative;
+      z-index: 9999;
+      background: rgba(15, 23, 42, 0.95);
+      border-color: #38bdf8;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 18px rgba(56, 189, 248, 0.7);
+    }
+
+    .box-aula-zoom:hover #codiceAulaDocente,
+    .box-aula-zoom:active #codiceAulaDocente {
+      color: #facc15 !important;
+      font-size: 24px;
+    }
