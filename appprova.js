@@ -185,9 +185,7 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|
         statoConnessione('connecting', 'Preparazione...');
         // Pre-crea il Peer subito in background senza bussare ancora al docente (come Colpo d'occhio)
         creaPeerStudente();
-        if (urlParams.get('lang')) {
-          confermaIngressoStudente();
-        }
+       
       } else {
         avviaReteDocente();
       }
@@ -308,6 +306,9 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|
         if (peer !== questoPeer) return;
         statoConnessione('connecting', 'Pronto per entrare');
         apriConnessioneStudente();
+           if (new URLSearchParams(window.location.search).get('lang') && !ingressoStudenteConfermato) {
+  confermaIngressoStudente();
+}  
       });
 
       questoPeer.on('disconnected', () => {
@@ -322,60 +323,85 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|
           sessionStorage.setItem('parlaconme_device_id', 'studente-' + Math.floor(Math.random() * 10000000));
           creaPeerStudente();
 
-        } else if (err.type === 'peer-unavailable') {
-          statoConnessione('disconnected', 'Aula non trovata');
-          if (ingressoStudenteConfermato) {
-            setTimeout(apriConnessioneStudente, 2500);
-          }
-        } else {
-          statoConnessione('disconnected', 'Errore di rete');
-        }
+       } else if (err.type === 'peer-unavailable') {
+  statoConnessione('disconnected', 'Aula non trovata, riprovo...');
+  if (ingressoStudenteConfermato) ripianificaApertura();
+} else {
+  statoConnessione('disconnected', 'Errore: ' + err.type);
+  if (questoPeer.destroyed || questoPeer.disconnected) {
+    setTimeout(() => { if (peer === questoPeer) creaPeerStudente(); }, 3000);
+  }
+}
       });
     }
 
-    function apriConnessioneStudente() {
-      if (!peer || peer.destroyed) return;
-      if (connStudente) {
-        const vecchia = connStudente;
-        connStudente = null;
-        try { vecchia.close(); } catch (e) {}
-      }
+let timerApertura = null;
+let tentativiApertura = 0;
 
-      const conn = peer.connect(stanzaTarget, { reliable: true });
-      connStudente = conn;
-      connStudenteAperta = false;
-      sincroRicevuta = false;
+function apriConnessioneStudente() {
+  if (!peer || peer.destroyed) return;
+  clearTimeout(timerApertura);
+  if (connStudente) {
+    const vecchia = connStudente;
+    connStudente = null;
+    try { vecchia.close(); } catch (e) {}
+  }
 
-      conn.on('open', () => {
-        if (connStudente !== conn) return;
-        connStudenteAperta = true;
-        statoConnessione('connected', 'Connesso');
-        aggiornaStato('Connesso');
-        if (ingressoStudenteConfermato) inviaRichiestaSincro();
-      });
+  const conn = peer.connect(stanzaTarget, { reliable: true });
+  connStudente = conn;
+  connStudenteAperta = false;
+  sincroRicevuta = false;
 
-      conn.on('data', dati => {
-        sincroRicevuta = true;
-        applicaDatiRicevuti(dati);
-      });
+  // Se entro 10 secondi il canale non si apre, chiude e riprova
+  timerApertura = setTimeout(() => {
+    if (connStudente !== conn || conn.open) return;
+    tentativiApertura++;
+    statoConnessione('disconnected', 'Collegamento lento, riprovo (' + tentativiApertura + ')...');
+    try { conn.close(); } catch (e) {}
+    ripianificaApertura();
+  }, 10000);
 
-      conn.on('close', () => {
-        if (connStudente !== conn) return;
-        connStudenteAperta = false;
-        statoConnessione('disconnected', 'Riconnessione...');
-        setTimeout(() => {
-          if (peer && !peer.destroyed && (!connStudente || !connStudente.open)) {
-            apriConnessioneStudente();
-          }
-        }, 1500);
-      });
+  conn.on('open', () => {
+    if (connStudente !== conn) return;
+    clearTimeout(timerApertura);
+    tentativiApertura = 0;
+    connStudenteAperta = true;
+    statoConnessione('connected', 'Connesso');
+    aggiornaStato('Connesso');
+    if (ingressoStudenteConfermato) inviaRichiestaSincro();
+  });
 
-      conn.on('error', () => {
-        if (connStudente !== conn) return;
-        connStudenteAperta = false;
-        statoConnessione('disconnected', 'Riprovo...');
-      });
+  conn.on('data', dati => {
+    sincroRicevuta = true;
+    applicaDatiRicevuti(dati);
+  });
+
+  conn.on('close', () => {
+    if (connStudente !== conn) return;
+    clearTimeout(timerApertura);
+    connStudenteAperta = false;
+    statoConnessione('disconnected', 'Riconnessione...');
+    ripianificaApertura();
+  });
+
+  conn.on('error', err => {
+    if (connStudente !== conn) return;
+    clearTimeout(timerApertura);
+    connStudenteAperta = false;
+    statoConnessione('disconnected', 'Errore conn: ' + (err && err.type ? err.type : err));
+    ripianificaApertura();
+  });
+}
+
+function ripianificaApertura() {
+  // attesa crescente ma breve, con casualità per non far bussare tutti insieme
+  const attesa = Math.min(1000 * (tentativiApertura + 1), 5000) + Math.random() * 1500;
+  setTimeout(() => {
+    if (peer && !peer.destroyed && (!connStudente || !connStudente.open)) {
+      apriConnessioneStudente();
     }
+  }, attesa);
+}
 
     function inviaRichiestaSincro() {
       const conn = connStudente;
