@@ -305,7 +305,6 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|
       questoPeer.on('open', () => {
         if (peer !== questoPeer) return;
         statoConnessione('connecting', 'Pronto per entrare');
-        apriConnessioneStudente();
            if (new URLSearchParams(window.location.search).get('lang') && !ingressoStudenteConfermato) {
   confermaIngressoStudente();
 }  
@@ -355,7 +354,6 @@ function apriConnessioneStudente() {
   // Se entro 10 secondi il canale non si apre, chiude e riprova
   timerApertura = setTimeout(() => {
     if (connStudente !== conn || conn.open) return;
-    tentativiApertura++;
     statoConnessione('disconnected', 'Collegamento lento, riprovo (' + tentativiApertura + ')...');
     try { conn.close(); } catch (e) {}
     ripianificaApertura();
@@ -393,10 +391,13 @@ function apriConnessioneStudente() {
   });
 }
 
+let timerRipianifica = null;
 function ripianificaApertura() {
-  // attesa crescente ma breve, con casualità per non far bussare tutti insieme
-  const attesa = Math.min(1000 * (tentativiApertura + 1), 5000) + Math.random() * 1500;
-  setTimeout(() => {
+  if (timerRipianifica) return;
+  tentativiApertura++;
+  const attesa = Math.min(1000 * tentativiApertura, 5000) + Math.random() * 1500;
+  timerRipianifica = setTimeout(() => {
+    timerRipianifica = null;
     if (peer && !peer.destroyed && (!connStudente || !connStudente.open)) {
       apriConnessioneStudente();
     }
