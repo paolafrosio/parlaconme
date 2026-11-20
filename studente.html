@@ -180,8 +180,7 @@
       }
       salvaLinguaPreferita();
       const stanzaId = pin.startsWith('cpia-aula-') ? pin : 'cpia-aula-' + pin;
-      window.location.href = `indexprova.html?stanza=${encodeURIComponent(stanzaId)}&lang=${encodeURIComponent(lang)}`;
-    }
+window.location.href = `index.html?stanza=${encodeURIComponent(stanzaId)}&lang=${encodeURIComponent(lang)}`;    }
 
     function gestisciInvio(e) {
       if (e.key === 'Enter') connettiAllaStanza();
