@@ -1014,8 +1014,8 @@ function apriFocus(lang) {
 
       const urlPaginaCorrente = window.location.href.split('?')[0].split('#')[0];
       const baseCartella = urlPaginaCorrente.substring(0, urlPaginaCorrente.lastIndexOf('/') + 1);
-      $('urlStudenteDisplay').innerText = baseCartella + 'studenteprova.html';
-
+$('urlStudenteDisplay').innerText = urlPaginaCorrente;
+           
       new QRCode(container, {
         text: urlPaginaCorrente + '?stanza=' + pinDocente,
         width: 210,
