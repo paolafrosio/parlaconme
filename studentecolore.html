@@ -9,46 +9,138 @@
   <script defer src="https://cdn.jsdelivr.net/npm/@twemoji/api@15/dist/twemoji.min.js" crossorigin="anonymous"></script>
 
   <style>
-    :root {
-      --bg: #c81d25;
-      --card-bg: #d4ff00;
-      --card-border: #111111;
-      --primary: #c81d25;
-      --text: #111111;
-    }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; overflow-x: hidden; }
+
     body {
       font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      background: #d4ff00;
+      color: #111111;
       margin: 0;
-      padding: 16px;
+      padding: 14px;
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      box-sizing: border-box;
     }
-    img.emoji { height: 1.2em; width: 1.2em; margin: 0 .15em; vertical-align: -0.2em; display: inline-block; }
+
+    img.emoji {
+      height: 1.2em;
+      width: 1.2em;
+      margin: 0 .15em;
+      vertical-align: -0.2em;
+      display: inline-block;
+    }
+
+    /* ==================== CORNICE SMARTPHONE SU PC (> 520px) ==================== */
+    @media (min-width: 521px) {
+      body {
+        background: #c81d25; /* Sfondo rosso CPIAPERTE */
+        padding: 24px 16px;
+      }
+
+      .phone-shell {
+        width: 390px;
+        max-width: 390px;
+        height: 780px;
+        max-height: 92vh;
+        background: #d4ff00;
+        border: 14px solid #111111;
+        border-radius: 48px;
+        box-shadow: 0 24px 50px rgba(0, 0, 0, 0.55), 0 0 0 3px #333333;
+        padding: 38px 18px 20px 18px;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .phone-notch-bar {
+        display: block;
+        width: 145px;
+        height: 22px;
+        background: #111111;
+        border-bottom-left-radius: 15px;
+        border-bottom-right-radius: 15px;
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 20;
+      }
+      .phone-notch-bar::after {
+        content: "";
+        display: block;
+        width: 44px;
+        height: 5px;
+        background: #333333;
+        border-radius: 999px;
+        margin: 7px auto 0 auto;
+      }
+    }
+
+    /* ==================== SCHERMO INTERO SU CELLULARE (<= 520px) ==================== */
+    @media (max-width: 520px) {
+      body {
+        background: #d4ff00;
+        padding: 16px;
+      }
+      .phone-shell {
+        width: 100%;
+        max-width: 420px;
+        background: #d4ff00;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .phone-notch-bar {
+        display: none;
+      }
+    }
+
+    /* ==================== CONTENUTO INTERNO LOGIN ==================== */
     .login-card {
-      background: var(--card-bg);
-      border: 4px solid var(--card-border);
-      border-radius: 24px;
-      padding: 28px 20px;
+      background: #d4ff00;
+      padding: 10px 6px;
       width: 100%;
-      max-width: 400px;
       text-align: center;
-      box-shadow: 0 10px 0 rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow-y: auto;
     }
+
     h1 {
       margin: 0 0 8px 0;
       font-size: 26px;
       font-weight: 900;
-      color: var(--primary);
+      color: #c81d25;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    p { color: #111111; font-weight: 700; font-size: 14px; margin-bottom: 18px; }
+
+    p {
+      color: #111111;
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 1.4;
+      margin: 0 0 20px 0;
+    }
+
+    .field-box {
+      background: #ffffff;
+      border: 3px solid #111111;
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
     .field-label {
       display: block;
       text-align: left;
@@ -57,28 +149,40 @@
       color: #111111;
       margin-bottom: 6px;
     }
+
     input, select {
       width: 100%;
-      padding: 14px;
+      padding: 12px;
       font-size: 16px;
       font-weight: 800;
-      border: 3px solid #111111;
-      border-radius: 14px;
+      border: 2px solid #111111;
+      border-radius: 12px;
       background: #ffffff;
       color: #111111;
-      margin-bottom: 18px;
-      box-sizing: border-box;
       outline: none;
       font-family: inherit;
     }
-    input { font-size: 24px; text-align: center; letter-spacing: 3px; color: #c81d25; }
-    select { font-size: 15px; cursor: pointer; }
-    input:focus, select:focus, button:focus-visible {
-      box-shadow: 0 0 0 4px rgba(200, 29, 37, 0.35);
+
+    input {
+      font-size: 24px;
+      text-align: center;
+      letter-spacing: 3px;
+      color: #c81d25;
     }
+
+    select {
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    input:focus, select:focus, button:focus-visible {
+      outline: 3px solid #c81d25;
+      outline-offset: 2px;
+    }
+
     button {
       width: 100%;
-      padding: 14px;
+      padding: 15px;
       font-size: 17px;
       font-weight: 900;
       color: #d4ff00;
@@ -86,30 +190,44 @@
       border: 3px solid #111111;
       border-radius: 999px;
       cursor: pointer;
-      transition: transform 0.15s ease;
+      transition: transform 0.15s ease, background 0.15s ease;
       box-shadow: 0 4px 0 #111111;
       margin-top: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
-    button:hover { transform: translateY(-2px); background: #a6141b; }
+
+    button:hover {
+      transform: translateY(-2px);
+      background: #a6141b;
+    }
   </style>
 </head>
 <body>
 
-  <main class="login-card">
-    <h1>
-      <img src="logo_piccolo.png?v=5" alt="" style="height: 38px; vertical-align: middle; margin-right: 8px;">
-      ParlaConMe
-    </h1>
-    <p>Inserisci il PIN dell'aula e scegli la tua lingua:</p>
+  <div class="phone-shell">
+    <div class="phone-notch-bar" aria-hidden="true"></div>
 
-    <label class="field-label" for="pinInput">🔑 PIN Stanza LIM:</label>
-    <input type="text" id="pinInput" placeholder="Es. 123456" maxlength="25" autocomplete="off" inputmode="numeric" onkeypress="gestisciInvio(event)">
+    <main class="login-card">
+      <h1>
+        <img src="logo_piccolo.png?v=5" alt="" style="height: 36px; vertical-align: middle; margin-right: 8px;">
+        Parla con me
+      </h1>
+      <p>Inserisci il PIN dell'aula e scegli la tua lingua:<br><span style="font-size: 12px; opacity: 0.85;">Enter the classroom PIN and choose your language:</span></p>
 
-    <label class="field-label" for="langInput">🌐 La tua Lingua Madre:</label>
-    <select id="langInput" onchange="salvaLinguaPreferita()"></select>
+      <div class="field-box">
+        <label class="field-label" for="pinInput">🔑 PIN Stanza LIM:</label>
+        <input type="text" id="pinInput" placeholder="Es. 123456" maxlength="25" autocomplete="off" inputmode="numeric" onkeypress="gestisciInvio(event)">
+      </div>
 
-    <button onclick="connettiAllaStanza()">Entra in Aula ➔</button>
-  </main>
+      <div class="field-box">
+        <label class="field-label" for="langInput">🌐 La tua Lingua Madre:</label>
+        <select id="langInput" onchange="salvaLinguaPreferita()"></select>
+      </div>
+
+      <button onclick="connettiAllaStanza()">Entra in Aula ➔</button>
+    </main>
+  </div>
 
   <script>
     const ELENCO_LINGUE = [
