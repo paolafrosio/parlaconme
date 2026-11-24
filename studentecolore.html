@@ -1,4 +1,14 @@
-<style>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ParlaConMe - Accesso Aula CPIA</title>
+  <link rel="icon" type="image/png" href="logo_piccolo.png?v=5">
+
+  <script defer src="https://cdn.jsdelivr.net/npm/@twemoji/api@15/dist/twemoji.min.js" crossorigin="anonymous"></script>
+
+  <style>
     :root {
       --bg: #c81d25;
       --card-bg: #d4ff00;
@@ -82,3 +92,95 @@
     }
     button:hover { transform: translateY(-2px); background: #a6141b; }
   </style>
+</head>
+<body>
+
+  <main class="login-card">
+    <h1>
+      <img src="logo_piccolo.png?v=5" alt="" style="height: 38px; vertical-align: middle; margin-right: 8px;">
+      ParlaConMe
+    </h1>
+    <p>Inserisci il PIN dell'aula e scegli la tua lingua:</p>
+
+    <label class="field-label" for="pinInput">🔑 PIN Stanza LIM:</label>
+    <input type="text" id="pinInput" placeholder="Es. 123456" maxlength="25" autocomplete="off" inputmode="numeric" onkeypress="gestisciInvio(event)">
+
+    <label class="field-label" for="langInput">🌐 La tua Lingua Madre:</label>
+    <select id="langInput" onchange="salvaLinguaPreferita()"></select>
+
+    <button onclick="connettiAllaStanza()">Entra in Aula ➔</button>
+  </main>
+
+  <script>
+    const ELENCO_LINGUE = [
+      { code: 'sq', name: 'Albanese' },
+      { code: 'ar', name: 'Arabo' },
+      { code: 'bn', name: 'Bengalese' },
+      { code: 'zh-CN', name: 'Cinese' },
+      { code: 'fa', name: 'Farsi' },
+      { code: 'fr', name: 'Francese' },
+      { code: 'hi', name: 'Hindi' },
+      { code: 'en', name: 'Inglese' },
+      { code: 'ne', name: 'Nepalese' },
+      { code: 'ps', name: 'Pashto' },
+      { code: 'pt', name: 'Portoghese' },
+      { code: 'ro', name: 'Rumeno' },
+      { code: 'ru', name: 'Russo' },
+      { code: 'es', name: 'Spagnolo' },
+      { code: 'tl', name: 'Tagalog' },
+      { code: 'de', name: 'Tedesco' },
+      { code: 'ti', name: 'Tigrino' },
+      { code: 'uk', name: 'Ucraino' },
+      { code: 'ur', name: 'Urdu' }
+    ];
+
+    function inizializzaIstantanea() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const stanzaDaUrl = urlParams.get('stanza') || urlParams.get('pin');
+      if (stanzaDaUrl) {
+        document.getElementById('pinInput').value = stanzaDaUrl.replace('cpia-aula-', '').trim();
+      }
+
+      const select = document.getElementById('langInput');
+      select.innerHTML = '';
+      let ultimaLingua = 'en';
+      try { ultimaLingua = localStorage.getItem('parlaconme_lang') || 'en'; } catch (e) {}
+
+      ELENCO_LINGUE.forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l.code;
+        opt.innerText = l.name;
+        if (l.code === ultimaLingua) opt.selected = true;
+        select.appendChild(opt);
+      });
+
+      setTimeout(() => {
+        if (window.twemoji) twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+      }, 50);
+    }
+
+    function salvaLinguaPreferita() {
+      try { localStorage.setItem('parlaconme_lang', document.getElementById('langInput').value); } catch (e) {}
+    }
+
+    function connettiAllaStanza() {
+      const pin = document.getElementById('pinInput').value.trim();
+      const lang = document.getElementById('langInput').value;
+
+      if (!pin) {
+        alert("Per favore, inserisci il PIN della stanza.");
+        return;
+      }
+      salvaLinguaPreferita();
+      const stanzaId = pin.startsWith('cpia-aula-') ? pin : 'cpia-aula-' + pin;
+      window.location.href = `indexcolore.html?stanza=${encodeURIComponent(stanzaId)}&lang=${encodeURIComponent(lang)}`;
+    }
+
+    function gestisciInvio(e) {
+      if (e.key === 'Enter') connettiAllaStanza();
+    }
+
+    inizializzaIstantanea();
+  </script>
+</body>
+</html>
