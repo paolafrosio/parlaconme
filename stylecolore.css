@@ -6,7 +6,7 @@
   --box-white: #ffffff;          /* Riquadri testo bianchi */
   --ink-dark: #111111;           /* Testo e bordi scuri ad alto contrasto */
   --ink-red: #c81d25;
-  --card-bg: #c81d25;
+  --card-bg: #ffffff;
   --card-border: #d4ff00;
   --card-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
   --text-color: #ffffff;
@@ -338,7 +338,7 @@ textarea::placeholder { color: #64748b; font-weight: 500; }
 .student-panel {
   display: none;
   background: var(--card-bg);
-  border: 3px solid var(--accent-lime);
+  border: 3px solid #ffffff;   /* <--- Era var(--accent-lime) */
   border-radius: 18px;
   padding: 14px;
   margin-bottom: 14px;
@@ -633,7 +633,7 @@ body.vista-studente .header > .top-controls > .btn-tool {
   max-height: 92vh;
   display: flex;
   flex-direction: column;
-  border: 4px solid #d4ff00;
+  border: 4px solid #ffffff;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
 }
 #modalFocus .modal-card {
