@@ -70,22 +70,55 @@
       }
     }
 
-    /* ==================== SCHERMO INTERO SU CELLULARE (<= 520px) ==================== */
+   /* ==================== SCHERMO INTERO SU CELLULARE (<= 520px) ==================== */
     @media (max-width: 520px) {
       body {
         background: #d4ff00;
-        padding: 12px;
+        padding: 10px 14px;
+        justify-content: flex-start;
       }
       .phone-shell {
         width: 100%;
         max-width: 420px;
-        height: calc(100dvh - 24px);
+        height: calc(100svh - 20px);
+        max-height: 620px;
         background: #d4ff00;
         display: flex;
         flex-direction: column;
       }
       .phone-notch-bar {
         display: none;
+      }
+      .top-brand {
+        margin-bottom: 2px;
+      }
+      .top-brand img {
+        height: 24px;
+      }
+      h1 {
+        font-size: 20px;
+        margin-bottom: 6px;
+      }
+      .lang-list-box {
+        min-height: 120px;
+        padding: 6px;
+        gap: 4px;
+        margin-bottom: 8px;
+      }
+      .lang-row {
+        padding: 6px 10px;
+      }
+      .lang-flag {
+        width: 38px;
+        height: 26px;
+      }
+      .pin-box {
+        padding: 6px 12px;
+        margin-bottom: 8px;
+      }
+      .btn-enter {
+        padding: 11px;
+        font-size: 15px;
       }
     }
 
