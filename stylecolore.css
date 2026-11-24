@@ -392,7 +392,7 @@ textarea::placeholder { color: #64748b; font-weight: 500; }
 .card-title {
   font-weight: 800;
   font-size: 16px;
-  color: var(--accent-lime);
+  color: #ffffff;
   display: flex;
   align-items: center;
 }
@@ -425,7 +425,7 @@ textarea::placeholder { color: #64748b; font-weight: 500; }
 
 /* ==================== PULSANTI ICONA ==================== */
 .btn-svg-icon {
-  background: var(--accent-lime);
+  background: #ffffff;
   border: 2px solid #111111;
   border-radius: 10px;
   padding: 5px 8px;
@@ -440,7 +440,7 @@ textarea::placeholder { color: #64748b; font-weight: 500; }
 }
 .btn-svg-icon svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.2; }
 .btn-svg-icon:hover {
-  background: #ffffff;
+  background: var(--accent-lime);
   color: #111111;
   transform: scale(1.08);
 }
