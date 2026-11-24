@@ -1,84 +1,671 @@
-<style>
-    :root {
-      --bg: #c81d25;
-      --card-bg: #d4ff00;
-      --card-border: #111111;
-      --primary: #c81d25;
-      --text: #111111;
-    }
-    body {
-      font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 16px;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-    img.emoji { height: 1.2em; width: 1.2em; margin: 0 .15em; vertical-align: -0.2em; display: inline-block; }
-    .login-card {
-      background: var(--card-bg);
-      border: 4px solid var(--card-border);
-      border-radius: 24px;
-      padding: 28px 20px;
-      width: 100%;
-      max-width: 400px;
-      text-align: center;
-      box-shadow: 0 10px 0 rgba(0, 0, 0, 0.3);
-    }
-    h1 {
-      margin: 0 0 8px 0;
-      font-size: 26px;
-      font-weight: 900;
-      color: var(--primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    p { color: #111111; font-weight: 700; font-size: 14px; margin-bottom: 18px; }
-    .field-label {
-      display: block;
-      text-align: left;
-      font-size: 13px;
-      font-weight: 800;
-      color: #111111;
-      margin-bottom: 6px;
-    }
-    input, select {
-      width: 100%;
-      padding: 14px;
-      font-size: 16px;
-      font-weight: 800;
-      border: 3px solid #111111;
-      border-radius: 14px;
-      background: #ffffff;
-      color: #111111;
-      margin-bottom: 18px;
-      box-sizing: border-box;
-      outline: none;
-      font-family: inherit;
-    }
-    input { font-size: 24px; text-align: center; letter-spacing: 3px; color: #c81d25; }
-    select { font-size: 15px; cursor: pointer; }
-    input:focus, select:focus, button:focus-visible {
-      box-shadow: 0 0 0 4px rgba(200, 29, 37, 0.35);
-    }
-    button {
-      width: 100%;
-      padding: 14px;
-      font-size: 17px;
-      font-weight: 900;
-      color: #d4ff00;
-      background: #c81d25;
-      border: 3px solid #111111;
-      border-radius: 999px;
-      cursor: pointer;
-      transition: transform 0.15s ease;
-      box-shadow: 0 4px 0 #111111;
-      margin-top: 6px;
-    }
-    button:hover { transform: translateY(-2px); background: #a6141b; }
-  </style>
+/* ==================== TEMI (STILE CPIAPERTE) ==================== */
+:root {
+  --bg-main: #c81d25;            /* Rosso CPIAPERTE */
+  --accent-lime: #d4ff00;        /* Giallo lime fluo */
+  --accent-lime-hover: #e5ff4d;
+  --box-white: #ffffff;          /* Riquadri testo bianchi */
+  --ink-dark: #111111;           /* Testo e bordi scuri ad alto contrasto */
+  --ink-red: #c81d25;
+  --card-bg: #c81d25;
+  --card-border: #d4ff00;
+  --card-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+  --text-color: #ffffff;
+  --text-muted: #fef08a;
+  --primary-cyan: #d4ff00;
+  --card-body-bg: #ffffff;
+  --box-ita-bg: #ffffff;
+}
+
+/* Modalità alternativa (pulsante tema) */
+body.light-mode {
+  --bg-main: #d4ff00;
+  --accent-lime: #c81d25;
+  --accent-lime-hover: #a6141b;
+  --box-white: #ffffff;
+  --ink-dark: #111111;
+  --card-bg: #d4ff00;
+  --card-border: #111111;
+  --card-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+  --text-color: #111111;
+  --text-muted: #333333;
+  --primary-cyan: #c81d25;
+  --card-body-bg: #ffffff;
+  --box-ita-bg: #ffffff;
+}
+
+* { box-sizing: border-box; }
+html, body { width: 100%; overflow-x: hidden; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
+  background: var(--bg-main);
+  margin: 0;
+  padding: 14px;
+  color: var(--text-color);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: background 0.25s, color 0.25s;
+}
+
+/* Bandiere */
+img.bandiera {
+  width: 1.45em;
+  height: 1.05em;
+  object-fit: cover;
+  object-position: center;
+  vertical-align: -0.15em;
+  margin-right: 0.4em;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+}
+
+button:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-visible {
+  outline: 3px solid var(--accent-lime);
+  outline-offset: 2px;
+}
+
+/* ==================== SUGGERIMENTI E ETICHETTE (TOOLTIP) ==================== */
+.btn-label { display: none; }
+@media (hover: hover) {
+  [data-tooltip] { position: relative; }
+  [data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    background: #111111;
+    color: #d4ff00;
+    border: 2px solid #d4ff00;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 8px;
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    z-index: 1000;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .header [data-tooltip]:hover::after { bottom: auto; top: 125%; }
+  .card-header [data-tooltip]:hover::after { left: auto; right: 0; transform: none; bottom: auto; top: 110%; }
+  .student-card-main .card-footer > div:first-child [data-tooltip]:hover::after { left: 0; transform: none; }
+  .modal-body [data-tooltip]:hover::after { bottom: auto; left: auto; top: 50%; right: 115%; transform: translateY(-50%); }
+}
+@media (hover: none) {
+  .btn-svg-icon { flex-direction: column; gap: 2px; }
+  .btn-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--text-color);
+  }
+}
+
+/* ==================== INTESTAZIONE ==================== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: var(--card-bg);
+  padding: 12px 18px;
+  border-radius: 18px;
+  border: 3px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+  position: relative;
+  z-index: 50;
+}
+h1 {
+  margin: 0;
+  color: var(--accent-lime);
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.top-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.student-counter-badge {
+  font-size: 13px;
+  font-weight: 800;
+  color: #111111;
+  background: var(--accent-lime);
+  border: 2px solid #111111;
+  padding: 6px 14px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  width: 140px;
+  justify-content: center;
+}
+
+.status-badge {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 6px 12px;
+  border-radius: 999px;
+  display: inline-block;
+  width: 190px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+  background: #ffffff;
+  color: #111111;
+  border: 2px solid #111111;
+}
+body.vista-studente .status-badge {
+  width: auto;
+  max-width: 100%;
+  white-space: normal;
+}
+.status-connected { background: #d4ff00; color: #111111; border-color: #111111; }
+.status-connecting { background: #fef08a; color: #111111; border-color: #111111; }
+.status-disconnected { background: #111111; color: #ffffff; border-color: #ffffff; }
+
+.zoom-bar {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 2px solid #111111;
+  border-radius: 999px;
+  padding: 2px 6px;
+  flex-shrink: 0;
+}
+.btn-tool {
+  background: #ffffff;
+  border: 2px solid #111111;
+  font-size: 13px;
+  font-weight: 800;
+  color: #111111;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 999px;
+  transition: all 0.15s;
+}
+.zoom-bar .btn-tool { border: none; background: transparent; }
+.btn-tool:hover { background: var(--accent-lime); color: #111111; }
+
+.status {
+  font-size: 12px;
+  color: #111111;
+  font-weight: 700;
+  padding: 6px 12px;
+  background: #ffffff;
+  border: 2px solid #111111;
+  border-radius: 999px;
+  text-align: center;
+  display: inline-block;
+  flex-shrink: 0;
+  width: 190px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==================== AREA DOCENTE ==================== */
+.source-box {
+  background: var(--card-bg);
+  padding: 18px;
+  border-radius: 20px;
+  border: 3px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+  margin-bottom: 12px;
+}
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+label { font-weight: 800; color: var(--text-color); font-size: 16px; }
+.action-btns { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* Pulsanti pillola giallo lime con testo nero (stile CPIAPERTE) */
+.btn-main {
+  background: var(--accent-lime);
+  color: #111111;
+  border: 2px solid #111111;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: transform 0.15s ease, background 0.15s ease;
+  white-space: nowrap;
+}
+body.light-mode .btn-main { color: #ffffff; }
+.btn-main:hover {
+  transform: translateY(-2px);
+  background: var(--accent-lime-hover);
+  box-shadow: 0 4px 0 #111111;
+}
+
+/* Microfono stile REC / Giallo Lime */
+.btn-mic-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  min-width: 80px;
+}
+.btn-mic-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--accent-lime);
+  border: 3px solid #111111;
+  box-shadow: 0 4px 0 #111111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.btn-mic-container:hover .btn-mic-circle {
+  transform: scale(1.08);
+  background: var(--accent-lime-hover);
+}
+.btn-mic-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-color);
+  margin-top: 5px;
+  text-align: center;
+  text-transform: uppercase;
+}
+.btn-mic-container.recording .btn-mic-circle {
+  background: #ffffff !important;
+  border-color: #111111 !important;
+  animation: pulseRec 1.2s infinite;
+}
+.btn-mic-container.recording .btn-mic-circle svg {
+  stroke: #c81d25 !important;
+}
+@keyframes pulseRec {
+  0% { box-shadow: 0 0 0 0 rgba(212, 255, 0, 0.85); }
+  70% { box-shadow: 0 0 0 14px rgba(212, 255, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(212, 255, 0, 0); }
+}
+
+/* Riquadro testo italiano bianco ad alto contrasto */
+textarea {
+  width: 100%;
+  height: 95px;
+  padding: 14px 16px;
+  font-size: 18px;
+  font-weight: 600;
+  font-family: inherit;
+  border: 3px solid #111111;
+  border-radius: 14px;
+  resize: vertical;
+  background: #ffffff;
+  color: #111111;
+}
+textarea::placeholder { color: #64748b; font-weight: 500; }
+
+.avviso-privacy {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-color);
+  text-align: center;
+  margin: 0 0 12px 0;
+  padding: 0 8px;
+  line-height: 1.4;
+}
+
+.student-panel {
+  display: none;
+  background: var(--card-bg);
+  border: 3px solid var(--accent-lime);
+  border-radius: 18px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.student-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px; }
+.student-select {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-family: inherit;
+  border: 3px solid #111111;
+  background: #ffffff;
+  color: #111111;
+  max-width: 100%;
+}
+
+/* ==================== GRIGLIA E SCHEDE LINGUA ==================== */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 14px;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+.card {
+  background: var(--card-bg);
+  border-radius: 18px;
+  padding: 12px 14px;
+  border: 3px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  min-height: 185px;
+  position: relative;
+}
+.card.speaking-card {
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 4px #111111, 0 0 20px #d4ff00 !important;
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 2;
+  overflow: visible;
+}
+.card-title {
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--accent-lime);
+  display: flex;
+  align-items: center;
+}
+/* Riquadro interno bianco */
+.card-body {
+  background-color: #ffffff;
+  border: 2px solid #111111;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+  flex-grow: 1;
+  overflow-y: auto;
+  color: #111111;
+  position: relative;
+  z-index: 1;
+}
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  position: relative;
+  z-index: 2;
+}
+
+/* ==================== PULSANTI ICONA ==================== */
+.btn-svg-icon {
+  background: var(--accent-lime);
+  border: 2px solid #111111;
+  border-radius: 10px;
+  padding: 5px 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #111111;
+  transition: transform 0.15s ease, background 0.15s ease;
+  position: relative;
+  z-index: 2;
+}
+.btn-svg-icon svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.2; }
+.btn-svg-icon:hover {
+  background: #ffffff;
+  color: #111111;
+  transform: scale(1.08);
+}
+.btn-svg-icon.active-speaking {
+  background: #ffffff !important;
+  color: #c81d25 !important;
+  border-color: #111111 !important;
+  animation: pulseRec 1.2s infinite;
+}
+
+/* ==================== VISTA STUDENTE (TELEFONO LIME) ==================== */
+.student-view-container {
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+  flex-grow: 1;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.student-card-main {
+  background: #d4ff00;
+  color: #111111;
+  border-radius: 26px;
+  padding: 20px;
+  border: 4px solid #111111;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+.student-card-main label,
+.student-card-main .avviso-privacy,
+.student-card-main > div {
+  color: #111111 !important;
+}
+.student-card-main .btn-svg-icon {
+  background: #ffffff;
+  color: #111111;
+  border: 2px solid #111111;
+}
+.student-card-main .btn-svg-icon:hover {
+  background: #c81d25;
+  color: #ffffff;
+}
+.student-card-main.speaking-card {
+  border-color: #c81d25 !important;
+}
+.student-lang-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+  background: #ffffff;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 3px solid #111111;
+}
+.student-display-text {
+  background: #ffffff;
+  border: 3px solid #111111;
+  border-radius: 14px;
+  padding: 16px;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.5;
+  flex-grow: 1;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #111111;
+}
+.student-display-ita-box { background: #ffffff !important; }
+
+/* ==================== FINESTRE (MODAL) ==================== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  padding: 14px;
+}
+.modal-card {
+  background: #c81d25;
+  border-radius: 22px;
+  padding: 22px;
+  width: 100%;
+  max-width: 800px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  border: 4px solid #d4ff00;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+}
+#modalFocus .modal-card {
+  max-width: 850px;
+  height: 65vh;
+  max-height: 600px;
+}
+#modalFocus .modal-body {
+  font-size: 28px;
+  line-height: 1.5;
+}
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 6px; }
+.modal-title { font-size: 22px; font-weight: 900; color: #d4ff00; }
+.modal-body {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.45;
+  background: #ffffff;
+  padding: 18px;
+  border-radius: 14px;
+  border: 3px solid #111111;
+  flex-grow: 1;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #111111;
+}
+
+#modalLangConfig .modal-card { max-width: 900px; width: 95%; }
+.lang-grid-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 16px;
+  background: #ffffff;
+  border-radius: 14px;
+  border: 3px solid #111111;
+  color: #111111;
+}
+.lang-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 800;
+  color: #111111;
+  cursor: pointer;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background: #f8fafc;
+  transition: all 0.15s ease;
+}
+.lang-item:hover {
+  background: #d4ff00;
+  border-color: #111111;
+}
+.lang-item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  flex-shrink: 0;
+  accent-color: #c81d25;
+  cursor: pointer;
+}
+.lang-item img.bandiera { width: 2em; height: 1.4em; }
+.rtl { direction: rtl; text-align: right; }
+
+.qr-box-container {
+  background: #ffffff !important;
+  border: 4px solid #111111 !important;
+  padding: 18px !important;
+  border-radius: 20px !important;
+  display: inline-block !important;
+  margin: 12px auto !important;
+}
+
+#toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111111;
+  color: #d4ff00;
+  border: 2px solid #d4ff00;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 800;
+  max-width: 90vw;
+  text-align: center;
+  z-index: 2000;
+  display: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+@media (max-width: 600px) {
+  body { padding: 8px; }
+  h1 { font-size: 20px; }
+  .header { flex-direction: column; align-items: flex-start; }
+  .top-controls { width: 100%; justify-content: flex-start; }
+  .student-select { width: 100%; }
+}
+
+/* ==================== BADGE AULA (ZOOM) ==================== */
+.box-aula-zoom {
+  background: #ffffff !important;
+  color: #111111 !important;
+  border: 2px solid #111111 !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  z-index: 10;
+  -webkit-tap-highlight-color: transparent;
+}
+.box-aula-zoom #codiceAulaDocente { color: #c81d25 !important; }
+.box-aula-zoom:hover,
+.box-aula-zoom:active {
+  transform: scale(1.6) translate(-15px, 15px);
+  position: relative;
+  z-index: 9999;
+  background: #d4ff00 !important;
+  border-color: #111111 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+.box-aula-zoom:hover #codiceAulaDocente,
+.box-aula-zoom:active #codiceAulaDocente {
+  color: #111111 !important;
+  font-size: 24px;
+}
