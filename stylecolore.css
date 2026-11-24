@@ -6,8 +6,8 @@
   --box-white: #ffffff;          /* Riquadri testo bianchi */
   --ink-dark: #111111;           /* Testo e bordi scuri ad alto contrasto */
   --ink-red: #c81d25;
-  --card-bg: #ffffff;
-  --card-border: #d4ff00;
+  --card-bg: #c81d25;        /* Sfondo rosso CPIAPERTE */
+  --card-border: #ffffff;    /* Bordi bianchi */
   --card-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
   --text-color: #ffffff;
   --text-muted: #fef08a;
@@ -15,6 +15,8 @@
   --card-body-bg: #ffffff;
   --box-ita-bg: #ffffff;
 }
+
+
 
 /* Modalità alternativa (pulsante tema) */
 body.light-mode {
