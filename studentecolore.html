@@ -27,19 +27,19 @@
     @media (min-width: 521px) {
       body {
         background: #c81d25; /* Sfondo rosso CPIAPERTE */
-        padding: 20px 16px;
+        padding: 16px;
       }
 
       .phone-shell {
         width: 390px;
         max-width: 390px;
-        height: 780px;
-        max-height: 92vh;
+        height: 760px;
+        max-height: 94vh;
         background: #d4ff00;
         border: 14px solid #111111;
         border-radius: 48px;
         box-shadow: 0 24px 50px rgba(0, 0, 0, 0.55), 0 0 0 3px #333333;
-        padding: 36px 18px 18px 18px;
+        padding: 32px 18px 22px 18px;
         position: relative;
         overflow: hidden;
         display: flex;
@@ -74,12 +74,12 @@
     @media (max-width: 520px) {
       body {
         background: #d4ff00;
-        padding: 14px;
+        padding: 12px;
       }
       .phone-shell {
         width: 100%;
         max-width: 420px;
-        min-height: calc(100vh - 28px);
+        height: calc(100dvh - 24px);
         background: #d4ff00;
         display: flex;
         flex-direction: column;
@@ -95,6 +95,7 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      padding-bottom: 4px;
     }
 
     .top-brand {
@@ -102,14 +103,14 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       flex-shrink: 0;
     }
     .top-brand img {
-      height: 30px;
+      height: 28px;
     }
     .top-brand span {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 900;
       color: #c81d25;
       text-transform: uppercase;
@@ -117,12 +118,13 @@
     }
 
     h1 {
-      margin: 0 0 10px 0;
-      font-size: 27px;
+      margin: 0 0 8px 0;
+      font-size: 22px;
       font-weight: 900;
       color: #c81d25;
-      line-height: 1.08;
-      text-align: left;
+      line-height: 1.15;
+      text-align: center;
+      white-space: nowrap;
       flex-shrink: 0;
     }
 
@@ -133,12 +135,12 @@
       border-radius: 22px;
       padding: 8px;
       flex-grow: 1;
-      min-height: 220px;
+      min-height: 180px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 6px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
     }
 
@@ -160,7 +162,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 9px 12px;
+      padding: 8px 12px;
       border-radius: 14px;
       border: 2px solid transparent;
       background: #ffffff;
@@ -280,7 +282,7 @@
     /* ==================== PULSANTE ENTRA ==================== */
     .btn-enter {
       width: 100%;
-      padding: 14px;
+      padding: 13px;
       font-size: 16px;
       font-weight: 900;
       color: #d4ff00;
@@ -318,7 +320,7 @@
         <span>Parla con me</span>
       </div>
 
-      <h1>Cerca la<br>tua lingua</h1>
+      <h1>Cerca la tua lingua</h1>
 
       <!-- ELENCO SCORREVOLE CON BANDIERA E NOME LINGUA -->
       <div class="lang-list-box" id="langListBox" role="listbox" aria-label="Scegli la tua lingua"></div>
@@ -402,7 +404,6 @@
         container.appendChild(btn);
       });
 
-      // Scorre automaticamente alla lingua già salvata se presente
       setTimeout(() => {
         const activeEl = container.querySelector('.lang-row.selected');
         if (activeEl) {
