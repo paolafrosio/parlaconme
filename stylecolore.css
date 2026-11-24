@@ -89,7 +89,7 @@ button:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-
   }
   .header [data-tooltip]:hover::after { bottom: auto; top: 125%; }
   .card-header [data-tooltip]:hover::after { left: auto; right: 0; transform: none; bottom: auto; top: 110%; }
-  .student-card-main .card-footer > div:first-child [data-tooltip]:hover::after { left: 0; transform: none; }
+  .student-card-main .student-box-actions [data-tooltip]:hover::after { left: 0; transform: none; }
   .modal-body [data-tooltip]:hover::after { bottom: auto; left: auto; top: 50%; right: 115%; transform: translateY(-50%); }
 }
 @media (hover: none) {
@@ -235,7 +235,7 @@ body.vista-studente .status-badge {
 label { font-weight: 800; color: var(--text-color); font-size: 16px; }
 .action-btns { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
-/* Pulsanti pillola giallo lime con testo nero (stile CPIAPERTE) */
+/* Pulsanti pillola giallo lime con testo nero */
 .btn-main {
   background: var(--accent-lime);
   color: #111111;
@@ -449,44 +449,159 @@ textarea::placeholder { color: #64748b; font-weight: 500; }
   animation: pulseRec 1.2s infinite;
 }
 
-/* ==================== VISTA STUDENTE (TELEFONO LIME) ==================== */
+/* ==================== VISTA STUDENTE (LAYOUT MOCKUP) ==================== */
+body.vista-studente {
+  background: #d4ff00 !important;
+  padding: 10px;
+}
+body.vista-studente .header {
+  background: #d4ff00;
+  border: 2px solid #111111;
+  box-shadow: none;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+}
+body.vista-studente .header h1 {
+  color: #c81d25;
+  font-size: 18px;
+}
+body.vista-studente .box-aula-zoom,
+body.vista-studente .status,
+body.vista-studente #btnTopPDF,
+body.vista-studente #btnTopTXT,
+body.vista-studente .header > .top-controls > .btn-tool {
+  display: none !important;
+}
+
 .student-view-container {
   display: none;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
   flex-grow: 1;
   width: 100%;
-  max-width: 900px;
+  max-width: 520px;
   margin: 0 auto;
 }
+
 .student-card-main {
   background: #d4ff00;
   color: #111111;
-  border-radius: 26px;
-  padding: 20px;
-  border: 4px solid #111111;
-  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.3);
+  border-radius: 24px;
+  padding: 14px 16px;
+  border: none;
+  box-shadow: none;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
 }
+
 .student-card-main label,
-.student-card-main .avviso-privacy,
-.student-card-main > div {
+.student-card-main .avviso-privacy {
   color: #111111 !important;
 }
-.student-card-main .btn-svg-icon {
-  background: #ffffff;
+
+/* Intestazione sopra ogni box (Bandiera + Nome lingua / Tendina) */
+.student-box-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  padding-left: 2px;
+}
+.student-box-header img.bandiera {
+  width: 28px;
+  height: 20px;
+  margin-right: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+}
+.student-inline-select {
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 800;
   color: #111111;
-  border: 2px solid #111111;
+  padding: 2px 4px;
+  cursor: pointer;
+  outline: none;
+}
+.student-inline-select:focus-visible {
+  outline: 2px solid #111111;
+  border-radius: 6px;
+}
+.student-ita-label {
+  font-size: 18px;
+  font-weight: 800;
+  color: #111111;
+}
+
+/* Riquadri bianchi arrotondati con testo grande */
+.student-display-text {
+  background: #ffffff;
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  border-radius: 16px;
+  padding: 14px 16px;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+  min-height: 150px;
+  flex-grow: 1;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #111111;
+}
+.student-display-ita-box {
+  background: #ffffff !important;
+  min-height: 140px;
+}
+
+/* Barra icone sotto ciascun riquadro bianco */
+.student-box-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 14px 2px;
+}
+.student-card-main .btn-svg-icon {
+  background: transparent;
+  color: #111111;
+  border: none;
+  padding: 4px;
+  border-radius: 8px;
+}
+.student-card-main .btn-svg-icon svg {
+  width: 28px;
+  height: 28px;
+  stroke-width: 2.2;
 }
 .student-card-main .btn-svg-icon:hover {
-  background: #c81d25;
-  color: #ffffff;
+  background: rgba(0, 0, 0, 0.08);
+  color: #c81d25;
 }
-.student-card-main.speaking-card {
-  border-color: #c81d25 !important;
+.student-card-main .btn-svg-icon.active-speaking {
+  background: #111111 !important;
+  color: #d4ff00 !important;
 }
+
+/* Freccia indietro in basso a destra */
+.btn-back-student {
+  background: transparent;
+  border: none;
+  color: #111111;
+  padding: 4px 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  transition: transform 0.15s ease;
+}
+.btn-back-student:hover {
+  transform: translateX(-3px);
+  color: #c81d25;
+}
+
 .student-lang-bar {
   display: flex;
   flex-direction: column;
@@ -497,21 +612,6 @@ textarea::placeholder { color: #64748b; font-weight: 500; }
   border-radius: 14px;
   border: 3px solid #111111;
 }
-.student-display-text {
-  background: #ffffff;
-  border: 3px solid #111111;
-  border-radius: 14px;
-  padding: 16px;
-  font-size: 19px;
-  font-weight: 700;
-  line-height: 1.5;
-  flex-grow: 1;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
-  color: #111111;
-}
-.student-display-ita-box { background: #ffffff !important; }
 
 /* ==================== FINESTRE (MODAL) ==================== */
 .modal-overlay {
