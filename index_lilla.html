@@ -13,7 +13,7 @@
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js" defer></script>
   <script src="lib/qrcode.min.js" defer></script>
 
-  <link rel="stylesheet" href="style_lilla.css?v=2">
+  <link rel="stylesheet" href="style_lilla.css?v=3">
   <script>
     if (/[?&](stanza|pin)=/i.test(window.location.search)) {
       document.documentElement.classList.add('avvio-studente');
@@ -21,11 +21,11 @@
   </script>
   <style>
     html.avvio-studente {
-      background: #fde047;
+      background: #8e74ca;
     }
     @media (min-width: 521px) {
       html.avvio-studente {
-        background: #9b72cf;
+        background: #d3357a;
       }
     }
     html.avvio-studente body {
@@ -145,7 +145,7 @@
 
           <button id="btnMic" class="btn-mic-container" onclick="toggleMicrofonoDocente()" aria-label="Attiva o ferma il microfono">
             <div class="btn-mic-circle">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
                 <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
                 <line x1="12" y1="19" x2="12" y2="22"></line>
@@ -178,7 +178,7 @@
         <label for="gateLangSelect"><strong>Lingua / Language:</strong></label>
         <select id="gateLangSelect" class="student-select" style="font-size: 16px; width: 100%; padding: 12px;"></select>
       </div>
-      <button id="btnEntraAula" class="btn-main" style="width: 100%; padding: 14px; font-size: 18px; background: #9b72cf; color: #fde047; font-weight: 900; border: 2.5px solid #18181b;" onclick="confermaIngressoStudente()">
+      <button id="btnEntraAula" class="btn-main" style="width: 100%; padding: 14px; font-size: 18px; background: #d3357a; color: #ffffff; font-weight: 900; border: 2.5px solid #18181b;" onclick="confermaIngressoStudente()">
         ENTRA IN AULA ➔
       </button>
     </div>
@@ -260,7 +260,7 @@
         <p style="margin: 0; font-size: 14px; color: var(--primary-cyan);"><strong>Da PC / Browser:</strong></p>
         <p id="urlStudenteDisplay" style="margin: 2px 0; font-size: 13px; color: var(--text-muted); word-break: break-all;">studente_lilla.html</p>
         <p style="margin: 8px 0 0 0; font-weight: 700; font-size: 16px; color: var(--text-muted);">PIN Stanza</p>
-        <p id="roomCodeDisplay" style="margin: 0; font-weight: 800; font-size: 64px; line-height: 1.1; letter-spacing: 8px; color: #fde047;">...</p>
+        <p id="roomCodeDisplay" style="margin: 0; font-weight: 800; font-size: 64px; line-height: 1.1; letter-spacing: 8px; color: #ffffff;">...</p>
       </div>
       <button class="btn-main" style="margin-top: 14px;" onclick="chiudiQRCode()">Chiudi</button>
     </div>
@@ -271,7 +271,7 @@
       <div class="modal-header">
         <span class="modal-title">📜 Frasi Salvate</span>
         <div style="display: flex; gap: 8px;">
-          <button class="btn-main" style="background: rgba(239, 68, 68, 0.2); color: #fde047; border-color: rgba(253, 224, 71, 0.4);" onclick="svuotaInteraCronologia()">🗑️ Svuota Tutto</button>
+          <button class="btn-main" style="background: rgba(239, 68, 68, 0.2); color: #ffffff; border-color: rgba(255, 255, 255, 0.4);" onclick="svuotaInteraCronologia()">🗑️ Svuota Tutto</button>
           <button class="btn-tool" onclick="chiudiModalCronologia()" aria-label="Chiudi">✖️</button>
         </div>
       </div>
