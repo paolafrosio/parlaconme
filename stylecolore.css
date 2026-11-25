@@ -6,17 +6,15 @@
   --box-white: #ffffff;          /* Riquadri testo bianchi */
   --ink-dark: #111111;           /* Testo e bordi scuri ad alto contrasto */
   --ink-red: #c81d25;
-  --card-bg: #c81d25;        /* Sfondo rosso CPIAPERTE */
-  --card-border: #ffffff;    /* Bordi bianchi */
-  --card-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
+  --card-bg: #c81d25;            /* Sfondo rosso CPIAPERTE */
+  --card-border: #111111;        /* Bordi neri ad alto contrasto */
+  --card-shadow: 0 5px 0 #111111;
   --text-color: #ffffff;
   --text-muted: #fef08a;
   --primary-cyan: #d4ff00;
   --card-body-bg: #ffffff;
   --box-ita-bg: #ffffff;
 }
-
-
 
 /* Modalità alternativa (pulsante tema) */
 body.light-mode {
@@ -27,7 +25,7 @@ body.light-mode {
   --ink-dark: #111111;
   --card-bg: #d4ff00;
   --card-border: #111111;
-  --card-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+  --card-shadow: 0 5px 0 #111111;
   --text-color: #111111;
   --text-muted: #333333;
   --primary-cyan: #c81d25;
@@ -42,7 +40,7 @@ body {
   font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
   background: var(--bg-main);
   margin: 0;
-  padding: 14px;
+  padding: 16px 20px;
   color: var(--text-color);
   min-height: 100vh;
   display: flex;
@@ -95,17 +93,12 @@ button:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-
   .modal-body [data-tooltip]:hover::after { bottom: auto; left: auto; top: 50%; right: 115%; transform: translateY(-50%); }
 }
 @media (hover: none) {
-  .btn-svg-icon { flex-direction: column; gap: 2px; }
   .btn-label {
-    display: block;
-    font-size: 10px;
-    font-weight: 700;
-    line-height: 1.1;
-    color: var(--text-color);
+    display: none !important;
   }
 }
 
-/* ==================== INTESTAZIONE ==================== */
+/* ==================== INTESTAZIONE PIATTA (ZERO RIQUADRI NIDIFICATI) ==================== */
 .header {
   display: flex;
   justify-content: space-between;
@@ -113,14 +106,20 @@ button:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-
   margin-bottom: 14px;
   gap: 10px;
   flex-wrap: wrap;
-  background: var(--card-bg);
-  padding: 12px 18px;
-  border-radius: 18px;
-  border: 3px solid var(--card-border);
-  box-shadow: var(--card-shadow);
+  background: transparent;
+  padding: 4px 2px 12px 2px;
+  border-radius: 0;
+  border: none;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.25);
+  box-shadow: none;
   position: relative;
   z-index: 50;
+  width: 100%;
 }
+body.light-mode .header {
+  border-bottom-color: rgba(17, 17, 17, 0.2);
+}
+
 h1 {
   margin: 0;
   color: var(--accent-lime);
@@ -142,6 +141,7 @@ h1 {
   color: #111111;
   background: var(--accent-lime);
   border: 2px solid #111111;
+  box-shadow: 0 3px 0 #111111;
   padding: 6px 14px;
   border-radius: 999px;
   display: inline-flex;
@@ -150,6 +150,9 @@ h1 {
   white-space: nowrap;
   width: 140px;
   justify-content: center;
+}
+body.light-mode .student-counter-badge {
+  color: #ffffff;
 }
 
 .status-badge {
@@ -167,6 +170,7 @@ h1 {
   background: #ffffff;
   color: #111111;
   border: 2px solid #111111;
+  box-shadow: 0 3px 0 #111111;
 }
 body.vista-studente .status-badge {
   width: auto;
@@ -182,6 +186,7 @@ body.vista-studente .status-badge {
   align-items: center;
   background: #ffffff;
   border: 2px solid #111111;
+  box-shadow: 0 3px 0 #111111;
   border-radius: 999px;
   padding: 2px 6px;
   flex-shrink: 0;
@@ -189,6 +194,7 @@ body.vista-studente .status-badge {
 .btn-tool {
   background: #ffffff;
   border: 2px solid #111111;
+  box-shadow: 0 3px 0 #111111;
   font-size: 13px;
   font-weight: 800;
   color: #111111;
@@ -197,8 +203,9 @@ body.vista-studente .status-badge {
   border-radius: 999px;
   transition: all 0.15s;
 }
-.zoom-bar .btn-tool { border: none; background: transparent; }
+.zoom-bar .btn-tool { border: none; background: transparent; box-shadow: none; }
 .btn-tool:hover { background: var(--accent-lime); color: #111111; }
+body.light-mode .btn-tool:hover { color: #ffffff; }
 
 .status {
   font-size: 12px;
@@ -207,6 +214,7 @@ body.vista-studente .status-badge {
   padding: 6px 12px;
   background: #ffffff;
   border: 2px solid #111111;
+  box-shadow: 0 3px 0 #111111;
   border-radius: 999px;
   text-align: center;
   display: inline-block;
@@ -217,31 +225,40 @@ body.vista-studente .status-badge {
   text-overflow: ellipsis;
 }
 
-/* ==================== AREA DOCENTE ==================== */
+/* ==================== AREA DOCENTE PIATTA (ZERO SCATOLE ESTERNE) ==================== */
+#docenteContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
 .source-box {
-  background: var(--card-bg);
-  padding: 18px;
-  border-radius: 20px;
-  border: 3px solid var(--card-border);
-  box-shadow: var(--card-shadow);
-  margin-bottom: 12px;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  margin-bottom: 10px;
+  width: 100%;
 }
 .label-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   flex-wrap: wrap;
   gap: 10px;
 }
 label { font-weight: 800; color: var(--text-color); font-size: 16px; }
 .action-btns { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
-/* Pulsanti pillola giallo lime con testo nero */
+/* Pulsanti pillola giallo lime con testo nero e ombra netta */
 .btn-main {
   background: var(--accent-lime);
   color: #111111;
   border: 2px solid #111111;
+  box-shadow: 0 3px 0 #111111;
   padding: 8px 16px;
   border-radius: 999px;
   font-weight: 800;
@@ -251,14 +268,14 @@ label { font-weight: 800; color: var(--text-color); font-size: 16px; }
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: transform 0.15s ease, background 0.15s ease;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
   white-space: nowrap;
 }
 body.light-mode .btn-main { color: #ffffff; }
 .btn-main:hover {
   transform: translateY(-2px);
   background: var(--accent-lime-hover);
-  box-shadow: 0 4px 0 #111111;
+  box-shadow: 0 5px 0 #111111;
 }
 
 /* Microfono stile REC / Giallo Lime */
@@ -271,11 +288,11 @@ body.light-mode .btn-main { color: #ffffff; }
   background: none;
   border: none;
   padding: 0;
-  min-width: 80px;
+  min-width: 76px;
 }
 .btn-mic-circle {
-  width: 60px;
-  height: 60px;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
   background: var(--accent-lime);
   border: 3px solid #111111;
@@ -286,14 +303,14 @@ body.light-mode .btn-main { color: #ffffff; }
   transition: transform 0.15s ease, background 0.15s ease;
 }
 .btn-mic-container:hover .btn-mic-circle {
-  transform: scale(1.08);
+  transform: scale(1.06);
   background: var(--accent-lime-hover);
 }
 .btn-mic-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   color: var(--text-color);
-  margin-top: 5px;
+  margin-top: 4px;
   text-align: center;
   text-transform: uppercase;
 }
@@ -311,16 +328,17 @@ body.light-mode .btn-main { color: #ffffff; }
   100% { box-shadow: 0 0 0 0 rgba(212, 255, 0, 0); }
 }
 
-/* Riquadro testo italiano bianco ad alto contrasto */
+/* Riquadro testo italiano bianco ad alto contrasto (unico riquadro, senza cornice esterna) */
 textarea {
   width: 100%;
-  height: 95px;
+  height: 88px;
   padding: 14px 16px;
   font-size: 18px;
   font-weight: 600;
   font-family: inherit;
   border: 3px solid #111111;
-  border-radius: 14px;
+  border-radius: 18px;
+  box-shadow: 0 4px 0 #111111;
   resize: vertical;
   background: #ffffff;
   color: #111111;
@@ -332,76 +350,88 @@ textarea::placeholder { color: #64748b; font-weight: 500; }
   font-weight: 600;
   color: var(--text-color);
   text-align: center;
-  margin: 0 0 12px 0;
+  margin: 4px 0 14px 0;
   padding: 0 8px;
   line-height: 1.4;
+  opacity: 0.92;
 }
 
 .student-panel {
   display: none;
-  background: var(--card-bg);
-  border: 3px solid #ffffff;   /* <--- Era var(--accent-lime) */
-  border-radius: 18px;
-  padding: 14px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px dashed rgba(255, 255, 255, 0.4);
+  border-radius: 0;
+  padding: 0 0 14px 0;
   margin-bottom: 14px;
 }
 .student-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px; }
 .student-select {
   padding: 10px 14px;
-  border-radius: 12px;
+  border-radius: 14px;
   font-weight: 800;
   font-family: inherit;
   border: 3px solid #111111;
+  box-shadow: 0 3px 0 #111111;
   background: #ffffff;
   color: #111111;
   max-width: 100%;
 }
 
-/* ==================== GRIGLIA E SCHEDE LINGUA ==================== */
+/* ==================== GRIGLIA E SCHEDE LINGUA (UNICO RIQUADRO BIANCO PIATTO) ==================== */
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
   gap: 14px;
+  width: 100%;
   flex-grow: 1;
   overflow-y: auto;
+  padding-bottom: 6px;
 }
+
+/* Ogni scheda è un singolo box bianco con bordo nero netto: zero scatole nidificate */
 .card {
-  background: var(--card-bg);
+  background: #ffffff;
+  color: #111111;
   border-radius: 18px;
   padding: 12px 14px;
-  border: 3px solid var(--card-border);
-  box-shadow: var(--card-shadow);
+  border: 3px solid #111111;
+  box-shadow: 0 4px 0 #111111;
   display: flex;
   flex-direction: column;
-  min-height: 185px;
+  min-height: 165px;
   position: relative;
 }
 .card.speaking-card {
-  border-color: #ffffff !important;
-  box-shadow: 0 0 0 4px #111111, 0 0 20px #d4ff00 !important;
+  background: #fefce8 !important;
+  border-color: #111111 !important;
+  box-shadow: 0 0 0 4px #d4ff00, 0 6px 0 #111111 !important;
 }
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #e2e8f0;
   position: relative;
   z-index: 2;
   overflow: visible;
 }
 .card-title {
-  font-weight: 800;
-  font-size: 16px;
-  color: #ffffff;
+  font-weight: 900;
+  font-size: 15px;
+  color: #111111;
   display: flex;
   align-items: center;
 }
-/* Riquadro interno bianco */
+
+/* Il corpo testo è integrato direttamente nella scheda bianca, senza secondo bordo */
 .card-body {
-  background-color: #ffffff;
-  border: 2px solid #111111;
-  border-radius: 12px;
-  padding: 12px 14px;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 2px 0;
   font-size: 16px;
   font-weight: 600;
   line-height: 1.45;
@@ -417,15 +447,17 @@ textarea::placeholder { color: #64748b; font-weight: 500; }
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid #f1f5f9;
   position: relative;
   z-index: 2;
 }
 
 /* ==================== PULSANTI ICONA ==================== */
 .btn-svg-icon {
-  background: #ffffff;
+  background: #f8fafc;
   border: 2px solid #111111;
   border-radius: 10px;
   padding: 5px 8px;
@@ -438,97 +470,43 @@ textarea::placeholder { color: #64748b; font-weight: 500; }
   position: relative;
   z-index: 2;
 }
-.btn-svg-icon svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.2; }
+.btn-svg-icon svg { width: 19px; height: 19px; stroke: currentColor; fill: none; stroke-width: 2.2; }
 .btn-svg-icon:hover {
-  background: var(--accent-lime);
+  background: #d4ff00;
   color: #111111;
   transform: scale(1.08);
 }
 .btn-svg-icon.active-speaking {
-  background: #ffffff !important;
-  color: #c81d25 !important;
+  background: #c81d25 !important;
+  color: #ffffff !important;
   border-color: #111111 !important;
   animation: pulseRec 1.2s infinite;
 }
 
-/* ==================== VISTA STUDENTE (CORNICE SMARTPHONE SU PC + FULLSCREEN SU MOBILE) ==================== */
-
-/* Su PC/Schermi grandi (> 520px): sfondo rosso CPIAPERTE e cornice smartphone centrata */
-@media (min-width: 521px) {
-  body.vista-studente {
-    background: #c81d25 !important; /* Sfondo rosso intorno al telefono */
-    padding: 24px 16px;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Nasconde l'header esterno su PC per tenere tutto pulito dentro la cornice */
-  body.vista-studente .header {
-    display: none !important;
-  }
-
-  body.vista-studente .student-view-container {
-    width: 390px;
-    max-width: 390px;
-    height: 780px;
-    max-height: 92vh;
-    background: #d4ff00;
-    border: 14px solid #111111;
-    border-radius: 48px;
-    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.55), 0 0 0 3px #333333;
-    padding: 34px 14px 16px 14px;
-    position: relative;
-    overflow: hidden;
-    flex-grow: 0;
-  }
-
-  /* Capsula/Notch superiore dello smartphone */
-  body.vista-studente .phone-notch-bar {
-    display: block;
-    width: 145px;
-    height: 22px;
-    background: #111111;
-    border-bottom-left-radius: 15px;
-    border-bottom-right-radius: 15px;
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 20;
-  }
-  body.vista-studente .phone-notch-bar::after {
-    content: "";
-    display: block;
-    width: 44px;
-    height: 5px;
-    background: #333333;
-    border-radius: 999px;
-    margin: 7px auto 0 auto;
-  }
+/* ==================== VISTA STUDENTE (NORMALE VISTA RESPONSIVE SENZA CORNICE FINTO TELEFONO) ==================== */
+body.vista-studente {
+  background: #d4ff00 !important;
+  padding: 14px;
 }
 
-/* Su Smartphone vero (<= 520px): niente cornice finta, schermo intero giallo lime */
-@media (max-width: 520px) {
-  body.vista-studente {
-    background: #d4ff00 !important;
-    padding: 10px;
-  }
-  body.vista-studente .header {
-    background: #d4ff00;
-    border: 2px solid #111111;
-    box-shadow: none;
-    padding: 8px 12px;
-    margin-bottom: 10px;
-  }
-  body.vista-studente .header h1 {
-    color: #c81d25;
-    font-size: 18px;
-  }
-  body.vista-studente .phone-notch-bar {
-    display: none;
-  }
+body.vista-studente .header {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid rgba(17, 17, 17, 0.2) !important;
+  box-shadow: none !important;
+  padding: 6px 4px 10px 4px;
+  margin-bottom: 12px;
+  max-width: 720px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+body.vista-studente .header h1 {
+  color: #c81d25 !important;
+  font-size: 20px;
 }
 
+body.vista-studente .phone-notch-bar,
 body.vista-studente .box-aula-zoom,
 body.vista-studente .status,
 body.vista-studente #btnTopPDF,
@@ -543,7 +521,7 @@ body.vista-studente .header > .top-controls > .btn-tool {
   gap: 10px;
   flex-grow: 1;
   width: 100%;
-  max-width: 520px;
+  max-width: 720px;
   margin: 0 auto;
 }
 
@@ -569,46 +547,50 @@ body.vista-studente .header > .top-controls > .btn-tool {
 .student-box-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 4px;
+  gap: 8px;
+  margin-bottom: 6px;
   padding-left: 2px;
 }
 .student-box-header img.bandiera {
-  width: 28px;
-  height: 20px;
+  width: 30px;
+  height: 21px;
   margin-right: 2px;
-  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.35);
 }
 .student-inline-select {
-  background: transparent;
-  border: none;
+  background: #ffffff;
+  border: 2px solid #111111;
+  border-radius: 12px;
+  box-shadow: 0 2px 0 #111111;
   font-family: inherit;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 800;
   color: #111111;
-  padding: 2px 4px;
+  padding: 4px 10px;
   cursor: pointer;
   outline: none;
 }
 .student-inline-select:focus-visible {
   outline: 2px solid #111111;
-  border-radius: 6px;
+  border-radius: 12px;
 }
 .student-ita-label {
   font-size: 18px;
-  font-weight: 800;
+  font-weight: 900;
   color: #111111;
 }
 
-/* Riquadri bianchi arrotondati con testo grande */
+/* Riquadri bianchi arrotondati con bordo nero netto */
 .student-display-text {
   background: #ffffff;
-  border: 2px solid rgba(0, 0, 0, 0.15);
-  border-radius: 16px;
-  padding: 14px 16px;
+  border: 3px solid #111111;
+  border-radius: 18px;
+  box-shadow: 0 4px 0 #111111;
+  padding: 15px 17px;
   font-size: 19px;
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1.45;
   min-height: 140px;
   flex-grow: 1;
   overflow-y: auto;
@@ -625,24 +607,25 @@ body.vista-studente .header > .top-controls > .btn-tool {
 .student-box-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin: 8px 0 12px 2px;
+  gap: 10px;
+  margin: 10px 0 14px 2px;
 }
 .student-card-main .btn-svg-icon {
-  background: transparent;
+  background: #ffffff;
   color: #111111;
-  border: none;
-  padding: 4px;
-  border-radius: 8px;
+  border: 2px solid #111111;
+  box-shadow: 0 2px 0 #111111;
+  padding: 6px 10px;
+  border-radius: 12px;
 }
 .student-card-main .btn-svg-icon svg {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   stroke-width: 2.2;
 }
 .student-card-main .btn-svg-icon:hover {
-  background: rgba(0, 0, 0, 0.08);
-  color: #c81d25;
+  background: #c81d25;
+  color: #d4ff00;
 }
 .student-card-main .btn-svg-icon.active-speaking {
   background: #111111 !important;
@@ -651,20 +634,22 @@ body.vista-studente .header > .top-controls > .btn-tool {
 
 /* Freccia indietro in basso a destra */
 .btn-back-student {
-  background: transparent;
-  border: none;
+  background: #ffffff;
+  border: 2px solid #111111;
+  box-shadow: 0 2px 0 #111111;
   color: #111111;
-  padding: 4px 6px;
+  padding: 6px 10px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 12px;
   transition: transform 0.15s ease;
 }
 .btn-back-student:hover {
   transform: translateX(-3px);
-  color: #c81d25;
+  background: #c81d25;
+  color: #d4ff00;
 }
 
 .student-lang-bar {
@@ -674,8 +659,9 @@ body.vista-studente .header > .top-controls > .btn-tool {
   margin-bottom: 14px;
   background: #ffffff;
   padding: 12px 14px;
-  border-radius: 14px;
+  border-radius: 16px;
   border: 3px solid #111111;
+  box-shadow: 0 4px 0 #111111;
 }
 
 /* ==================== FINESTRE (MODAL) ==================== */
@@ -698,8 +684,8 @@ body.vista-studente .header > .top-controls > .btn-tool {
   max-height: 92vh;
   display: flex;
   flex-direction: column;
-  border: 4px solid #ffffff;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+  border: 3px solid #111111;
+  box-shadow: 0 8px 0 #111111;
 }
 #modalFocus .modal-card {
   max-width: 850px;
@@ -718,7 +704,7 @@ body.vista-studente .header > .top-controls > .btn-tool {
   line-height: 1.45;
   background: #ffffff;
   padding: 18px;
-  border-radius: 14px;
+  border-radius: 16px;
   border: 3px solid #111111;
   flex-grow: 1;
   overflow-y: auto;
@@ -736,7 +722,7 @@ body.vista-studente .header > .top-controls > .btn-tool {
   overflow-y: auto;
   padding: 16px;
   background: #ffffff;
-  border-radius: 14px;
+  border-radius: 16px;
   border: 3px solid #111111;
   color: #111111;
 }
@@ -749,7 +735,7 @@ body.vista-studente .header > .top-controls > .btn-tool {
   color: #111111;
   cursor: pointer;
   padding: 8px 10px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 2px solid transparent;
   background: #f8fafc;
   transition: all 0.15s ease;
@@ -772,7 +758,8 @@ body.vista-studente .header > .top-controls > .btn-tool {
 
 .qr-box-container {
   background: #ffffff !important;
-  border: 4px solid #111111 !important;
+  border: 3px solid #111111 !important;
+  box-shadow: 0 4px 0 #111111 !important;
   padding: 18px !important;
   border-radius: 20px !important;
   display: inline-block !important;
@@ -799,7 +786,7 @@ body.vista-studente .header > .top-controls > .btn-tool {
 }
 
 @media (max-width: 600px) {
-  body { padding: 8px; }
+  body { padding: 10px; }
   h1 { font-size: 20px; }
   .header { flex-direction: column; align-items: flex-start; }
   .top-controls { width: 100%; justify-content: flex-start; }
@@ -811,6 +798,7 @@ body.vista-studente .header > .top-controls > .btn-tool {
   background: #ffffff !important;
   color: #111111 !important;
   border: 2px solid #111111 !important;
+  box-shadow: 0 3px 0 #111111 !important;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
   display: inline-flex;
@@ -827,20 +815,10 @@ body.vista-studente .header > .top-controls > .btn-tool {
   z-index: 9999;
   background: #d4ff00 !important;
   border-color: #111111 !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
 }
 .box-aula-zoom:hover #codiceAulaDocente,
 .box-aula-zoom:active #codiceAulaDocente {
   color: #111111 !important;
   font-size: 24px;
-}
-@media (hover: none) {
-  .btn-svg-icon { flex-direction: column; gap: 3px; }
-  .btn-label {
-    display: block;
-    font-size: 11px;
-    font-weight: 800;
-    line-height: 1.1;
-    color: #111111 !important;
-  }
 }
