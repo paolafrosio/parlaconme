@@ -39,7 +39,38 @@
     });
   })();
 </script>
-  
+  <script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const badge = document.getElementById('badgeConnessione');
+    const zoomBar = document.querySelector('.zoom-bar');
+    const studentLangHeader = document.querySelector('#mainStudentCard .student-box-header');
+
+    // Sposta i pulsanti zoom A- A A+ sulla riga sopra/accanto alla bandiera nella vista studente
+    function posizionaZoomStudente() {
+      if (document.body.classList.contains('vista-studente') && zoomBar && studentLangHeader) {
+        studentLangHeader.appendChild(zoomBar);
+      }
+    }
+
+    // Accorcia automaticamente i testi dello stato per non sballare mai il layout
+    if (badge) {
+      const osservaStato = new MutationObserver(() => {
+        if (!document.body.classList.contains('vista-studente')) return;
+        const t = badge.textContent.toLowerCase();
+        let breve = 'In connessione';
+        if (t.includes('riprov') || t.includes('lent') || t.includes('attes')) breve = 'Riprovo...';
+        else if (t.includes('non conness') || t.includes('disconness') || t.includes('errore') || t.includes('chius')) breve = 'Non connesso';
+        else if (t.includes('conness') || t.includes('collegat') || t.includes('pront')) breve = 'Connesso';
+        if (badge.textContent.trim() !== breve) badge.textContent = breve;
+      });
+      osservaStato.observe(badge, { childList: true, characterData: true, subtree: true });
+    }
+
+    const osservaBody = new MutationObserver(posizionaZoomStudente);
+    osservaBody.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    posizionaZoomStudente();
+  });
+</script>
   <body>
 
   <header class="header">
