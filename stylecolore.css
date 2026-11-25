@@ -1004,3 +1004,8 @@ html.avvio-studente body {
     background: #c81d25 !important;
   }
 }
+
+/* Rende visibile la pagina solo quando tutto il CSS dello smartphone è pronto */
+body.vista-studente {
+  visibility: visible !important;
+}
