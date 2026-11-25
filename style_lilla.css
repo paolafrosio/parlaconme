@@ -1,0 +1,1010 @@
+/* ==================== TEMI (STILE CPIAPERTE) ==================== */
+:root {
+  --bg-main: #c81d25;            /* Rosso CPIAPERTE */
+  --accent-lime: #d4ff00;        /* Giallo lime fluo */
+  --accent-lime-hover: #e5ff4d;
+  --box-white: #ffffff;          /* Riquadri testo bianchi */
+  --ink-dark: #111111;           /* Testo e bordi scuri ad alto contrasto */
+  --ink-red: #c81d25;
+  --card-bg: #c81d25;            /* Sfondo rosso CPIAPERTE */
+  --card-border: #111111;        /* Bordi neri ad alto contrasto */
+  --card-shadow: 0 5px 0 #111111;
+  --text-color: #ffffff;
+  --text-muted: #fef08a;
+  --primary-cyan: #d4ff00;
+  --card-body-bg: #ffffff;
+  --box-ita-bg: #ffffff;
+}
+
+/* Modalità alternativa (pulsante tema) */
+body.light-mode {
+  --bg-main: #d4ff00;
+  --accent-lime: #c81d25;
+  --accent-lime-hover: #a6141b;
+  --box-white: #ffffff;
+  --ink-dark: #111111;
+  --card-bg: #d4ff00;
+  --card-border: #111111;
+  --card-shadow: 0 5px 0 #111111;
+  --text-color: #111111;
+  --text-muted: #333333;
+  --primary-cyan: #c81d25;
+  --card-body-bg: #ffffff;
+  --box-ita-bg: #ffffff;
+}
+
+* { box-sizing: border-box; }
+html, body { width: 100%; overflow-x: hidden; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
+  background: var(--bg-main);
+  margin: 0;
+  padding: 16px 20px;
+  color: var(--text-color);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: background 0.25s, color 0.25s;
+}
+
+/* Bandiere */
+img.bandiera {
+  width: 1.45em;
+  height: 1.05em;
+  object-fit: cover;
+  object-position: center;
+  vertical-align: -0.15em;
+  margin-right: 0.4em;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+}
+
+button:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-visible {
+  outline: 3px solid var(--accent-lime);
+  outline-offset: 2px;
+}
+
+/* ==================== SUGGERIMENTI E ETICHETTE (TOOLTIP) ==================== */
+.btn-label { display: none; }
+@media (hover: hover) {
+  [data-tooltip] { position: relative; }
+  [data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    background: #111111;
+    color: #d4ff00;
+    border: 2px solid #d4ff00;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 8px;
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    z-index: 1000;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .header [data-tooltip]:hover::after { bottom: auto; top: 125%; }
+  .card-header [data-tooltip]:hover::after { left: auto; right: 0; transform: none; bottom: auto; top: 110%; }
+  .student-card-main .student-box-actions [data-tooltip]:hover::after { left: 0; transform: none; }
+  .modal-body [data-tooltip]:hover::after { bottom: auto; left: auto; top: 50%; right: 115%; transform: translateY(-50%); }
+}
+@media (hover: none) {
+  .btn-label {
+    display: none !important;
+  }
+}
+
+/* ==================== INTESTAZIONE PIATTA (ZERO RIQUADRI NIDIFICATI) ==================== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: transparent;
+  padding: 4px 2px 12px 2px;
+  border-radius: 0;
+  border: none;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.25);
+  box-shadow: none;
+  position: relative;
+  z-index: 50;
+  width: 100%;
+}
+body.light-mode .header {
+  border-bottom-color: rgba(17, 17, 17, 0.2);
+}
+
+h1 {
+  margin: 0;
+  color: var(--accent-lime);
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.top-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.student-counter-badge {
+  font-size: 13px;
+  font-weight: 800;
+  color: #111111;
+  background: var(--accent-lime);
+  border: 2px solid #111111;
+  box-shadow: 0 3px 0 #111111;
+  padding: 6px 14px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  width: 140px;
+  justify-content: center;
+}
+body.light-mode .student-counter-badge {
+  color: #ffffff;
+}
+
+.status-badge {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 6px 12px;
+  border-radius: 999px;
+  display: inline-block;
+  width: 190px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+  background: #ffffff;
+  color: #111111;
+  border: 2px solid #111111;
+  box-shadow: 0 3px 0 #111111;
+}
+.status-connected { background: #d4ff00; color: #111111; border-color: #111111; }
+.status-connecting { background: #fef08a; color: #111111; border-color: #111111; }
+.status-disconnected { background: #111111; color: #ffffff; border-color: #ffffff; }
+
+.zoom-bar {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 2px solid #111111;
+  box-shadow: 0 3px 0 #111111;
+  border-radius: 999px;
+  padding: 2px 6px;
+  flex-shrink: 0;
+}
+.btn-tool {
+  background: #ffffff;
+  border: 2px solid #111111;
+  box-shadow: 0 3px 0 #111111;
+  font-size: 13px;
+  font-weight: 800;
+  color: #111111;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 999px;
+  transition: all 0.15s;
+}
+.zoom-bar .btn-tool { border: none; background: transparent; box-shadow: none; }
+.btn-tool:hover { background: var(--accent-lime); color: #111111; }
+body.light-mode .btn-tool:hover { color: #ffffff; }
+
+.status {
+  font-size: 12px;
+  color: #111111;
+  font-weight: 700;
+  padding: 6px 12px;
+  background: #ffffff;
+  border: 2px solid #111111;
+  box-shadow: 0 3px 0 #111111;
+  border-radius: 999px;
+  text-align: center;
+  display: inline-block;
+  flex-shrink: 0;
+  width: 190px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==================== AREA DOCENTE PIATTA (ZERO SCATOLE ESTERNE) ==================== */
+#docenteContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.source-box {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  margin-bottom: 10px;
+  width: 100%;
+}
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+label { font-weight: 800; color: var(--text-color); font-size: 16px; }
+.action-btns { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* Pulsanti pillola giallo lime con testo nero e ombra netta */
+.btn-main {
+  background: var(--accent-lime);
+  color: #111111;
+  border: 2px solid #111111;
+  box-shadow: 0 3px 0 #111111;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+body.light-mode .btn-main { color: #ffffff; }
+.btn-main:hover {
+  transform: translateY(-2px);
+  background: var(--accent-lime-hover);
+  box-shadow: 0 5px 0 #111111;
+}
+
+/* Microfono stile REC / Giallo Lime */
+.btn-mic-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  min-width: 76px;
+}
+.btn-mic-circle {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--accent-lime);
+  border: 3px solid #111111;
+  box-shadow: 0 4px 0 #111111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.btn-mic-container:hover .btn-mic-circle {
+  transform: scale(1.06);
+  background: var(--accent-lime-hover);
+}
+.btn-mic-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-color);
+  margin-top: 4px;
+  text-align: center;
+  text-transform: uppercase;
+}
+.btn-mic-container.recording .btn-mic-circle {
+  background: #ffffff !important;
+  border-color: #111111 !important;
+  animation: pulseRec 1.2s infinite;
+}
+.btn-mic-container.recording .btn-mic-circle svg {
+  stroke: #c81d25 !important;
+}
+@keyframes pulseRec {
+  0% { box-shadow: 0 0 0 0 rgba(212, 255, 0, 0.85); }
+  70% { box-shadow: 0 0 0 14px rgba(212, 255, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(212, 255, 0, 0); }
+}
+
+/* Riquadro testo italiano bianco ad alto contrasto */
+textarea {
+  width: 100%;
+  height: 88px;
+  padding: 14px 16px;
+  font-size: 18px;
+  font-weight: 600;
+  font-family: inherit;
+  border: 3px solid #111111;
+  border-radius: 18px;
+  box-shadow: 0 4px 0 #111111;
+  resize: vertical;
+  background: #ffffff;
+  color: #111111;
+}
+textarea::placeholder { color: #64748b; font-weight: 500; }
+
+.avviso-privacy {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-color);
+  text-align: center;
+  margin: 4px 0 14px 0;
+  padding: 0 8px;
+  line-height: 1.4;
+  opacity: 0.92;
+}
+
+.student-panel {
+  display: none;
+  background: transparent;
+  border: none;
+  border-bottom: 2px dashed rgba(255, 255, 255, 0.4);
+  border-radius: 0;
+  padding: 0 0 14px 0;
+  margin-bottom: 14px;
+}
+.student-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px; }
+.student-select {
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-weight: 800;
+  font-family: inherit;
+  border: 3px solid #111111;
+  box-shadow: 0 3px 0 #111111;
+  background: #ffffff;
+  color: #111111;
+  max-width: 100%;
+}
+
+/* ==================== GRIGLIA E SCHEDE LINGUA (UNICO RIQUADRO BIANCO PIATTO) ==================== */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
+  gap: 14px;
+  width: 100%;
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-bottom: 6px;
+}
+
+.card {
+  background: #ffffff;
+  color: #111111;
+  border-radius: 18px;
+  padding: 12px 14px;
+  border: 3px solid #111111;
+  box-shadow: 0 4px 0 #111111;
+  display: flex;
+  flex-direction: column;
+  min-height: 165px;
+  position: relative;
+}
+.card.speaking-card {
+  background: #fefce8 !important;
+  border-color: #111111 !important;
+  box-shadow: 0 0 0 4px #d4ff00, 0 6px 0 #111111 !important;
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #e2e8f0;
+  position: relative;
+  z-index: 2;
+  overflow: visible;
+}
+.card-title {
+  font-weight: 900;
+  font-size: 15px;
+  color: #111111;
+  display: flex;
+  align-items: center;
+}
+
+.card-body {
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 2px 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+  flex-grow: 1;
+  overflow-y: auto;
+  color: #111111;
+  position: relative;
+  z-index: 1;
+}
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid #f1f5f9;
+  position: relative;
+  z-index: 2;
+}
+
+/* ==================== PULSANTI ICONA ==================== */
+.btn-svg-icon {
+  background: #f8fafc;
+  border: 2px solid #111111;
+  border-radius: 10px;
+  padding: 5px 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #111111;
+  transition: transform 0.15s ease, background 0.15s ease;
+  position: relative;
+  z-index: 2;
+}
+.btn-svg-icon svg { width: 19px; height: 19px; stroke: currentColor; fill: none; stroke-width: 2.2; }
+.btn-svg-icon:hover {
+  background: #d4ff00;
+  color: #111111;
+  transform: scale(1.08);
+}
+.btn-svg-icon.active-speaking {
+  background: #c81d25 !important;
+  color: #ffffff !important;
+  border-color: #111111 !important;
+  animation: pulseRec 1.2s infinite;
+}
+
+/* ==================== VISTA STUDENTE (SPIA CON ALONE + ZOOM SOPRA LA BANDIERA) ==================== */
+body.vista-studente {
+  background: #d4ff00 !important;
+  color: #111111 !important;
+  padding: 14px;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+}
+
+body.vista-studente .box-aula-zoom,
+body.vista-studente .status,
+body.vista-studente #btnTopPDF,
+body.vista-studente #btnTopTXT,
+body.vista-studente .header > .top-controls > .btn-tool,
+body.vista-studente #docenteContainer,
+.btn-back-student {
+  display: none !important;
+}
+
+/* Intestazione a riga singola fissa: Titolo a sinistra + Spia luminosa a destra */
+body.vista-studente .header {
+  background: #d4ff00 !important;
+  border: none !important;
+  box-shadow: none !important;
+  margin-bottom: 0;
+  width: 100%;
+  display: flex;
+  flex-wrap: nowrap !important;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+body.vista-studente .header h1 {
+  color: #c81d25 !important;
+  font-size: 16px;
+  gap: 6px;
+}
+body.vista-studente .header h1 img {
+  height: 24px !important;
+  margin-right: 2px !important;
+}
+body.vista-studente .top-controls {
+  width: auto !important;
+  flex-wrap: nowrap !important;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+/* SPIA LUMINOSA CON EFFETTO ALONE IN ALTO A DESTRA */
+body.vista-studente #badgeConnessione.status-badge {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 7px;
+  width: auto !important;
+  max-width: none;
+  padding: 5px 11px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+  background: #ffffff !important;
+  color: #111111 !important;
+  border: 2px solid #111111 !important;
+  border-radius: 999px;
+  box-shadow: 0 2px 0 #111111;
+  white-space: nowrap;
+}
+
+/* Pallino LED della spia */
+body.vista-studente #badgeConnessione.status-badge::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Spia VERDE con alone (Connesso) */
+body.vista-studente #badgeConnessione.status-connected::before {
+  background: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.28), 0 0 10px #22c55e;
+}
+
+/* Spia GIALLA pulsante con alone (In connessione / Riprovo) */
+body.vista-studente #badgeConnessione.status-connecting::before {
+  background: #eab308;
+  box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.35), 0 0 10px #facc15;
+  animation: spiaPulseYellow 1.1s infinite;
+}
+
+/* Spia ROSSA pulsante con alone (Non connesso) */
+body.vista-studente #badgeConnessione.status-disconnected::before {
+  background: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.32), 0 0 10px #ef4444;
+  animation: spiaPulseRed 1.3s infinite;
+}
+
+@keyframes spiaPulseYellow {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.35), 0 0 8px #facc15; }
+  50% { box-shadow: 0 0 0 5px rgba(234, 179, 8, 0.15), 0 0 14px #facc15; }
+}
+@keyframes spiaPulseRed {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.35), 0 0 8px #ef4444; }
+  50% { box-shadow: 0 0 0 5px rgba(220, 38, 38, 0.15), 0 0 14px #ef4444; }
+}
+
+.student-view-container {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  flex-grow: 1;
+  width: 100%;
+  background: #d4ff00;
+  position: relative;
+}
+
+/* CORNICE SMARTPHONE SU PC (> 520px): IDENTICA A STUDENTECOLORE.HTML */
+@media (min-width: 521px) {
+  body.vista-studente {
+    background: #c81d25 !important; /* Sfondo rosso CPIAPERTE */
+    padding: 16px;
+  }
+
+  body.vista-studente .header {
+    width: 390px;
+    max-width: 390px;
+    height: 76px;
+    border-top: 14px solid #111111 !important;
+    border-left: 14px solid #111111 !important;
+    border-right: 14px solid #111111 !important;
+    border-radius: 48px 48px 0 0 !important;
+    padding: 32px 16px 4px 16px;
+    box-shadow: 0 -3px 0 0 #333333, -3px 0 0 0 #333333, 3px 0 0 0 #333333 !important;
+    position: relative;
+    z-index: 15;
+  }
+
+  /* Notch nero dello smartphone in alto */
+  body.vista-studente .header::before {
+    content: "";
+    display: block;
+    width: 145px;
+    height: 22px;
+    background: #111111;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 25;
+  }
+  body.vista-studente .header::after {
+    content: "";
+    display: block;
+    width: 44px;
+    height: 5px;
+    background: #333333;
+    border-radius: 999px;
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 26;
+  }
+
+  body.vista-studente .phone-notch-bar {
+    display: none !important;
+  }
+
+  body.vista-studente .student-view-container {
+    width: 390px;
+    max-width: 390px;
+    height: 684px;
+    max-height: calc(94vh - 76px);
+    flex-grow: 0;
+    border-left: 14px solid #111111;
+    border-right: 14px solid #111111;
+    border-bottom: 14px solid #111111;
+    border-radius: 0 0 48px 48px;
+    padding: 4px 16px 20px 16px;
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.55), 0 3px 0 0 #333333, -3px 0 0 0 #333333, 3px 0 0 0 #333333;
+    overflow: hidden;
+  }
+}
+
+/* SCHERMO INTERO SU CELLULARE (<= 520px) */
+@media (max-width: 520px) {
+  body.vista-studente {
+    background: #d4ff00 !important;
+    padding: 10px 14px;
+    justify-content: flex-start;
+  }
+  body.vista-studente .header,
+  body.vista-studente .student-view-container {
+    width: 100%;
+    max-width: 420px;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  body.vista-studente .student-view-container {
+    flex-grow: 1;
+    height: auto;
+  }
+  body.vista-studente .phone-notch-bar {
+    display: none !important;
+  }
+}
+
+.student-card-main {
+  background: #d4ff00;
+  color: #111111;
+  border-radius: 20px;
+  padding: 2px 0 4px 0;
+  border: none;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.student-card-main label,
+.student-card-main .avviso-privacy {
+  color: #111111 !important;
+}
+
+/* Intestazione sopra il primo box: Zoom sopra la bandiera/tendina */
+.student-box-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 6px;
+  padding-left: 2px;
+}
+
+/* Quando la zoom-bar è dentro .student-box-header, sta sopra su tutta la riga */
+.student-box-header .zoom-bar {
+  order: -1;
+  flex-basis: 100%;
+  width: fit-content;
+  margin-bottom: 2px;
+  padding: 1px 6px;
+  box-shadow: 0 2px 0 #111111;
+}
+.student-box-header .zoom-bar .btn-tool {
+  padding: 3px 9px;
+  font-size: 12px;
+}
+
+.student-box-header img.bandiera {
+  width: 30px;
+  height: 21px;
+  margin-right: 2px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+}
+.student-inline-select {
+  background: #ffffff;
+  border: 2px solid #111111;
+  border-radius: 12px;
+  box-shadow: 0 2px 0 #111111;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  color: #111111;
+  padding: 4px 10px;
+  cursor: pointer;
+  outline: none;
+}
+.student-inline-select:focus-visible {
+  outline: 2px solid #111111;
+  border-radius: 12px;
+}
+.student-ita-label {
+  font-size: 17px;
+  font-weight: 900;
+  color: #111111;
+}
+
+/* Riquadri bianchi arrotondati con bordo nero netto */
+.student-display-text {
+  background: #ffffff;
+  border: 3px solid #111111;
+  border-radius: 18px;
+  box-shadow: 0 4px 0 #111111;
+  padding: 13px 15px;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.42;
+  min-height: 110px;
+  flex-grow: 1;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #111111;
+}
+.student-display-ita-box {
+  background: #ffffff !important;
+  min-height: 105px;
+}
+
+/* Barra icone sotto ciascun riquadro bianco */
+.student-box-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 12px 2px;
+}
+.student-card-main .btn-svg-icon {
+  background: #ffffff;
+  color: #111111;
+  border: 2px solid #111111;
+  box-shadow: 0 2px 0 #111111;
+  padding: 6px 10px;
+  border-radius: 12px;
+}
+.student-card-main .btn-svg-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2.2;
+}
+.student-card-main .btn-svg-icon:hover {
+  background: #c81d25;
+  color: #d4ff00;
+}
+.student-card-main .btn-svg-icon.active-speaking {
+  background: #111111 !important;
+  color: #d4ff00 !important;
+}
+
+.student-lang-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+  background: #ffffff;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 3px solid #111111;
+  box-shadow: 0 4px 0 #111111;
+}
+
+/* ==================== FINESTRE (MODAL) ==================== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  padding: 14px;
+}
+.modal-card {
+  background: #c81d25;
+  border-radius: 22px;
+  padding: 22px;
+  width: 100%;
+  max-width: 800px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  border: 3px solid #111111;
+  box-shadow: 0 8px 0 #111111;
+}
+#modalFocus .modal-card {
+  max-width: 850px;
+  height: 65vh;
+  max-height: 600px;
+}
+#modalFocus .modal-body {
+  font-size: 28px;
+  line-height: 1.5;
+}
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 6px; }
+.modal-title { font-size: 22px; font-weight: 900; color: #d4ff00; }
+.modal-body {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.45;
+  background: #ffffff;
+  padding: 18px;
+  border-radius: 16px;
+  border: 3px solid #111111;
+  flex-grow: 1;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #111111;
+}
+
+#modalLangConfig .modal-card { max-width: 900px; width: 95%; }
+.lang-grid-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 16px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 3px solid #111111;
+  color: #111111;
+}
+.lang-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 800;
+  color: #111111;
+  cursor: pointer;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  background: #f8fafc;
+  transition: all 0.15s ease;
+}
+.lang-item:hover {
+  background: #d4ff00;
+  border-color: #111111;
+}
+.lang-item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  flex-shrink: 0;
+  accent-color: #c81d25;
+  cursor: pointer;
+}
+.lang-item img.bandiera { width: 2em; height: 1.4em; }
+.rtl { direction: rtl; text-align: right; }
+
+.qr-box-container {
+  background: #ffffff !important;
+  border: 3px solid #111111 !important;
+  box-shadow: 0 4px 0 #111111 !important;
+  padding: 18px !important;
+  border-radius: 20px !important;
+  display: inline-block !important;
+  margin: 12px auto !important;
+}
+
+#toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111111;
+  color: #d4ff00;
+  border: 2px solid #d4ff00;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 800;
+  max-width: 90vw;
+  text-align: center;
+  z-index: 2000;
+  display: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+@media (max-width: 600px) {
+  body { padding: 10px; }
+  h1 { font-size: 20px; }
+  .header { flex-direction: column; align-items: flex-start; }
+  .top-controls { width: 100%; justify-content: flex-start; }
+  .student-select { width: 100%; }
+}
+
+/* ==================== BADGE AULA (ZOOM) ==================== */
+.box-aula-zoom {
+  background: #ffffff !important;
+  color: #111111 !important;
+  border: 2px solid #111111 !important;
+  box-shadow: 0 3px 0 #111111 !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  z-index: 10;
+  -webkit-tap-highlight-color: transparent;
+}
+.box-aula-zoom #codiceAulaDocente { color: #c81d25 !important; }
+.box-aula-zoom:hover,
+.box-aula-zoom:active {
+  transform: scale(1.6) translate(-15px, 15px);
+  position: relative;
+  z-index: 9999;
+  background: #d4ff00 !important;
+  border-color: #111111 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+}
+.box-aula-zoom:hover #codiceAulaDocente,
+.box-aula-zoom:active #codiceAulaDocente {
+  color: #111111 !important;
+  font-size: 24px;
+}
+/* Nasconde istantaneamente TUTTA l'interfaccia docente prima che app.js parta */
+html.avvio-studente #docenteContainer,
+html.avvio-studente .box-aula-zoom,
+html.avvio-studente #studentCounterContainer,
+html.avvio-studente #btnQR,
+html.avvio-studente #btnLangConfig,
+html.avvio-studente #btnTopPDF,
+html.avvio-studente #btnTopTXT,
+html.avvio-studente .status,
+html.avvio-studente .header > .top-controls > .btn-tool {
+  display: none !important;
+}
+
+html.avvio-studente body {
+  background: #d4ff00 !important;
+}
+@media (min-width: 521px) {
+  html.avvio-studente body {
+    background: #c81d25 !important;
+  }
+}
+
+/* Rende visibile la pagina solo quando tutto il CSS dello smartphone è pronto */
+body.vista-studente {
+  visibility: visible !important;
+}
