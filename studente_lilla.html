@@ -12,8 +12,8 @@
 
     body {
       font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
-      background: #fde047;
-      color: #18181b;
+      background: #8e74ca;
+      color: #ffffff;
       margin: 0;
       padding: 14px;
       min-height: 100vh;
@@ -26,7 +26,7 @@
     /* ==================== CORNICE SMARTPHONE SU PC (> 520px) ==================== */
     @media (min-width: 521px) {
       body {
-        background: #9b72cf; /* Sfondo lilla */
+        background: #d3357a; /* Sfondo magenta */
         padding: 16px;
       }
 
@@ -35,7 +35,7 @@
         max-width: 390px;
         height: 760px;
         max-height: 94vh;
-        background: #fde047;
+        background: #8e74ca;
         border: 14px solid #18181b;
         border-radius: 48px;
         box-shadow: 0 24px 50px rgba(24, 24, 27, 0.45), 0 0 0 3px #3f3f46;
@@ -73,7 +73,7 @@
    /* ==================== SCHERMO INTERO SU CELLULARE (<= 520px) ==================== */
     @media (max-width: 520px) {
       body {
-        background: #fde047;
+        background: #8e74ca;
         padding: 10px 14px;
         justify-content: flex-start;
       }
@@ -82,7 +82,7 @@
         max-width: 420px;
         height: calc(100svh - 20px);
         max-height: 620px;
-        background: #fde047;
+        background: #8e74ca;
         display: flex;
         flex-direction: column;
       }
@@ -145,7 +145,7 @@
     .top-brand span {
       font-size: 17px;
       font-weight: 900;
-      color: #7c3aed;
+      color: #ffffff;
       letter-spacing: -0.2px;
     }
 
@@ -153,14 +153,14 @@
       margin: 0 0 12px 0;
       font-size: 22px;
       font-weight: 900;
-      color: #7c3aed;
+      color: #ffffff;
       line-height: 1.15;
       text-align: center;
       white-space: nowrap;
       flex-shrink: 0;
     }
 
-    /* ==================== ELENCO SCORREVOLE LINGUE (POST-IT IRREGOLARE + SCOTCH) ==================== */
+    /* ==================== ELENCO SCORREVOLE LINGUE (POST-IT IRREGOLARE + OMBRA MORBIDA) ==================== */
     .lang-list-box {
       background: #ffffff;
       border: 2.5px solid #18181b;
@@ -192,7 +192,7 @@
       margin: 8px 0;
     }
     .lang-list-box::-webkit-scrollbar-thumb {
-      background: #9b72cf;
+      background: #8e74ca;
       border-radius: 10px;
       border: 2px solid #f1f5f9;
     }
@@ -214,15 +214,15 @@
     }
 
     .lang-row:hover {
-      background: #faf5ff;
-      border-color: #c4b5fd;
+      background: #fdf2f8;
+      border-color: #f9a8d4;
       transform: translateX(3px);
     }
 
     .lang-row.selected {
-      background: #f3e8ff;
-      border-color: #7c3aed;
-      box-shadow: 0 3px 8px rgba(124, 58, 237, 0.2);
+      background: #fce7f3;
+      border-color: #d3357a;
+      box-shadow: 0 3px 8px rgba(211, 53, 122, 0.2);
     }
 
     .lang-row-left {
@@ -273,9 +273,9 @@
     }
 
     .lang-row.selected .lang-check {
-      background: #7c3aed;
-      border-color: #7c3aed;
-      color: #fde047;
+      background: #d3357a;
+      border-color: #d3357a;
+      color: #ffffff;
     }
 
     /* ==================== RIQUADRO PIN SOTTO (IRREGOLARE + OMBRA MORBIDA) ==================== */
@@ -314,7 +314,7 @@
       font-family: inherit;
       font-size: 22px;
       font-weight: 900;
-      color: #7c3aed;
+      color: #d3357a;
       text-align: right;
       letter-spacing: 3px;
       outline: none;
@@ -331,8 +331,8 @@
       padding: 13px;
       font-size: 16px;
       font-weight: 900;
-      color: #fde047;
-      background: #7c3aed;
+      color: #ffffff;
+      background: #d3357a;
       border: 2.5px solid #18181b;
       border-radius: 999px;
       cursor: pointer;
@@ -346,12 +346,12 @@
 
     .btn-enter:hover {
       transform: translateY(-2px) rotate(-0.8deg);
-      background: #6d28d9;
+      background: #be296b;
       box-shadow: 0 12px 24px rgba(24, 24, 27, 0.3);
     }
 
     .btn-enter:focus-visible, .lang-row:focus-visible {
-      outline: 3px solid #7c3aed;
+      outline: 3px solid #ffffff;
       outline-offset: 2px;
     }
   </style>
