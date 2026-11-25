@@ -822,8 +822,7 @@ body.vista-studente .header > .top-controls > .btn-tool {
   color: #111111 !important;
   font-size: 24px;
 }
-/* Nasconde la pagina iniziale fantasma e il tasto freccia indietro */
-#studentJoinGate,
+/* Nasconde solo il tasto freccia indietro in basso a destra */
 .btn-back-student {
   display: none !important;
 }
