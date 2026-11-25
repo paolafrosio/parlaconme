@@ -483,10 +483,12 @@ textarea::placeholder { color: #64748b; font-weight: 500; }
   animation: pulseRec 1.2s infinite;
 }
 
-/* ==================== VISTA STUDENTE (CORNICE SMARTPHONE IDENTICA A STUDENTECOLORE) ==================== */
+/* ==================== VISTA STUDENTE (DIMENSIONI IDENTICHE A STUDENTECOLORE.HTML) ==================== */
 body.vista-studente {
   background: #d4ff00 !important;
+  color: #111111 !important;
   padding: 14px;
+  min-height: 100vh;
   align-items: center;
   justify-content: center;
 }
@@ -505,16 +507,16 @@ body.vista-studente .header {
   background: #d4ff00 !important;
   border: none !important;
   box-shadow: none !important;
-  padding: 6px 14px 8px 14px;
   margin-bottom: 0;
   width: 100%;
+  flex-shrink: 0;
 }
 body.vista-studente .header h1 {
   color: #c81d25 !important;
-  font-size: 18px;
+  font-size: 16px;
 }
 body.vista-studente .header h1 img {
-  height: 28px !important;
+  height: 26px !important;
 }
 
 .student-view-container {
@@ -527,27 +529,29 @@ body.vista-studente .header h1 img {
   position: relative;
 }
 
-/* Cornice smartphone su PC (> 520px) identica a studentecolore.html */
+/* CORNICE SMARTPHONE SU PC (> 520px): IDENTICA A .phone-shell DI STUDENTECOLORE.HTML */
 @media (min-width: 521px) {
   body.vista-studente {
     background: #c81d25 !important; /* Sfondo rosso CPIAPERTE */
     padding: 16px;
   }
 
+  /* Parte superiore della cornice phone-shell (390px, bordo 14px, raggio 48px, padding-top 32px) */
   body.vista-studente .header {
     width: 390px;
     max-width: 390px;
+    height: 76px;
     border-top: 14px solid #111111 !important;
     border-left: 14px solid #111111 !important;
     border-right: 14px solid #111111 !important;
     border-radius: 48px 48px 0 0 !important;
-    padding: 34px 16px 8px 16px;
+    padding: 32px 18px 4px 18px;
     box-shadow: 0 -3px 0 0 #333333, -3px 0 0 0 #333333, 3px 0 0 0 #333333 !important;
     position: relative;
     z-index: 15;
   }
 
-  /* Notch nero dello smartphone in alto */
+  /* Notch nero identico a .phone-notch-bar (145px x 22px, speaker 44px x 5px) */
   body.vista-studente .header::before {
     content: "";
     display: block;
@@ -557,7 +561,7 @@ body.vista-studente .header h1 img {
     border-bottom-left-radius: 15px;
     border-bottom-right-radius: 15px;
     position: absolute;
-    top: -2px;
+    top: 0;
     left: 50%;
     transform: translateX(-50%);
     z-index: 25;
@@ -570,7 +574,7 @@ body.vista-studente .header h1 img {
     background: #333333;
     border-radius: 999px;
     position: absolute;
-    top: 5px;
+    top: 7px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 26;
@@ -580,27 +584,28 @@ body.vista-studente .header h1 img {
     display: none !important;
   }
 
+  /* Parte inferiore della cornice phone-shell: 76px + 684px = 760px totali (max-height: 94vh) */
   body.vista-studente .student-view-container {
     width: 390px;
     max-width: 390px;
-    height: 675px;
-    max-height: calc(94vh - 85px);
+    height: 684px;
+    max-height: calc(94vh - 76px);
     flex-grow: 0;
     border-left: 14px solid #111111;
     border-right: 14px solid #111111;
     border-bottom: 14px solid #111111;
     border-radius: 0 0 48px 48px;
-    padding: 6px 14px 16px 14px;
+    padding: 6px 18px 22px 18px;
     box-shadow: 0 24px 50px rgba(0, 0, 0, 0.55), 0 3px 0 0 #333333, -3px 0 0 0 #333333, 3px 0 0 0 #333333;
     overflow: hidden;
   }
 }
 
-/* Schermo intero su cellulare reale (<= 520px) */
+/* SCHERMO INTERO SU CELLULARE (<= 520px): IDENTICO A STUDENTECOLORE.HTML */
 @media (max-width: 520px) {
   body.vista-studente {
     background: #d4ff00 !important;
-    padding: 8px 12px;
+    padding: 10px 14px;
     justify-content: flex-start;
   }
   body.vista-studente .header,
@@ -613,6 +618,10 @@ body.vista-studente .header h1 img {
     padding-left: 0;
     padding-right: 0;
   }
+  body.vista-studente .student-view-container {
+    height: calc(100svh - 68px);
+    max-height: 572px;
+  }
   body.vista-studente .phone-notch-bar {
     display: none !important;
   }
@@ -622,7 +631,7 @@ body.vista-studente .header h1 img {
   background: #d4ff00;
   color: #111111;
   border-radius: 20px;
-  padding: 4px 2px;
+  padding: 2px 0 4px 0;
   border: none;
   box-shadow: none;
   display: flex;
@@ -684,7 +693,7 @@ body.vista-studente .header h1 img {
   font-size: 18px;
   font-weight: 600;
   line-height: 1.42;
-  min-height: 125px;
+  min-height: 120px;
   flex-grow: 1;
   overflow-y: auto;
   white-space: pre-wrap;
@@ -693,7 +702,7 @@ body.vista-studente .header h1 img {
 }
 .student-display-ita-box {
   background: #ffffff !important;
-  min-height: 120px;
+  min-height: 115px;
 }
 
 /* Barra icone sotto ciascun riquadro bianco */
