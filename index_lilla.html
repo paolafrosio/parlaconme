@@ -13,7 +13,7 @@
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js" defer></script>
   <script src="lib/qrcode.min.js" defer></script>
 
-  <link rel="stylesheet" href="style_lilla.css?v=2">
+  <link rel="stylesheet" href="style_lilla.css?v=3">
   <script>
     if (/[?&](stanza|pin)=/i.test(window.location.search)) {
       document.documentElement.classList.add('avvio-studente');
@@ -191,7 +191,9 @@
         <span id="studentFlagWrap"><img class="bandiera" src="bandiere/en.svg" alt="" width="24" height="17"></span>
         <select id="myLangSelect" class="student-inline-select" aria-label="Scegli la tua lingua" onchange="cambiaLinguaStudente()"></select>
       </div>
-      <div id="studentDisplayText" class="student-display-text" aria-live="polite">In attesa della traduzione...</div>
+      <div class="student-scotch-wrap">
+        <div id="studentDisplayText" class="student-display-text" aria-live="polite">In attesa della traduzione...</div>
+      </div>
 
       <div class="student-box-actions">
         <button class="btn-svg-icon" data-icona="scarica" data-label="Scarica PDF" data-corta="PDF" onclick="scaricaPDFSingoloDallaVistaStudente()"></button>
@@ -205,7 +207,9 @@
         <img class="bandiera" src="bandiere/it.svg" alt="" width="24" height="17">
         <span class="student-ita-label">Italiano</span>
       </div>
-      <div id="studentDisplayITA" class="student-display-text student-display-ita-box" lang="it" aria-live="polite">In attesa dell'insegnante...</div>
+      <div class="student-scotch-wrap student-scotch-wrap-ita">
+        <div id="studentDisplayITA" class="student-display-text student-display-ita-box" lang="it" aria-live="polite">In attesa dell'insegnante...</div>
+      </div>
 
       <div class="student-box-actions" style="justify-content: space-between; margin-bottom: 0;">
         <div style="display: flex; gap: 10px; align-items: center;">
