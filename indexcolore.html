@@ -14,6 +14,14 @@
 <script src="lib/qrcode.min.js" defer></script>
 
 <link rel="stylesheet" href="stylecolore.css?v=5">
+<script>
+  // Attiva subito la modalità studente prima ancora che la pagina venga disegnata
+  if (/[?&](stanza|pin)=/i.test(window.location.search)) {
+    document.documentElement.classList.add('avvio-studente');
+  }
+</script>
+
+  
 </head>
 
   <script>
