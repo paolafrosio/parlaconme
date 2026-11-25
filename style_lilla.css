@@ -1,36 +1,36 @@
-/* ==================== TEMI (STILE LILLA & GIALLO POST-IT) ==================== */
+/* ==================== TEMI (STILE LILLA #8e74ca & MAGENTA #d3357a) ==================== */
 :root {
-  --bg-main: #9b72cf;            /* Lilla vibrante */
+  --bg-main: #8e74ca;            /* Lilla */
   --bg-lilla-deep: #5b21b6;      /* Lilla scuro per ombra titolo */
-  --accent-lime: #fde047;        /* Giallo caldo sole */
-  --accent-lime-hover: #fef08a;
+  --accent-lime: #d3357a;        /* Magenta */
+  --accent-lime-hover: #be296b;
   --box-white: #ffffff;          /* Riquadri post-it bianchi */
   --ink-dark: #18181b;           /* Nero inchiostro */
-  --ink-red: #6d28d9;
-  --card-bg: #9b72cf;
+  --ink-red: #d3357a;
+  --card-bg: #8e74ca;
   --card-border: #18181b;
   --card-shadow: 0 10px 22px rgba(24, 24, 27, 0.22);
   --text-color: #ffffff;
-  --text-muted: #fef9c3;
-  --primary-cyan: #fde047;
+  --text-muted: #fce7f3;
+  --primary-cyan: #ffffff;
   --card-body-bg: #ffffff;
   --box-ita-bg: #ffffff;
 }
 
-/* Modalità alternativa (pulsante tema: sfondo Giallo, accenti Lilla) */
+/* Modalità alternativa (pulsante tema: sfondo Magenta, accenti Lilla) */
 body.light-mode {
-  --bg-main: #fde047;
-  --bg-lilla-deep: #9b72cf;
-  --accent-lime: #7c3aed;
-  --accent-lime-hover: #6d28d9;
+  --bg-main: #d3357a;
+  --bg-lilla-deep: #8e74ca;
+  --accent-lime: #8e74ca;
+  --accent-lime-hover: #7a5ec0;
   --box-white: #ffffff;
   --ink-dark: #18181b;
-  --card-bg: #fde047;
+  --card-bg: #d3357a;
   --card-border: #18181b;
   --card-shadow: 0 10px 22px rgba(24, 24, 27, 0.18);
-  --text-color: #18181b;
-  --text-muted: #3f3f46;
-  --primary-cyan: #7c3aed;
+  --text-color: #ffffff;
+  --text-muted: #f3e8ff;
+  --primary-cyan: #ffffff;
   --card-body-bg: #ffffff;
   --box-ita-bg: #ffffff;
 }
@@ -63,7 +63,7 @@ img.bandiera {
 }
 
 button:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-visible {
-  outline: 3px solid var(--accent-lime);
+  outline: 3px solid #ffffff;
   outline-offset: 2px;
 }
 
@@ -75,8 +75,8 @@ button:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-
     content: attr(data-tooltip);
     position: absolute;
     background: #18181b;
-    color: #fde047;
-    border: 2px solid #fde047;
+    color: #ffffff;
+    border: 2px solid #d3357a;
     padding: 5px 10px;
     font-size: 11px;
     font-weight: 700;
@@ -119,16 +119,16 @@ button:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-
   width: 100%;
 }
 body.light-mode .header {
-  border-bottom-color: rgba(24, 24, 27, 0.2);
+  border-bottom-color: rgba(255, 255, 255, 0.35);
 }
 
 h1 {
   margin: 0;
-  color: #fde047;
+  color: #ffffff;
   font-size: 27px;
   font-weight: 900;
   letter-spacing: -0.3px;
-  text-shadow: 2px 2px 0 #18181b, 4px 4px 0 #5b21b6;
+  text-shadow: 2px 2px 0 #18181b, 4px 4px 0 #d3357a;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -136,8 +136,8 @@ h1 {
   flex-shrink: 0;
 }
 body.light-mode h1 {
-  color: #7c3aed;
-  text-shadow: 2px 2px 0 #18181b, 4px 4px 0 #ffffff;
+  color: #ffffff;
+  text-shadow: 2px 2px 0 #18181b, 4px 4px 0 #8e74ca;
 }
 
 .top-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -145,7 +145,7 @@ body.light-mode h1 {
 .student-counter-badge {
   font-size: 13px;
   font-weight: 800;
-  color: #18181b;
+  color: #ffffff;
   background: var(--accent-lime);
   border: 2px solid #18181b;
   box-shadow: 0 4px 10px rgba(24, 24, 27, 0.18);
@@ -179,8 +179,8 @@ body.light-mode .student-counter-badge {
   border: 2px solid #18181b;
   box-shadow: 0 4px 10px rgba(24, 24, 27, 0.18);
 }
-.status-connected { background: #fde047; color: #18181b; border-color: #18181b; }
-.status-connecting { background: #fef9c3; color: #18181b; border-color: #18181b; }
+.status-connected { background: #ffffff; color: #18181b; border-color: #18181b; }
+.status-connecting { background: #fce7f3; color: #18181b; border-color: #18181b; }
 .status-disconnected { background: #18181b; color: #ffffff; border-color: #ffffff; }
 
 .zoom-bar {
@@ -206,7 +206,7 @@ body.light-mode .student-counter-badge {
   transition: transform 0.18s ease, background 0.15s ease;
 }
 .zoom-bar .btn-tool { border: none; background: transparent; box-shadow: none; }
-.btn-tool:hover { background: var(--accent-lime); color: #18181b; transform: translateY(-2px) rotate(-1deg); }
+.btn-tool:hover { background: var(--accent-lime); color: #ffffff; transform: translateY(-2px) rotate(-1deg); }
 body.light-mode .btn-tool:hover { color: #ffffff; }
 
 .status {
@@ -260,7 +260,7 @@ body.light-mode .btn-tool:hover { color: #ffffff; }
   transform: translateX(-50%) rotate(-2deg);
   width: 96px;
   height: 22px;
-  background: rgba(254, 249, 195, 0.78);
+  background: rgba(252, 231, 243, 0.84);
   border-left: 2px dashed rgba(24, 24, 27, 0.16);
   border-right: 2px dashed rgba(24, 24, 27, 0.16);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.14);
@@ -279,10 +279,10 @@ body.light-mode .btn-tool:hover { color: #ffffff; }
 label { font-weight: 800; color: var(--text-color); font-size: 16px; }
 .action-btns { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
-/* Pulsanti pillola giallo sole con ombra morbida */
+/* Pulsanti pillola magenta con ombra morbida */
 .btn-main {
   background: var(--accent-lime);
-  color: #18181b;
+  color: #ffffff;
   border: 2px solid #18181b;
   box-shadow: 0 4px 10px rgba(24, 24, 27, 0.2);
   padding: 8px 16px;
@@ -304,7 +304,7 @@ body.light-mode .btn-main { color: #ffffff; }
   box-shadow: 0 8px 16px rgba(24, 24, 27, 0.26);
 }
 
-/* Microfono stile REC / Giallo Sole */
+/* Microfono stile REC / Magenta */
 .btn-mic-container {
   display: flex;
   flex-direction: column;
@@ -328,6 +328,9 @@ body.light-mode .btn-main { color: #ffffff; }
   justify-content: center;
   transition: transform 0.18s ease, background 0.15s ease;
 }
+.btn-mic-circle svg {
+  stroke: #ffffff;
+}
 .btn-mic-container:hover .btn-mic-circle {
   transform: scale(1.07) rotate(3deg);
   background: var(--accent-lime-hover);
@@ -346,12 +349,12 @@ body.light-mode .btn-main { color: #ffffff; }
   animation: pulseRec 1.2s infinite;
 }
 .btn-mic-container.recording .btn-mic-circle svg {
-  stroke: #7c3aed !important;
+  stroke: #d3357a !important;
 }
 @keyframes pulseRec {
-  0% { box-shadow: 0 0 0 0 rgba(253, 224, 71, 0.85); }
-  70% { box-shadow: 0 0 0 14px rgba(253, 224, 71, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(253, 224, 71, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(211, 53, 122, 0.85); }
+  70% { box-shadow: 0 0 0 14px rgba(211, 53, 122, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(211, 53, 122, 0); }
 }
 
 /* Riquadro post-it testo italiano bianco irregolare con ombra morbida */
@@ -464,7 +467,7 @@ textarea::placeholder { color: #64748b; font-weight: 500; }
   transform: translateX(-50%) rotate(-2.5deg);
   width: 78px;
   height: 20px;
-  background: rgba(254, 249, 195, 0.82);
+  background: rgba(252, 231, 243, 0.86);
   border-left: 2px dashed rgba(24, 24, 27, 0.16);
   border-right: 2px dashed rgba(24, 24, 27, 0.16);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
@@ -480,9 +483,9 @@ textarea::placeholder { color: #64748b; font-weight: 500; }
 }
 
 .card.speaking-card {
-  background: #fefce8 !important;
+  background: #fdf2f8 !important;
   border-color: #18181b !important;
-  box-shadow: 0 0 0 4px #fde047, 0 14px 28px rgba(24, 24, 27, 0.28) !important;
+  box-shadow: 0 0 0 4px #d3357a, 0 14px 28px rgba(24, 24, 27, 0.28) !important;
 }
 .card-header {
   display: flex;
@@ -548,21 +551,21 @@ textarea::placeholder { color: #64748b; font-weight: 500; }
 }
 .btn-svg-icon svg { width: 19px; height: 19px; stroke: currentColor; fill: none; stroke-width: 2.2; }
 .btn-svg-icon:hover {
-  background: #fde047;
-  color: #18181b;
+  background: #d3357a;
+  color: #ffffff;
   transform: scale(1.1) rotate(-3deg);
 }
 .btn-svg-icon.active-speaking {
-  background: #7c3aed !important;
+  background: #8e74ca !important;
   color: #ffffff !important;
   border-color: #18181b !important;
   animation: pulseRec 1.2s infinite;
 }
 
-/* ==================== VISTA STUDENTE (GIALLO + POST-IT BIANCHI CON SCOTCH) ==================== */
+/* ==================== VISTA STUDENTE (LILLA #8e74ca + POST-IT BIANCHI CON SCOTCH) ==================== */
 body.vista-studente {
-  background: #fde047 !important;
-  color: #18181b !important;
+  background: #8e74ca !important;
+  color: #ffffff !important;
   padding: 14px;
   min-height: 100vh;
   align-items: center;
@@ -579,9 +582,9 @@ body.vista-studente #docenteContainer,
   display: none !important;
 }
 
-/* Intestazione a riga singola fissa: Titolo bicolore a sinistra + Spia luminosa a destra */
+/* Intestazione a riga singola fissa: Titolo a sinistra + Spia luminosa a destra */
 body.vista-studente .header {
-  background: #fde047 !important;
+  background: #8e74ca !important;
   border: none !important;
   box-shadow: none !important;
   margin-bottom: 0;
@@ -594,8 +597,8 @@ body.vista-studente .header {
   flex-shrink: 0;
 }
 body.vista-studente .header h1 {
-  color: #7c3aed !important;
-  text-shadow: 1.5px 1.5px 0 #18181b, 3px 3px 0 #ffffff !important;
+  color: #ffffff !important;
+  text-shadow: none !important;
   font-size: 17px;
   gap: 6px;
 }
@@ -671,14 +674,14 @@ body.vista-studente #badgeConnessione.status-disconnected::before {
   gap: 8px;
   flex-grow: 1;
   width: 100%;
-  background: #fde047;
+  background: #8e74ca;
   position: relative;
 }
 
 /* CORNICE SMARTPHONE SU PC (> 520px) */
 @media (min-width: 521px) {
   body.vista-studente {
-    background: #9b72cf !important; /* Sfondo lilla */
+    background: #d3357a !important; /* Sfondo magenta */
     padding: 16px;
   }
 
@@ -747,7 +750,7 @@ body.vista-studente #badgeConnessione.status-disconnected::before {
 /* SCHERMO INTERO SU CELLULARE (<= 520px) */
 @media (max-width: 520px) {
   body.vista-studente {
-    background: #fde047 !important;
+    background: #8e74ca !important;
     padding: 10px 14px;
     justify-content: flex-start;
   }
@@ -771,8 +774,8 @@ body.vista-studente #badgeConnessione.status-disconnected::before {
 }
 
 .student-card-main {
-  background: #fde047;
-  color: #18181b;
+  background: #8e74ca;
+  color: #ffffff;
   border-radius: 20px;
   padding: 2px 2px 4px 2px;
   border: none;
@@ -785,7 +788,7 @@ body.vista-studente #badgeConnessione.status-disconnected::before {
 
 .student-card-main label,
 .student-card-main .avviso-privacy {
-  color: #18181b !important;
+  color: #ffffff !important;
 }
 
 /* Intestazione sopra il primo box */
@@ -838,7 +841,7 @@ body.vista-studente #badgeConnessione.status-disconnected::before {
 .student-ita-label {
   font-size: 17px;
   font-weight: 900;
-  color: #18181b;
+  color: #ffffff;
 }
 
 /* Riquadri post-it bianchi irregolari con ombra morbida, scotch e micro-movimento */
@@ -873,7 +876,7 @@ body.vista-studente #badgeConnessione.status-disconnected::before {
   transform: translateX(-50%) rotate(-2deg);
   width: 68px;
   height: 16px;
-  background: rgba(196, 181, 253, 0.72);
+  background: rgba(252, 231, 243, 0.85);
   border-left: 2px dashed rgba(24, 24, 27, 0.16);
   border-right: 2px dashed rgba(24, 24, 27, 0.16);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
@@ -911,12 +914,12 @@ body.vista-studente #badgeConnessione.status-disconnected::before {
   stroke-width: 2.2;
 }
 .student-card-main .btn-svg-icon:hover {
-  background: #9b72cf;
-  color: #fde047;
+  background: #d3357a;
+  color: #ffffff;
 }
 .student-card-main .btn-svg-icon.active-speaking {
   background: #18181b !important;
-  color: #fde047 !important;
+  color: #ffffff !important;
 }
 
 .student-lang-bar {
@@ -929,6 +932,10 @@ body.vista-studente #badgeConnessione.status-disconnected::before {
   border-radius: 20px 6px 18px 8px / 8px 18px 6px 20px;
   border: 2.5px solid #18181b;
   box-shadow: 0 10px 20px rgba(24, 24, 27, 0.18);
+  color: #18181b !important;
+}
+.student-lang-bar label {
+  color: #18181b !important;
 }
 
 /* ==================== FINESTRE (MODAL) ==================== */
@@ -943,7 +950,7 @@ body.vista-studente #badgeConnessione.status-disconnected::before {
   padding: 14px;
 }
 .modal-card {
-  background: #9b72cf;
+  background: #8e74ca;
   border-radius: 26px 8px 24px 10px / 10px 24px 8px 26px;
   padding: 22px;
   width: 100%;
@@ -967,8 +974,8 @@ body.vista-studente #badgeConnessione.status-disconnected::before {
 .modal-title {
   font-size: 22px;
   font-weight: 900;
-  color: #fde047;
-  text-shadow: 1.5px 1.5px 0 #18181b, 3px 3px 0 #5b21b6;
+  color: #ffffff;
+  text-shadow: 1.5px 1.5px 0 #18181b, 3px 3px 0 #d3357a;
 }
 .modal-body {
   font-size: 22px;
@@ -1014,8 +1021,8 @@ body.vista-studente #badgeConnessione.status-disconnected::before {
   transition: all 0.15s ease;
 }
 .lang-item:hover {
-  background: #fde047;
-  border-color: #18181b;
+  background: #fdf2f8;
+  border-color: #d3357a;
 }
 .lang-item input[type="checkbox"] {
   width: 20px;
@@ -1023,7 +1030,7 @@ body.vista-studente #badgeConnessione.status-disconnected::before {
   min-width: 20px;
   min-height: 20px;
   flex-shrink: 0;
-  accent-color: #7c3aed;
+  accent-color: #d3357a;
   cursor: pointer;
 }
 .lang-item img.bandiera { width: 2em; height: 1.4em; }
@@ -1045,8 +1052,8 @@ body.vista-studente #badgeConnessione.status-disconnected::before {
   left: 50%;
   transform: translateX(-50%);
   background: #18181b;
-  color: #fde047;
-  border: 2px solid #fde047;
+  color: #ffffff;
+  border: 2px solid #d3357a;
   padding: 10px 18px;
   border-radius: 999px;
   font-size: 14px;
@@ -1080,19 +1087,20 @@ body.vista-studente #badgeConnessione.status-disconnected::before {
   z-index: 10;
   -webkit-tap-highlight-color: transparent;
 }
-.box-aula-zoom #codiceAulaDocente { color: #7c3aed !important; }
+.box-aula-zoom #codiceAulaDocente { color: #d3357a !important; }
 .box-aula-zoom:hover,
 .box-aula-zoom:active {
   transform: scale(1.6) translate(-15px, 15px);
   position: relative;
   z-index: 9999;
-  background: #fde047 !important;
+  background: #d3357a !important;
+  color: #ffffff !important;
   border-color: #18181b !important;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35) !important;
 }
 .box-aula-zoom:hover #codiceAulaDocente,
 .box-aula-zoom:active #codiceAulaDocente {
-  color: #18181b !important;
+  color: #ffffff !important;
   font-size: 24px;
 }
 
@@ -1110,11 +1118,11 @@ html.avvio-studente .header > .top-controls > .btn-tool {
 }
 
 html.avvio-studente body {
-  background: #fde047 !important;
+  background: #8e74ca !important;
 }
 @media (min-width: 521px) {
   html.avvio-studente body {
-    background: #9b72cf !important;
+    background: #d3357a !important;
   }
 }
 
