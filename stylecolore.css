@@ -822,7 +822,13 @@ body.vista-studente .header > .top-controls > .btn-tool {
   color: #111111 !important;
   font-size: 24px;
 }
-/* Nasconde solo il tasto freccia indietro in basso a destra */
+/* ==================== CORREZIONE VISTA STUDENTE ==================== */
+/* Evita il flash della schermata docente mentre carica la vista studente */
+body.vista-studente #docenteContainer {
+  display: none !important;
+}
+
+/* Nasconde solo il pulsante freccia indietro in basso a destra */
 .btn-back-student {
   display: none !important;
 }
