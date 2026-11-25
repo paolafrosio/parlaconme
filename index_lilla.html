@@ -13,7 +13,7 @@
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js" defer></script>
   <script src="lib/qrcode.min.js" defer></script>
 
-  <link rel="stylesheet" href="style_lilla.css?v=1">
+  <link rel="stylesheet" href="style_lilla.css?v=2">
   <script>
     if (/[?&](stanza|pin)=/i.test(window.location.search)) {
       document.documentElement.classList.add('avvio-studente');
@@ -131,9 +131,8 @@
           <button class="btn-tool" style="color: #f87171; font-size: 18px; font-weight: bold;" onclick="chiudiModalitaStudente()" aria-label="Chiudi modalità studente">✕</button>
         </div>
       </div>
-<div class="textarea-scotch-wrap">
-        <textarea id="testoITA" placeholder="Scrivi o premi il pulsante per parlare..." oninput="registraModificaManuale()"></textarea>
-      </div>    </div>
+      <textarea id="testoStudente" aria-label="Trascrizione e traduzione dello studente" placeholder="Trascrizione e traduzione..." style="height: 60px;"></textarea>
+    </div>
 
     <div class="source-box">
       <div class="label-row">
@@ -157,7 +156,9 @@
           </button>
         </div>
       </div>
-      <textarea id="testoITA" placeholder="Scrivi o premi il pulsante per parlare..." oninput="registraModificaManuale()"></textarea>
+      <div class="textarea-scotch-wrap">
+        <textarea id="testoITA" placeholder="Scrivi o premi il pulsante per parlare..." oninput="registraModificaManuale()"></textarea>
+      </div>
     </div>
 
     <p class="avviso-privacy">ℹ️ Le frasi vengono tradotte e lette da servizi online (Google). Non dire né scrivere dati personali (nome completo, indirizzo, documenti).</p>
