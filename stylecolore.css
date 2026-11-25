@@ -983,3 +983,7 @@ body.vista-studente #badgeConnessione.status-disconnected::before {
   color: #111111 !important;
   font-size: 24px;
 }
+/* Nasconde istantaneamente la vista docente prima che app.js finisca di caricare */
+html.avvio-studente #docenteContainer {
+  display: none !important;
+}
