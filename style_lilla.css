@@ -246,11 +246,16 @@ body.light-mode .btn-tool:hover { color: #ffffff; }
   position: relative;
 }
 
-/* Pezzo di scotch sopra il post-it del docente */
-.source-box::after {
+.textarea-scotch-wrap {
+  position: relative;
+  width: 100%;
+}
+
+/* Pezzo di scotch sempre agganciato al bordo superiore della casella testo docente */
+.textarea-scotch-wrap::after {
   content: "";
   position: absolute;
-  top: 46px;
+  top: -11px;
   left: 50%;
   transform: translateX(-50%) rotate(-2deg);
   width: 96px;
