@@ -483,32 +483,14 @@ textarea::placeholder { color: #64748b; font-weight: 500; }
   animation: pulseRec 1.2s infinite;
 }
 
-/* ==================== VISTA STUDENTE (FORMATO TELEFONO CENTRATO SU PC) ==================== */
+/* ==================== VISTA STUDENTE (CORNICE SMARTPHONE IDENTICA A STUDENTECOLORE) ==================== */
 body.vista-studente {
-  background: #111111 !important;
-  padding: 20px 12px;
-  align-items: center;
-}
-
-body.vista-studente .header {
   background: #d4ff00 !important;
-  border: 3px solid #111111 !important;
-  border-bottom: none !important;
-  border-radius: 28px 28px 0 0 !important;
-  box-shadow: none !important;
-  padding: 14px 16px 10px 16px;
-  margin-bottom: 0;
-  max-width: 430px;
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-}
-body.vista-studente .header h1 {
-  color: #c81d25 !important;
-  font-size: 20px;
+  padding: 14px;
+  align-items: center;
+  justify-content: center;
 }
 
-body.vista-studente .phone-notch-bar,
 body.vista-studente .box-aula-zoom,
 body.vista-studente .status,
 body.vista-studente #btnTopPDF,
@@ -519,27 +501,128 @@ body.vista-studente #docenteContainer,
   display: none !important;
 }
 
+body.vista-studente .header {
+  background: #d4ff00 !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 6px 14px 8px 14px;
+  margin-bottom: 0;
+  width: 100%;
+}
+body.vista-studente .header h1 {
+  color: #c81d25 !important;
+  font-size: 18px;
+}
+body.vista-studente .header h1 img {
+  height: 28px !important;
+}
+
 .student-view-container {
   display: none;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   flex-grow: 1;
   width: 100%;
-  max-width: 430px;
-  margin: 0 auto;
   background: #d4ff00;
-  border: 3px solid #111111;
-  border-top: none;
-  border-radius: 0 0 28px 28px;
-  padding: 10px 14px 16px 14px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+/* Cornice smartphone su PC (> 520px) identica a studentecolore.html */
+@media (min-width: 521px) {
+  body.vista-studente {
+    background: #c81d25 !important; /* Sfondo rosso CPIAPERTE */
+    padding: 16px;
+  }
+
+  body.vista-studente .header {
+    width: 390px;
+    max-width: 390px;
+    border-top: 14px solid #111111 !important;
+    border-left: 14px solid #111111 !important;
+    border-right: 14px solid #111111 !important;
+    border-radius: 48px 48px 0 0 !important;
+    padding: 34px 16px 8px 16px;
+    box-shadow: 0 -3px 0 0 #333333, -3px 0 0 0 #333333, 3px 0 0 0 #333333 !important;
+    position: relative;
+    z-index: 15;
+  }
+
+  /* Notch nero dello smartphone in alto */
+  body.vista-studente .header::before {
+    content: "";
+    display: block;
+    width: 145px;
+    height: 22px;
+    background: #111111;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 25;
+  }
+  body.vista-studente .header::after {
+    content: "";
+    display: block;
+    width: 44px;
+    height: 5px;
+    background: #333333;
+    border-radius: 999px;
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 26;
+  }
+
+  body.vista-studente .phone-notch-bar {
+    display: none !important;
+  }
+
+  body.vista-studente .student-view-container {
+    width: 390px;
+    max-width: 390px;
+    height: 675px;
+    max-height: calc(94vh - 85px);
+    flex-grow: 0;
+    border-left: 14px solid #111111;
+    border-right: 14px solid #111111;
+    border-bottom: 14px solid #111111;
+    border-radius: 0 0 48px 48px;
+    padding: 6px 14px 16px 14px;
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.55), 0 3px 0 0 #333333, -3px 0 0 0 #333333, 3px 0 0 0 #333333;
+    overflow: hidden;
+  }
+}
+
+/* Schermo intero su cellulare reale (<= 520px) */
+@media (max-width: 520px) {
+  body.vista-studente {
+    background: #d4ff00 !important;
+    padding: 8px 12px;
+    justify-content: flex-start;
+  }
+  body.vista-studente .header,
+  body.vista-studente .student-view-container {
+    width: 100%;
+    max-width: 420px;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  body.vista-studente .phone-notch-bar {
+    display: none !important;
+  }
 }
 
 .student-card-main {
   background: #d4ff00;
   color: #111111;
   border-radius: 20px;
-  padding: 6px 4px;
+  padding: 4px 2px;
   border: none;
   box-shadow: none;
   display: flex;
@@ -574,7 +657,7 @@ body.vista-studente #docenteContainer,
   border-radius: 12px;
   box-shadow: 0 2px 0 #111111;
   font-family: inherit;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 800;
   color: #111111;
   padding: 4px 10px;
@@ -586,7 +669,7 @@ body.vista-studente #docenteContainer,
   border-radius: 12px;
 }
 .student-ita-label {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 900;
   color: #111111;
 }
@@ -597,11 +680,11 @@ body.vista-studente #docenteContainer,
   border: 3px solid #111111;
   border-radius: 18px;
   box-shadow: 0 4px 0 #111111;
-  padding: 15px 17px;
-  font-size: 19px;
+  padding: 13px 15px;
+  font-size: 18px;
   font-weight: 600;
-  line-height: 1.45;
-  min-height: 140px;
+  line-height: 1.42;
+  min-height: 125px;
   flex-grow: 1;
   overflow-y: auto;
   white-space: pre-wrap;
@@ -610,7 +693,7 @@ body.vista-studente #docenteContainer,
 }
 .student-display-ita-box {
   background: #ffffff !important;
-  min-height: 135px;
+  min-height: 120px;
 }
 
 /* Barra icone sotto ciascun riquadro bianco */
@@ -618,7 +701,7 @@ body.vista-studente #docenteContainer,
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 10px 0 14px 2px;
+  margin: 8px 0 12px 2px;
 }
 .student-card-main .btn-svg-icon {
   background: #ffffff;
@@ -629,8 +712,8 @@ body.vista-studente #docenteContainer,
   border-radius: 12px;
 }
 .student-card-main .btn-svg-icon svg {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   stroke-width: 2.2;
 }
 .student-card-main .btn-svg-icon:hover {
@@ -652,21 +735,6 @@ body.vista-studente #docenteContainer,
   border-radius: 16px;
   border: 3px solid #111111;
   box-shadow: 0 4px 0 #111111;
-}
-
-/* Su schermi piccoli reali (smartphone) occupa tutto lo schermo senza bordi neri attorno */
-@media (max-width: 480px) {
-  body.vista-studente {
-    background: #d4ff00 !important;
-    padding: 0;
-  }
-  body.vista-studente .header,
-  .student-view-container {
-    max-width: 100%;
-    border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-  }
 }
 
 /* ==================== FINESTRE (MODAL) ==================== */
