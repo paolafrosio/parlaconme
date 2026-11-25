@@ -983,7 +983,24 @@ body.vista-studente #badgeConnessione.status-disconnected::before {
   color: #111111 !important;
   font-size: 24px;
 }
-/* Nasconde istantaneamente la vista docente prima che app.js finisca di caricare */
-html.avvio-studente #docenteContainer {
+/* Nasconde istantaneamente TUTTA l'interfaccia docente prima che app.js parta */
+html.avvio-studente #docenteContainer,
+html.avvio-studente .box-aula-zoom,
+html.avvio-studente #studentCounterContainer,
+html.avvio-studente #btnQR,
+html.avvio-studente #btnLangConfig,
+html.avvio-studente #btnTopPDF,
+html.avvio-studente #btnTopTXT,
+html.avvio-studente .status,
+html.avvio-studente .header > .top-controls > .btn-tool {
   display: none !important;
+}
+
+html.avvio-studente body {
+  background: #d4ff00 !important;
+}
+@media (min-width: 521px) {
+  html.avvio-studente body {
+    background: #c81d25 !important;
+  }
 }
