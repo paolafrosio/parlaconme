@@ -483,20 +483,22 @@ textarea::placeholder { color: #64748b; font-weight: 500; }
   animation: pulseRec 1.2s infinite;
 }
 
-/* ==================== VISTA STUDENTE (NORMALE VISTA RESPONSIVE SENZA CORNICE FINTO TELEFONO) ==================== */
+/* ==================== VISTA STUDENTE (FORMATO TELEFONO CENTRATO SU PC) ==================== */
 body.vista-studente {
-  background: #d4ff00 !important;
-  padding: 14px;
+  background: #111111 !important;
+  padding: 20px 12px;
+  align-items: center;
 }
 
 body.vista-studente .header {
-  background: transparent !important;
-  border: none !important;
-  border-bottom: 2px solid rgba(17, 17, 17, 0.2) !important;
+  background: #d4ff00 !important;
+  border: 3px solid #111111 !important;
+  border-bottom: none !important;
+  border-radius: 28px 28px 0 0 !important;
   box-shadow: none !important;
-  padding: 6px 4px 10px 4px;
-  margin-bottom: 12px;
-  max-width: 720px;
+  padding: 14px 16px 10px 16px;
+  margin-bottom: 0;
+  max-width: 430px;
   width: 100%;
   margin-left: auto;
   margin-right: auto;
@@ -511,7 +513,9 @@ body.vista-studente .box-aula-zoom,
 body.vista-studente .status,
 body.vista-studente #btnTopPDF,
 body.vista-studente #btnTopTXT,
-body.vista-studente .header > .top-controls > .btn-tool {
+body.vista-studente .header > .top-controls > .btn-tool,
+body.vista-studente #docenteContainer,
+.btn-back-student {
   display: none !important;
 }
 
@@ -521,8 +525,14 @@ body.vista-studente .header > .top-controls > .btn-tool {
   gap: 10px;
   flex-grow: 1;
   width: 100%;
-  max-width: 720px;
+  max-width: 430px;
   margin: 0 auto;
+  background: #d4ff00;
+  border: 3px solid #111111;
+  border-top: none;
+  border-radius: 0 0 28px 28px;
+  padding: 10px 14px 16px 14px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
 }
 
 .student-card-main {
@@ -632,26 +642,6 @@ body.vista-studente .header > .top-controls > .btn-tool {
   color: #d4ff00 !important;
 }
 
-/* Freccia indietro in basso a destra */
-.btn-back-student {
-  background: #ffffff;
-  border: 2px solid #111111;
-  box-shadow: 0 2px 0 #111111;
-  color: #111111;
-  padding: 6px 10px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  transition: transform 0.15s ease;
-}
-.btn-back-student:hover {
-  transform: translateX(-3px);
-  background: #c81d25;
-  color: #d4ff00;
-}
-
 .student-lang-bar {
   display: flex;
   flex-direction: column;
@@ -662,6 +652,21 @@ body.vista-studente .header > .top-controls > .btn-tool {
   border-radius: 16px;
   border: 3px solid #111111;
   box-shadow: 0 4px 0 #111111;
+}
+
+/* Su schermi piccoli reali (smartphone) occupa tutto lo schermo senza bordi neri attorno */
+@media (max-width: 480px) {
+  body.vista-studente {
+    background: #d4ff00 !important;
+    padding: 0;
+  }
+  body.vista-studente .header,
+  .student-view-container {
+    max-width: 100%;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
 }
 
 /* ==================== FINESTRE (MODAL) ==================== */
@@ -821,14 +826,4 @@ body.vista-studente .header > .top-controls > .btn-tool {
 .box-aula-zoom:active #codiceAulaDocente {
   color: #111111 !important;
   font-size: 24px;
-}
-/* ==================== CORREZIONE VISTA STUDENTE ==================== */
-/* Evita il flash della schermata docente mentre carica la vista studente */
-body.vista-studente #docenteContainer {
-  display: none !important;
-}
-
-/* Nasconde solo il pulsante freccia indietro in basso a destra */
-.btn-back-student {
-  display: none !important;
 }
