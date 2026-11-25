@@ -10,40 +10,28 @@
   <link rel="icon" type="image/png" href="logo_piccolo.png?v=5">
 
   <!-- PeerJS e QR code nella cartella lib/ -->
-<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js" defer></script>
-<script src="lib/qrcode.min.js" defer></script>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js" defer></script>
+  <script src="lib/qrcode.min.js" defer></script>
 
-<link rel="stylesheet" href="stylecolore.css?v=5">
-<script>
-  // Attiva subito la modalità studente prima ancora che la pagina venga disegnata
-  if (/[?&](stanza|pin)=/i.test(window.location.search)) {
-    document.documentElement.classList.add('avvio-studente');
-  }
-</script>
-
-  <!-- PeerJS e QR code nella cartella lib/ -->
-<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js" defer></script>
-<script src="lib/qrcode.min.js" defer></script>
-
-<link rel="stylesheet" href="stylecolore.css?v=5">
-<script>
-  if (/[?&](stanza|pin)=/i.test(window.location.search)) {
-    document.documentElement.classList.add('avvio-studente');
-  }
-</script>
-<style>
-  html.avvio-studente {
-    background: #d4ff00;
-  }
-  @media (min-width: 521px) {
-    html.avvio-studente {
-      background: #c81d25;
+  <link rel="stylesheet" href="stylecolore.css?v=5">
+  <script>
+    if (/[?&](stanza|pin)=/i.test(window.location.search)) {
+      document.documentElement.classList.add('avvio-studente');
     }
-  }
-  html.avvio-studente body {
-    visibility: hidden;
-  }
-</style>
+  </script>
+  <style>
+    html.avvio-studente {
+      background: #d4ff00;
+    }
+    @media (min-width: 521px) {
+      html.avvio-studente {
+        background: #c81d25;
+      }
+    }
+    html.avvio-studente body {
+      visibility: hidden;
+    }
+  </style>
 
 </head>
 
