@@ -15,6 +15,7 @@
       { code: 'sq', voice: 'sq-AL', flag: 'al', name: 'Albanese' },
       { code: 'ar', voice: 'ar-SA', flag: 'sa', name: 'Arabo', rtl: true },
       { code: 'bn', voice: 'bn-BD', flag: 'bd', name: 'Bengalese' },
+       { code: 'bg', voice: 'bg-BG', flag: 'bg', name: 'Bulgaro' },
       { code: 'zh-CN', voice: 'zh-CN', flag: 'cn', name: 'Cinese' },
       { code: 'fa', voice: 'fa-IR', flag: 'ir', name: 'Farsi', rtl: true },
       { code: 'fr', voice: 'fr-FR', flag: 'fr', name: 'Francese' },
@@ -37,7 +38,7 @@
 
     const LINGUE_PREDEFINITE = ['sq', 'ar', 'bn', 'zh-CN', 'fr', 'en', 'es', 'uk'];
 
-    const LINGUE_CON_GOOGLE = ['sq', 'ar', 'bn', 'zh-CN', 'fr', 'hi', 'en', 'ne', 'pt', 'ro', 'ru', 'es', 'tl', 'de', 'uk', 'ur', 'it'];
+    const LINGUE_CON_GOOGLE = ['sq', 'ar', 'bn', 'bg', 'zh-CN', 'fr', 'hi', 'en', 'ne', 'pt', 'ro', 'ru', 'es', 'tl', 'de', 'uk', 'ur', 'it'];
     const MAX_CARATTERI_PEZZO = 180;
     const VELOCITA_LENTA_GOOGLE = 0.7;
 
