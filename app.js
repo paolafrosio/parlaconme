@@ -1017,10 +1017,11 @@ function apriFocus(lang) {
 
       const urlPaginaCorrente = window.location.href.split('?')[0].split('#')[0];
       const baseCartella = urlPaginaCorrente.substring(0, urlPaginaCorrente.lastIndexOf('/') + 1);
-$('urlStudenteDisplay').innerText = urlPaginaCorrente;
+      const urlStudente = baseCartella + (urlPaginaCorrente.includes('_lilla') ? 'studente_lilla.html' : 'studente.html');
+      $('urlStudenteDisplay').innerText = urlStudente;
            
       new QRCode(container, {
-        text: urlPaginaCorrente + '?stanza=' + pinDocente,
+        text: urlStudente + '?pin=' + pinDocente,
         width: 210,
         height: 210,
         colorDark: "#000000",
