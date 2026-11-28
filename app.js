@@ -31,7 +31,8 @@
       { code: 'de', voice: 'de-DE', flag: 'de', name: 'Tedesco' },
       { code: 'ti', voice: 'ti-ET', flag: 'er', name: 'Tigrino' },
       { code: 'uk', voice: 'uk-UA', flag: 'ua', name: 'Ucraino' },
-      { code: 'ur', voice: 'ur-PK', flag: 'pk', name: 'Urdu', rtl: true }
+      { code: 'ur', voice: 'ur-PK', flag: 'pk', name: 'Urdu', rtl: true },
+       { code: 'wo', voice: 'wo-SN', flag: 'sn', name: 'Wolof' }
     ];
     const LINGUA_PER_CODICE = {};
     ELENCO_LINGUE.forEach(l => { LINGUA_PER_CODICE[l.code] = l; });
